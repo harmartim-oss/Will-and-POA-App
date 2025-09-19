@@ -1,31 +1,179 @@
+/* Import design tokens first */
+@import './design/tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles for the Ontario Wills app */
-html, body {
+/* Global reset and base styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  line-height: var(--leading-normal);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color var(--duration-normal) var(--ease-out),
+              color var(--duration-normal) var(--ease-out);
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: var(--font-mono);
 }
 
-/* Additional utility classes */
+/* Skip link for accessibility */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--bg-accent-strong);
+  color: var(--text-inverse);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  font-weight: var(--font-medium);
+  z-index: 1000;
+  transition: top var(--duration-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Focus management */
+*:focus-visible {
+  outline: 2px solid var(--interactive-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Remove focus styles on mouse/touch interactions */
+.js-focus-visible *:focus:not(.focus-visible) {
+  outline: none;
+}
+
+/* Application layout utilities */
 .app-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
 }
 
-/* Enhanced animations */
+:root.dark .app-container {
+  background: linear-gradient(135deg, var(--color-neutral-900) 0%, var(--color-primary-950) 100%);
+}
+
+/* Responsive design improvements using design tokens */
+@media (max-width: 768px) {
+  .hero-text {
+    font-size: var(--text-4xl);
+    line-height: var(--leading-tight);
+  }
+  
+  .feature-card {
+    margin-bottom: var(--space-4);
+  }
+}
+
+/* Custom scrollbar styling using design tokens */
+::-webkit-scrollbar {
+  width: var(--space-2);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: var(--radius-base);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Form elements styling with design tokens */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--input-text);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 3px rgb(var(--color-primary-500) / 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--input-placeholder);
+}
+
+/* Utility classes for consistent spacing */
+.section-spacing {
+  padding: var(--space-16) 0;
+}
+
+.container-padding {
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .container-padding {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-padding {
+    padding-left: var(--space-8);
+    padding-right: var(--space-8);
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* Enhanced animations using design tokens */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -34,11 +182,11 @@ code {
 @keyframes pulse-glow {
   0%, 100% { 
     opacity: 1;
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 0 0 rgb(var(--color-primary-500) / 0.4);
   }
   50% { 
     opacity: 0.8;
-    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    box-shadow: 0 0 0 10px rgb(var(--color-primary-500) / 0);
   }
 }
 
@@ -48,38 +196,39 @@ code {
 }
 
 .float-animation {
-  animation: float 3s ease-in-out infinite;
+  animation: float 3s var(--ease-in-out) infinite;
 }
 
 .pulse-glow {
-  animation: pulse-glow 2s infinite;
+  animation: pulse-glow var(--duration-slower) infinite;
 }
 
 .gradient-shift {
   background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
+  animation: gradient-shift 3s var(--ease-linear) infinite;
 }
 
-/* Improved glass morphism effects */
+/* Glass morphism effects using design tokens */
 .glass-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgb(var(--color-neutral-0) / 0.1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  border: 1px solid rgb(var(--color-neutral-0) / 0.2);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--duration-normal) var(--ease-out);
 }
 
-.dark .glass-card {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+:root.dark .glass-card {
+  background: rgb(var(--color-neutral-950) / 0.2);
+  border: 1px solid rgb(var(--color-neutral-0) / 0.1);
 }
 
-/* Enhanced button styles */
+/* Enhanced button styles using design tokens */
 .btn-enhanced {
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all var(--duration-normal) var(--ease-out);
 }
 
 .btn-enhanced::before {
@@ -89,61 +238,11 @@ code {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.5s;
+  background: linear-gradient(90deg, transparent, rgb(var(--color-neutral-0) / 0.3), transparent);
+  transition: left var(--duration-slow);
 }
 
 .btn-enhanced:hover::before {
   left: 100%;
 }
 
-/* Responsive design improvements */
-@media (max-width: 768px) {
-  .hero-text {
-    font-size: 2.5rem;
-    line-height: 1.2;
-  }
-  
-  .feature-card {
-    margin-bottom: 1rem;
-  }
-}
-
-/* Dark mode enhancements */
-.dark {
-  color-scheme: dark;
-}
-
-.dark body {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-}
-
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.dark ::-webkit-scrollbar-track {
-  background: #2d3748;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #4a5568;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #5a6578;
-}
