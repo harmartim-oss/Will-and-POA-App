@@ -3,19 +3,19 @@ import { cn } from "@/lib/utils"
 
 const elevations = {
   none: "shadow-none",
-  sm: "shadow-sm",
-  md: "shadow-md",
-  lg: "shadow-lg",
+  sm: "elevation-1",
+  md: "elevation-2",
+  lg: "elevation-3",
 }
 
 const Card = React.forwardRef(({ className, elevation = 'sm', interactive = false, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-[var(--surface-elevated)] text-[var(--text-strong)] border-[var(--border-subtle)] transition-shadow",
-      elevations[elevation],
-      interactive && "hover:shadow-md active:shadow-sm",
-      interactive && "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ring-offset-[var(--surface-bg)] focus-visible:ring-[var(--btn-primary-bg)]",
+  "rounded-lg border bg-[var(--surface-3)] text-[var(--text-strong)] border-[var(--border-subtle)] transition-shadow",
+  elevations[elevation],
+  interactive && "hover:elevation-2 active:elevation-1",
+  interactive && "focus-ring-custom",
       className
     )}
     {...props}

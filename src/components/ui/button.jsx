@@ -25,8 +25,10 @@ const Button = React.forwardRef(({ className, variant = "primary", size = "defau
   return (
     <Comp
       className={cn(
-        "relative inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors select-none whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ring-offset-[var(--surface-bg)] shadow-sm active:scale-[.985]",
-        "transition-[background,color,box-shadow,transform] duration-[var(--duration-fast)] ease-out",
+  "relative inline-flex items-center justify-center gap-2 rounded-md font-medium select-none whitespace-nowrap disabled:pointer-events-none disabled:opacity-50",
+  "focus-ring-custom ring-offset-[var(--surface-1)]",
+  "shadow-sm hover:shadow-md active:shadow-sm transition-[background,color,box-shadow,transform]",
+  "duration-[var(--motion-fast)] ease-standard active:scale-[.985] will-change-transform",
         buttonVariants[variant],
         buttonSizes[size],
         loading && "cursor-progress",
