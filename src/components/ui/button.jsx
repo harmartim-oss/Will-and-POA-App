@@ -1,23 +1,23 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-// Variant styles leverage semantic design tokens via utility classes referencing CSS vars
+// Enhanced variant styles with improved visual appeal and accessibility
 const buttonVariants = {
-  primary: "bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] hover:bg-[var(--btn-primary-bg-hover)] active:bg-[var(--btn-primary-bg-active)] focus-visible:ring-[var(--btn-primary-ring)] shadow-lg hover:shadow-xl transition-all duration-200",
-  secondary: "bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-text)] hover:bg-[var(--btn-secondary-bg-hover)] active:bg-[var(--btn-secondary-bg-active)] shadow-md hover:shadow-lg transition-all duration-200",
-  outline: "border border-[var(--border-default)] text-[var(--text-strong)] bg-transparent hover:bg-[var(--surface-alt)] hover:border-[var(--color-primary-500)] transition-all duration-200",
-  subtle: "bg-[var(--surface-muted)] text-[var(--text-strong)] hover:bg-[var(--surface-alt)] hover:shadow-md transition-all duration-200",
-  ghost: "bg-transparent hover:bg-[var(--surface-muted)] transition-all duration-200",
-  destructive: "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-md hover:shadow-lg transition-all duration-200",
-  link: "text-[var(--text-accent)] underline-offset-4 hover:underline bg-transparent p-0 h-auto transition-colors duration-200",
+  primary: "bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-brand-500)] text-white hover:from-[var(--color-brand-700)] hover:to-[var(--color-brand-600)] active:from-[var(--color-brand-800)] active:to-[var(--color-brand-700)] focus-visible:ring-4 focus-visible:ring-[var(--color-brand-300)] shadow-lg hover:shadow-xl hover:shadow-[var(--color-brand-500)]/25 transition-all duration-300 transform hover:scale-[1.02]",
+  secondary: "bg-white text-[var(--color-brand-700)] border-2 border-[var(--color-brand-200)] hover:bg-[var(--color-brand-50)] hover:border-[var(--color-brand-300)] active:bg-[var(--color-brand-100)] shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]",
+  outline: "border-2 border-[var(--color-brand-300)] text-[var(--color-brand-700)] bg-transparent hover:bg-[var(--color-brand-50)] hover:border-[var(--color-brand-400)] active:bg-[var(--color-brand-100)] transition-all duration-300 transform hover:scale-[1.02]",
+  subtle: "bg-[var(--color-brand-50)] text-[var(--color-brand-700)] hover:bg-[var(--color-brand-100)] hover:shadow-md active:bg-[var(--color-brand-200)] transition-all duration-300",
+  ghost: "bg-transparent hover:bg-[var(--color-brand-50)] text-[var(--color-brand-700)] transition-all duration-300",
+  destructive: "bg-gradient-to-r from-red-600 to-red-500 text-white hover:from-red-700 hover:to-red-600 active:from-red-800 active:to-red-700 focus-visible:ring-4 focus-visible:ring-red-300 shadow-lg hover:shadow-xl hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-[1.02]",
+  link: "text-[var(--color-brand-600)] underline-offset-4 hover:underline hover:text-[var(--color-brand-700)] bg-transparent p-0 h-auto transition-colors duration-300",
 }
 
 const buttonSizes = {
-  default: "h-10 px-4 py-2",
-  sm: "h-9 px-3 text-sm",
-  lg: "h-12 px-6 text-base",
-  xl: "h-14 px-8 text-lg",
-  icon: "h-10 w-10 p-0",
+  default: "h-11 px-6 py-2.5 text-sm font-medium",
+  sm: "h-9 px-4 py-2 text-sm font-medium",
+  lg: "h-12 px-8 py-3 text-base font-medium",
+  xl: "h-14 px-10 py-4 text-lg font-semibold",
+  icon: "h-11 w-11 p-0",
 }
 
 const Button = React.forwardRef(({ className, variant = "primary", size = "default", loading = false, disabled, children, asChild, ...props }, ref) => {
@@ -25,10 +25,10 @@ const Button = React.forwardRef(({ className, variant = "primary", size = "defau
   return (
     <Comp
       className={cn(
-  "relative inline-flex items-center justify-center gap-2 rounded-md font-medium select-none whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 overflow-hidden transform-gpu",
-  "focus-ring-custom ring-offset-[var(--surface-1)]",
-  "transition-[background,color,box-shadow,transform,border-color] active:scale-[.98] will-change-transform",
-  "duration-[var(--motion-fast)] ease-standard hover:translate-y-[-1px]",
+        "relative inline-flex items-center justify-center gap-2 rounded-xl font-medium select-none whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 overflow-hidden transform-gpu",
+        "focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-offset-white",
+        "transition-[all] duration-[var(--motion-base)] ease-[var(--ease-standard)] will-change-transform",
+        "disabled:transform-none disabled:shadow-none",
         buttonVariants[variant],
         buttonSizes[size],
         loading && "cursor-progress",

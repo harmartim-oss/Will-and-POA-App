@@ -187,17 +187,19 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
         </div>
       </header>
 
-      {/* Hero Section */}
-  <section className="relative overflow-hidden text-white bg-gradient-to-br from-[var(--color-primary-900)] via-[var(--color-primary-800)] to-[var(--color-primary-950)]">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
+      {/* Hero Section with Enhanced Design */}
+      <section className="relative overflow-hidden text-white">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-brand-600)] via-[var(--color-brand-700)] to-[var(--color-accent-600)]"></div>
+        <div className="absolute inset-0 opacity-30" style={{
+          backgroundImage: `url("data:image/svg+xml,${encodeURIComponent('<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="#ffffff" fill-opacity="0.05"><circle cx="10" cy="10" r="1"/></g></g></svg>')}")`,
+        }}></div>
         
-        {/* Animated background elements */}
+        {/* Floating elements for visual interest */}
         <div className="absolute inset-0 overflow-hidden">
-          {[...Array(20)].map((_, i) => (
+          {[...Array(12)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute bg-white/5 rounded-full"
+              className="absolute bg-white/10 rounded-full blur-sm"
               style={{
                 width: Math.random() * 100 + 50,
                 height: Math.random() * 100 + 50,
@@ -226,7 +228,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
               className="space-y-8"
             >
               <div className="space-y-4">
-                <Badge className="bg-blue-500/20 text-blue-100 border-blue-400/30 px-4 py-2">
+                <Badge variant="brand" className="px-4 py-2 text-sm font-medium">
                   <Zap className="h-4 w-4 mr-2" />
                   AI-Powered Legal Documents
                 </Badge>
@@ -245,18 +247,19 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
-                  size="lg"
+                  variant="primary"
+                  size="xl"
                   onClick={onGetStarted}
-                  className="group shadow-xl hover:shadow-2xl rounded-xl px-8 py-4 text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300"
+                  className="group bg-white text-[var(--color-brand-700)] hover:bg-gray-50 shadow-xl hover:shadow-2xl rounded-xl font-semibold"
                 >
                   Start Creating Documents
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
                 </Button>
                 <Button
                   variant="outline"
-                  size="lg"
+                  size="xl"
                   onClick={onLearnMore}
-                  className="group border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 px-8 py-4 text-lg font-semibold rounded-xl backdrop-blur-sm transform hover:scale-105 transition-all duration-300"
+                  className="group border-2 border-white/40 text-white hover:bg-white/10 hover:border-white/60 font-semibold backdrop-blur-sm"
                 >
                   <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                   Watch Demo
@@ -329,7 +332,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
       </section>
 
       {/* Features Section */}
-  <section id="features" className="py-24 bg-[var(--surface-alt)]">
+      <section id="features" className="py-24 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -337,14 +340,14 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <Badge className="mb-4 bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 border-blue-200 dark:border-blue-700">
+            <Badge variant="info" className="mb-4">
               <Award className="h-4 w-4 mr-2" />
               Advanced Features
             </Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-[var(--text-strong)] mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               Powered by Cutting-Edge Technology
             </h2>
-            <p className="text-xl text-[var(--text-default)] max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Our platform combines artificial intelligence, legal expertise, and modern design 
               to deliver the most advanced legal document creation experience.
             </p>
@@ -357,20 +360,20 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                 initial={{ opacity: 0, y: 50 }}
                 animate={isVisible.features ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
+                whileHover={{ y: -8 }}
                 className="group"
               >
-                <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-[box-shadow,transform] duration-[var(--duration-normal)] ease-out bg-[var(--surface-elevated)] group-hover:translate-y-[-4px]">
+                <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-2 bg-white border-gray-100" interactive>
                   <CardHeader className="pb-4">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                       {feature.icon}
                     </div>
-                    <CardTitle className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-900 dark:group-hover:text-blue-300 transition-colors">
+                    <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-[var(--color-brand-700)] transition-colors">
                       {feature.title}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription className="text-[var(--text-default)] leading-relaxed">
+                    <CardDescription className="text-gray-600 leading-relaxed">
                       {feature.description}
                     </CardDescription>
                   </CardContent>
@@ -382,7 +385,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
       </section>
 
       {/* Document Types Section */}
-  <section id="documents" className="py-24 bg-[var(--surface-muted)]">
+      <section id="documents" className="py-24 bg-white">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -390,14 +393,14 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <Badge className="mb-4 bg-green-50 text-green-600 border-green-200">
+            <Badge variant="success" className="mb-4">
               <FileText className="h-4 w-4 mr-2" />
               Document Types
             </Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-[var(--text-strong)] mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               Complete Legal Document Suite
             </h2>
-            <p className="text-xl text-[var(--text-default)] max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Create all essential legal documents with Ontario-specific compliance 
               and professional formatting.
             </p>
@@ -413,19 +416,19 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                 whileHover={{ y: -10 }}
                 className="relative group"
               >
-                <Card className={`h-full border-0 shadow-xl hover:shadow-2xl transition-all duration-500 ${
+                {doc.popular && (
+                  <div className="absolute -top-4 left-6 z-10">
+                    <Badge variant="brand" className="shadow-lg">
+                      <Award className="h-3 w-3 mr-1" />
+                      Most Popular
+                    </Badge>
+                  </div>
+                )}
+                <Card className={`h-full shadow-lg hover:shadow-xl transition-all duration-500 ${
                   doc.popular 
-                    ? 'bg-gradient-to-br from-[var(--color-primary-600)] to-[var(--color-primary-800)] text-white' 
-                    : 'bg-[var(--surface-elevated)] hover:bg-[var(--surface-alt)]'
-                }`}>
-                  {doc.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-yellow-400 text-yellow-900 px-4 py-1 font-semibold">
-                        <Star className="h-4 w-4 mr-1" />
-                        Most Popular
-                      </Badge>
-                    </div>
-                  )}
+                    ? 'bg-gradient-to-br from-[var(--color-brand-600)] to-[var(--color-brand-700)] text-white border-0' 
+                    : 'bg-white hover:bg-gray-50 border-gray-200'
+                } group-hover:-translate-y-2`}>
                   
                   <CardHeader className="text-center pb-4">
                     <div className={`w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-4 ${

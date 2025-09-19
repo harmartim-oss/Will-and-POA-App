@@ -3,21 +3,23 @@ import { cn } from "@/lib/utils"
 
 const elevations = {
   none: "shadow-none",
-  sm: "elevation-1",
-  md: "elevation-2",
-  lg: "elevation-3",
+  sm: "shadow-sm hover:shadow-md",
+  md: "shadow-md hover:shadow-lg",
+  lg: "shadow-lg hover:shadow-xl",
+  xl: "shadow-xl hover:shadow-2xl",
 }
 
 const Card = React.forwardRef(({ className, elevation = 'sm', interactive = false, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-  "rounded-lg border bg-[var(--surface-3)] text-[var(--text-strong)] border-[var(--border-subtle)] transition-shadow",
-  elevations[elevation],
-  interactive && "hover:elevation-2 active:elevation-1",
-  interactive && "focus-ring-custom",
+      "rounded-2xl border bg-white/80 backdrop-blur-sm text-gray-900 border-gray-200/60 transition-all duration-300",
+      elevations[elevation],
+      interactive && "hover:border-[var(--color-brand-300)] hover:-translate-y-1 cursor-pointer",
+      interactive && "focus:outline-none focus-visible:ring-4 focus-visible:ring-[var(--color-brand-300)] focus-visible:ring-offset-2",
       className
     )}
+    tabIndex={interactive ? 0 : undefined}
     {...props}
   />
 ))
@@ -47,7 +49,7 @@ CardTitle.displayName = "CardTitle"
 const CardDescription = React.forwardRef(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-gray-500", className)}
+    className={cn("text-sm text-gray-600 leading-relaxed", className)}
     {...props}
   />
 ))
