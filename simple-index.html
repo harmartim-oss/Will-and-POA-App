@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will & Power of Attorney Generator</title>
+    <link rel="stylesheet" href="simple-style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Will & Power of Attorney Generator</h1>
+        <p>Fill in the details below to generate your documents.</p>
+    </header>
+
+    <nav id="form-nav">
+        <ul>
+            <li><a href="#personal-info">Personal</a></li>
+            <li><a href="#executor-info">Executor</a></li>
+            <li><a href="#guardian-info">Guardian</a></li>
+            <li><a href="#beneficiary-info">Beneficiaries</a></li>
+            <li><a href="#poa-info">POA</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <form id="will-form">
+            <fieldset id="personal-info">
+                <legend>Your Personal Information</legend>
+                <label for="fullName">Full Name:</label>
+                <input type="text" id="fullName" placeholder="e.g., John Doe" required>
+                <label for="address">Address:</label>
+                <input type="text" id="address" placeholder="e.g., 123 Main St, Anytown" required>
+            </fieldset>
+
+            <fieldset id="executor-info">
+                <legend>Executor Details</legend>
+                <label for="executorName">Executor's Full Name:</label>
+                <input type="text" id="executorName" placeholder="e.g., Jane Smith" required>
+                <label for="executorAddress">Executor's Address:</label>
+                <input type="text" id="executorAddress" placeholder="e.g., 456 Oak Ave, Anytown" required>
+            </fieldset>
+
+            <fieldset id="guardian-info">
+                <legend>Guardian for Minor Children (if applicable)</legend>
+                <label for="guardianName">Guardian's Full Name:</label>
+                <input type="text" id="guardianName" placeholder="e.g., Peter Jones">
+            </fieldset>
+
+            <fieldset id="beneficiary-info">
+                <legend>Beneficiaries</legend>
+                <label for="beneficiaries">Beneficiaries (Names and relationship, comma separated):</label>
+                <textarea id="beneficiaries" rows="4" placeholder="e.g., Mary Doe (Spouse), Sam Doe (Son)"></textarea>
+            </fieldset>
+
+            <fieldset id="poa-info">
+                <legend>Power of Attorney (POA)</legend>
+                <label for="attorneyName">Attorney-in-Fact Name:</label>
+                <input type="text" id="attorneyName" placeholder="e.g., Emily White" required>
+                <label for="attorneyAddress">Attorney-in-Fact Address:</label>
+                <input type="text" id="attorneyAddress" placeholder="e.g., 789 Pine Ln, Anytown" required>
+                <label for="effectiveDate">Effective Date:</label>
+                <input type="date" id="effectiveDate" required>
+            </fieldset>
+
+            <button type="submit">Generate Documents</button>
+        </form>
+
+        <div id="output">
+            <h2>Generated Will</h2>
+            <pre id="will-output"></pre>
+            <h2>Generated Power of Attorney</h2>
+            <pre id="poa-output"></pre>
+        </div>
+    </div>
+
+    <script src="simple-script.js"></script>
+</body>
+</html>
