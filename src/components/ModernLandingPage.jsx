@@ -153,7 +153,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
+  <div className="min-h-screen bg-[var(--surface-bg)] text-[var(--text-strong)] transition-colors">
       {/* Header with Theme Toggle */}
       <header className="absolute top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-6 py-4">
@@ -188,7 +188,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-950 text-white">
+  <section className="relative overflow-hidden text-white bg-gradient-to-br from-[var(--color-primary-900)] via-[var(--color-primary-800)] to-[var(--color-primary-950)]">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
         
@@ -217,7 +217,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
           ))}
         </div>
 
-        <div className="relative container mx-auto px-6 py-24 lg:py-32">
+  <div className="relative container mx-auto px-6 py-24 lg:py-32 max-w-[var(--container-2xl)]">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -230,13 +230,13 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                   <Zap className="h-4 w-4 mr-2" />
                   AI-Powered Legal Documents
                 </Badge>
-                <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+                <h1 className="text-5xl lg:text-7xl font-bold leading-tight tracking-tight font-semibold">
                   Create Legal Documents with
                   <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                     {" "}AI Precision
                   </span>
                 </h1>
-                <p className="text-xl lg:text-2xl text-blue-100 leading-relaxed">
+                <p className="text-xl lg:text-2xl text-blue-100 leading-relaxed max-w-2xl">
                   Generate Ontario-compliant wills and powers of attorney in minutes. 
                   Our AI analyzes your documents for legal compliance and provides 
                   intelligent suggestions.
@@ -247,7 +247,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                 <Button
                   size="lg"
                   onClick={onGetStarted}
-                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  className="shadow-lg hover:shadow-xl rounded-xl px-8 py-4 text-lg font-semibold"
                 >
                   Start Creating Documents
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -328,7 +328,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 bg-white dark:bg-gray-900">
+  <section id="features" className="py-24 bg-[var(--surface-alt)]">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -340,10 +340,10 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
               <Award className="h-4 w-4 mr-2" />
               Advanced Features
             </Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold text-[var(--text-strong)] mb-6">
               Powered by Cutting-Edge Technology
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl text-[var(--text-default)] max-w-3xl mx-auto">
               Our platform combines artificial intelligence, legal expertise, and modern design 
               to deliver the most advanced legal document creation experience.
             </p>
@@ -359,7 +359,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                 whileHover={{ y: -5 }}
                 className="group"
               >
-                <Card className="h-full border-0 shadow-lg hover:shadow-2xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 group-hover:from-white group-hover:to-blue-50 dark:group-hover:from-gray-700 dark:group-hover:to-blue-900/50">
+                <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-[box-shadow,transform] duration-[var(--duration-normal)] ease-out bg-[var(--surface-elevated)] group-hover:translate-y-[-4px]">
                   <CardHeader className="pb-4">
                     <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300`}>
                       {feature.icon}
@@ -369,7 +369,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <CardDescription className="text-[var(--text-default)] leading-relaxed">
                       {feature.description}
                     </CardDescription>
                   </CardContent>
@@ -381,7 +381,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
       </section>
 
       {/* Document Types Section */}
-      <section id="documents" className="py-24 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900">
+  <section id="documents" className="py-24 bg-[var(--surface-muted)]">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -393,10 +393,10 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
               <FileText className="h-4 w-4 mr-2" />
               Document Types
             </Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold text-[var(--text-strong)] mb-6">
               Complete Legal Document Suite
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-[var(--text-default)] max-w-3xl mx-auto">
               Create all essential legal documents with Ontario-specific compliance 
               and professional formatting.
             </p>
@@ -414,8 +414,8 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
               >
                 <Card className={`h-full border-0 shadow-xl hover:shadow-2xl transition-all duration-500 ${
                   doc.popular 
-                    ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white' 
-                    : 'bg-white hover:bg-gradient-to-br hover:from-white hover:to-blue-50'
+                    ? 'bg-gradient-to-br from-[var(--color-primary-600)] to-[var(--color-primary-800)] text-white' 
+                    : 'bg-[var(--surface-elevated)] hover:bg-[var(--surface-alt)]'
                 }`}>
                   {doc.popular && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -430,17 +430,17 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                     <div className={`w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-4 ${
                       doc.popular 
                         ? 'bg-white/20 text-white' 
-                        : 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+                        : 'bg-gradient-to-r from-[var(--color-primary-500)] to-[var(--color-primary-700)] text-white'
                     } group-hover:scale-110 transition-transform duration-300`}>
                       {doc.icon}
                     </div>
                     <CardTitle className={`text-2xl font-bold mb-2 ${
-                      doc.popular ? 'text-white' : 'text-gray-900'
+                      doc.popular ? 'text-white' : 'text-[var(--text-strong)]'
                     }`}>
                       {doc.title}
                     </CardTitle>
                     <CardDescription className={`${
-                      doc.popular ? 'text-blue-100' : 'text-gray-600'
+                      doc.popular ? 'text-blue-100' : 'text-[var(--text-default)]'
                     }`}>
                       {doc.description}
                     </CardDescription>
@@ -451,10 +451,10 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                       {doc.features.map((feature, featureIndex) => (
                         <div key={featureIndex} className="flex items-center space-x-3">
                           <CheckCircle className={`h-5 w-5 ${
-                            doc.popular ? 'text-green-300' : 'text-green-500'
+                            doc.popular ? 'text-green-300' : 'text-green-600'
                           }`} />
                           <span className={`${
-                            doc.popular ? 'text-blue-100' : 'text-gray-700'
+                            doc.popular ? 'text-blue-100' : 'text-[var(--text-default)]'
                           }`}>
                             {feature}
                           </span>
@@ -463,11 +463,11 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                     </div>
                     
                     <Button
-                      className={`w-full mt-6 ${
+                      className={`w-full mt-6 font-semibold py-3 rounded-xl transition-all duration-300 transform hover:scale-[1.025] ${
                         doc.popular
-                          ? 'bg-white text-blue-600 hover:bg-blue-50'
-                          : 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600'
-                      } font-semibold py-3 rounded-xl transition-all duration-300 transform hover:scale-105`}
+                          ? 'bg-white text-[var(--color-primary-700)] hover:bg-blue-50'
+                          : ''
+                      }`}
                       onClick={onGetStarted}
                     >
                       Create {doc.title.split(' ')[0]} Document
@@ -482,7 +482,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-24 bg-white">
+  <section id="testimonials" className="py-24 bg-[var(--surface-elevated)]">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -494,10 +494,10 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
               <MessageCircle className="h-4 w-4 mr-2" />
               Client Testimonials
             </Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl lg:text-5xl font-bold text-[var(--text-strong)] mb-6">
               Trusted by Thousands
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-[var(--text-default)] max-w-3xl mx-auto">
               See what our clients say about their experience creating legal documents 
               with our AI-powered platform.
             </p>
@@ -513,7 +513,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                 transition={{ duration: 0.5 }}
                 className="text-center"
               >
-                <Card className="border-0 shadow-2xl bg-gradient-to-br from-white to-gray-50 p-8">
+                <Card className="border-0 shadow-2xl bg-[var(--surface-elevated)] p-8">
                   <CardContent className="space-y-6">
                     <div className="flex justify-center space-x-1 mb-4">
                       {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
@@ -521,7 +521,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                       ))}
                     </div>
                     
-                    <blockquote className="text-2xl font-medium text-gray-900 leading-relaxed">
+                    <blockquote className="text-2xl font-medium text-[var(--text-strong)] leading-relaxed">
                       "{testimonials[currentTestimonial].content}"
                     </blockquote>
                     
@@ -530,10 +530,10 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                         {testimonials[currentTestimonial].avatar}
                       </div>
                       <div className="text-left">
-                        <div className="font-semibold text-gray-900">
+                        <div className="font-semibold text-[var(--text-strong)]">
                           {testimonials[currentTestimonial].name}
                         </div>
-                        <div className="text-gray-600">
+                        <div className="text-[var(--text-default)]">
                           {testimonials[currentTestimonial].role}
                         </div>
                       </div>
@@ -550,8 +550,8 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                   onClick={() => setCurrentTestimonial(index)}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${
                     index === currentTestimonial
-                      ? 'bg-blue-500 w-8'
-                      : 'bg-gray-300 hover:bg-gray-400'
+                      ? 'bg-[var(--color-primary-500)] w-8'
+                      : 'bg-[var(--border-secondary)] hover:bg-[var(--border-strong)]'
                   }`}
                 />
               ))}
@@ -561,7 +561,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white relative overflow-hidden">
+  <section className="py-24 relative overflow-hidden text-white bg-gradient-to-br from-[var(--color-primary-900)] via-[var(--color-primary-800)] to-[var(--color-primary-950)]">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative container mx-auto px-6 text-center">
           <motion.div
@@ -575,7 +575,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
               Ready to Get Started?
             </Badge>
             
-            <h2 className="text-4xl lg:text-6xl font-bold leading-tight">
+            <h2 className="text-4xl lg:text-6xl font-bold leading-tight tracking-tight">
               Create Your Legal Documents
               <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                 {" "}Today
@@ -591,7 +591,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
               <Button
                 size="lg"
                 onClick={onGetStarted}
-                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-12 py-6 text-xl font-semibold rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105"
+                className="px-12 py-6 text-xl font-semibold rounded-2xl shadow-2xl hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)] transition-all duration-300 transform hover:scale-[1.03]"
               >
                 Start Creating Now
                 <ArrowRight className="ml-3 h-6 w-6" />

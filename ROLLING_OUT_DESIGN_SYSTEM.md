@@ -3,6 +3,7 @@
 ## Phase Overview
 | Phase | Scope | Success Criteria |
 |-------|------|------------------|
+
 | 1. Foundations | Tokens + semantic utilities | No visual regressions, tokens loaded everywhere |
 | 2. Primitives | Button, Input, Card, Badge, Tabs | Components consume tokens, pass a11y checks |
 | 3. Layout | AppShell, Navigation, Footer | Consistent responsive layout, skip link works |
