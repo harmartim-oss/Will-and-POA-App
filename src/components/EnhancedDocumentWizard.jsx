@@ -16,7 +16,8 @@ import {
   Sparkles,
   Lightbulb,
   BookOpen,
-  Scale
+  Scale,
+  HelpCircle
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -29,6 +30,11 @@ import { Badge } from '../ui/badge';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Progress } from '../ui/progress';
 import { Separator } from '../ui/separator';
+import { Stepper } from '../ui/stepper';
+import { ActionBar } from '../ui/action-bar';
+import { SectionHeading } from '../ui/section-heading';
+import { FormField, FormGroup, FormError, FormHelp, FormLabel } from '../ui/form-field';
+import PageHeader from '../layout/PageHeader';
 
 const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -37,6 +43,7 @@ const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
   const [aiSuggestions, setAiSuggestions] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [complianceScore, setComplianceScore] = useState(0);
+  const [helpPanelOpen, setHelpPanelOpen] = useState(false);
 
   const documentTypeConfig = {
     will: {
@@ -187,64 +194,84 @@ const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
     switch (currentStepData.id) {
       case 'personal':
         return (
-          <div className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Legal Name *</Label>
+          <div className="space-y-8">
+            <SectionHeading
+              title="Personal Details"
+              description="Please provide your personal information as it will appear in the legal document."
+              level={3}
+            />
+            
+            <FormGroup layout="horizontal">
+              <FormField>
+                <FormLabel htmlFor="fullName" required>
+                  Full Legal Name
+                </FormLabel>
                 <Input
                   id="fullName"
                   value={formData.fullName || ''}
                   onChange={(e) => updateFormData('fullName', e.target.value)}
                   placeholder="Enter your full legal name"
-                  className={validationErrors.fullName ? 'border-red-500' : ''}
                 />
-                {validationErrors.fullName && (
-                  <p className="text-sm text-red-500">{validationErrors.fullName}</p>
-                )}
-              </div>
+                <FormError>{validationErrors.fullName}</FormError>
+                <FormHelp>
+                  Use your name exactly as it appears on government identification
+                </FormHelp>
+              </FormField>
               
-              <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+              <FormField>
+                <FormLabel htmlFor="dateOfBirth" required>
+                  Date of Birth
+                </FormLabel>
                 <Input
                   id="dateOfBirth"
                   type="date"
                   value={formData.dateOfBirth || ''}
                   onChange={(e) => updateFormData('dateOfBirth', e.target.value)}
-                  className={validationErrors.dateOfBirth ? 'border-red-500' : ''}
                 />
-                {validationErrors.dateOfBirth && (
-                  <p className="text-sm text-red-500">{validationErrors.dateOfBirth}</p>
-                )}
-              </div>
-            </div>
+                <FormError>{validationErrors.dateOfBirth}</FormError>
+                <FormHelp>
+                  You must be at least 18 years old to create a will
+                </FormHelp>
+              </FormField>
+            </FormGroup>
             
-            <div className="space-y-2">
-              <Label htmlFor="address">Full Address *</Label>
+            <FormField>
+              <FormLabel htmlFor="address" required>
+                Complete Address
+              </FormLabel>
               <Textarea
                 id="address"
                 value={formData.address || ''}
                 onChange={(e) => updateFormData('address', e.target.value)}
                 placeholder="Enter your complete address including postal code"
-                className={validationErrors.address ? 'border-red-500' : ''}
+                rows={3}
               />
-              {validationErrors.address && (
-                <p className="text-sm text-red-500">{validationErrors.address}</p>
-              )}
-            </div>
+              <FormError>{validationErrors.address}</FormError>
+              <FormHelp>
+                Include street address, city, province, and postal code
+              </FormHelp>
+            </FormField>
             
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+            <FormGroup layout="horizontal">
+              <FormField>
+                <FormLabel htmlFor="phone">
+                  Phone Number
+                </FormLabel>
                 <Input
                   id="phone"
                   value={formData.phone || ''}
                   onChange={(e) => updateFormData('phone', e.target.value)}
                   placeholder="(555) 123-4567"
                 />
-              </div>
+                <FormHelp>
+                  Optional but recommended for contact purposes
+                </FormHelp>
+              </FormField>
               
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+              <FormField>
+                <FormLabel htmlFor="email">
+                  Email Address
+                </FormLabel>
                 <Input
                   id="email"
                   type="email"
@@ -252,8 +279,11 @@ const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
                   onChange={(e) => updateFormData('email', e.target.value)}
                   placeholder="your.email@example.com"
                 />
-              </div>
-            </div>
+                <FormHelp>
+                  Optional but useful for document delivery
+                </FormHelp>
+              </FormField>
+            </FormGroup>
           </div>
         );
         
@@ -539,144 +569,297 @@ const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
     }
   };
 
+  // Helper functions for contextual help
+  const getStepHelp = (stepId) => {
+    const helpContent = {
+      personal: "Provide your complete legal name as it appears on official documents. This information will be used throughout your legal document.",
+      executor: "Choose someone you trust completely to manage your estate. They should be organized, responsible, and willing to take on this important role.",
+      beneficiaries: "List everyone who should receive something from your estate. Be specific about what each person should receive.",
+      assets: "Detail how you want your assets distributed. Consider both monetary and sentimental items.",
+      guardians: "If you have minor children, designate who should care for them. This is one of the most important decisions in your will.",
+      attorney: "Select someone you trust to make decisions on your behalf. They should understand your values and preferences.",
+      powers: "Carefully consider what authority you want to grant. You can be as specific or general as needed.",
+      restrictions: "Set any limitations on the powers you're granting. This helps protect your interests.",
+      witnesses: "Witnesses must be present when you sign your document and must also sign it themselves.",
+      review: "Carefully review all information before generating your final document."
+    };
+    return helpContent[stepId] || "Complete this step to continue with your document creation.";
+  };
+
+  const getStepTips = (stepId) => {
+    const tips = {
+      personal: [
+        "Use your full legal name exactly as it appears on government ID",
+        "Include middle names or initials if they're part of your legal name",
+        "Ensure your address is current and complete"
+      ],
+      executor: [
+        "Choose someone younger than you who lives nearby",
+        "Consider naming an alternate executor",
+        "Discuss the role with them before naming them"
+      ],
+      beneficiaries: [
+        "Be specific about percentages or amounts",
+        "Consider what happens if a beneficiary predeceases you",
+        "Think about both family and charitable beneficiaries"
+      ],
+      witnesses: [
+        "Witnesses must be at least 18 years old",
+        "They cannot be beneficiaries in your will",
+        "They must be present when you sign"
+      ]
+    };
+    return tips[stepId] || ["Follow the prompts to complete this step"];
+  };
+
+  const getLegalRequirements = (stepId) => {
+    const requirements = {
+      personal: [
+        "Must be at least 18 years old",
+        "Must be of sound mind",
+        "Must provide complete legal name"
+      ],
+      executor: [
+        "Must be at least 18 years old",
+        "Should be mentally capable",
+        "Cannot be bankrupt"
+      ],
+      witnesses: [
+        "Requires exactly two witnesses",
+        "Witnesses must be at least 18",
+        "Cannot be beneficiaries",
+        "Must sign in presence of testator"
+      ],
+      attorney: [
+        "Must be at least 18 years old",
+        "Should be mentally capable",
+        "Must consent to the appointment"
+      ]
+    };
+    return requirements[stepId] || ["Ensure all information is complete and accurate"];
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      <div className="container mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${config.color} flex items-center justify-center text-white`}>
-                {config.icon}
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">{config.title}</h1>
-                <p className="text-gray-600">Step {currentStep + 1} of {config.steps.length}: {currentStepData.title}</p>
-              </div>
-            </div>
-            
+    <div className="space-y-6">
+      {/* Page Header with Progress */}
+      <PageHeader
+        title={config.title}
+        description={`Step ${currentStep + 1} of ${config.steps.length}: ${currentStepData.title}`}
+        breadcrumbs={[
+          { label: 'Home', href: '/' },
+          { label: 'Documents', href: '/create/will' },
+          { label: config.title }
+        ]}
+        actions={
+          <ActionBar>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setHelpPanelOpen(!helpPanelOpen)}
+            >
+              <HelpCircle className="h-4 w-4 mr-2" />
+              Help
+            </Button>
             <Button variant="outline" onClick={onCancel}>
               Cancel
             </Button>
+          </ActionBar>
+        }
+      >
+        {/* Progress indicator */}
+        <div className="mt-4 space-y-3">
+          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+            <span>Progress</span>
+            <span>{Math.round(progress)}% Complete</span>
           </div>
-          
-          {/* Progress Bar */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>Progress</span>
-              <span>{Math.round(progress)}% Complete</span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
+          <Progress value={progress} className="h-2" />
+        </div>
+      </PageHeader>
+
+      {/* Step Navigation */}
+      <Card>
+        <CardContent className="pt-6">
+          <Stepper.Wizard 
+            steps={config.steps}
+            currentStep={currentStep}
+            onStepClick={(stepIndex) => {
+              if (stepIndex <= currentStep) {
+                setCurrentStep(stepIndex);
+              }
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      <div className="grid lg:grid-cols-4 gap-8">
+        {/* Main Content */}
+        <div className="lg:col-span-3">
+          <Card className="min-h-[600px]">
+            <CardHeader>
+              <div className="flex items-center space-x-3">
+                <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${config.color} flex items-center justify-center text-white`}>
+                  {config.icon}
+                </div>
+                <div>
+                  <CardTitle level={2}>{currentStepData.title}</CardTitle>
+                  <CardDescription className="text-base">
+                    {currentStepData.description}
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentStep}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {renderStepContent()}
+                </motion.div>
+              </AnimatePresence>
+            </CardContent>
+          </Card>
+
+          {/* Navigation Actions */}
+          <ActionBar className="mt-6" align="between">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentStep === 0}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+            
+            {currentStep === config.steps.length - 1 ? (
+              <Button
+                onClick={handleComplete}
+                variant="primary"
+                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+              >
+                Complete Document
+                <CheckCircle className="h-4 w-4 ml-2" />
+              </Button>
+            ) : (
+              <Button onClick={handleNext} variant="primary">
+                Next
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
+            )}
+          </ActionBar>
         </div>
 
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Steps Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-8">
-              <CardHeader>
-                <CardTitle className="text-lg">Document Steps</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {config.steps.map((step, index) => (
-                  <div
-                    key={step.id}
-                    className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
-                      index === currentStep
-                        ? 'bg-blue-50 border-2 border-blue-200'
-                        : index < currentStep
-                        ? 'bg-green-50 border border-green-200'
-                        : 'bg-gray-50 border border-gray-200'
-                    }`}
-                  >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                      index === currentStep
-                        ? 'bg-blue-500 text-white'
-                        : index < currentStep
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-300 text-gray-600'
-                    }`}>
-                      {index < currentStep ? (
-                        <CheckCircle className="h-4 w-4" />
-                      ) : (
-                        index + 1
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium truncate ${
-                        index === currentStep ? 'text-blue-900' : 'text-gray-900'
-                      }`}>
-                        {step.title}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {step.description}
-                      </p>
+        {/* Help Panel Sidebar */}
+        <div className="lg:col-span-1">
+          <div className="space-y-6">
+            {/* Contextual Help Panel */}
+            {helpPanelOpen && (
+              <Card>
+                <CardHeader>
+                  <CardTitle level={3} className="flex items-center space-x-2">
+                    <Lightbulb className="h-5 w-5 text-yellow-600" />
+                    <span>Step Guide</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {getStepHelp(currentStepData.id)}
+                    </p>
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        Tips
+                      </h4>
+                      <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                        {getStepTips(currentStepData.id).map((tip, index) => (
+                          <li key={index} className="flex items-start space-x-2">
+                            <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
+                            <span>{tip}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
+                </CardContent>
+              </Card>
+            )}
 
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            <Card className="min-h-[600px]">
+            {/* AI Analysis */}
+            <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200 dark:border-blue-800">
               <CardHeader>
-                <CardTitle className="text-2xl">{currentStepData.title}</CardTitle>
-                <CardDescription className="text-lg">
-                  {currentStepData.description}
-                </CardDescription>
+                <CardTitle level={3} className="flex items-center space-x-2">
+                  <Brain className="h-5 w-5 text-blue-600" />
+                  <span>AI Analysis</span>
+                  {isAnalyzing && (
+                    <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full" />
+                  )}
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentStep}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {renderStepContent()}
-                  </motion.div>
-                </AnimatePresence>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Compliance Score</span>
+                    <Badge 
+                      variant={complianceScore >= 90 ? "success" : complianceScore >= 70 ? "warning" : "danger"}
+                    >
+                      {complianceScore}%
+                    </Badge>
+                  </div>
+                  <Progress value={complianceScore} className="h-2" />
+                  
+                  {aiSuggestions.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                        Suggestions
+                      </h4>
+                      <div className="space-y-2">
+                        {aiSuggestions.slice(0, 3).map((suggestion, index) => (
+                          <Alert key={index} variant="default">
+                            <Lightbulb className="h-4 w-4" />
+                            <AlertDescription className="text-sm">
+                              {suggestion}
+                            </AlertDescription>
+                          </Alert>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
 
-            {/* Navigation */}
-            <div className="flex justify-between mt-6">
-              <Button
-                variant="outline"
-                onClick={handlePrevious}
-                disabled={currentStep === 0}
-                className="flex items-center space-x-2"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                <span>Previous</span>
-              </Button>
-              
-              {currentStep === config.steps.length - 1 ? (
-                <Button
-                  onClick={handleComplete}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                >
-                  <span>Complete Document</span>
-                  <CheckCircle className="h-4 w-4" />
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleNext}
-                  className="flex items-center space-x-2"
-                >
-                  <span>Next</span>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+            {/* Legal Requirements */}
+            <Card>
+              <CardHeader>
+                <CardTitle level={3} className="flex items-center space-x-2">
+                  <Scale className="h-5 w-5 text-purple-600" />
+                  <span>Legal Requirements</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Key requirements for this step:
+                  </p>
+                  <ul className="text-sm space-y-2">
+                    {getLegalRequirements(currentStepData.id).map((requirement, index) => (
+                      <li key={index} className="flex items-start space-x-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700 dark:text-gray-300">{requirement}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-
-          {/* AI Suggestions Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="space-y-6">
+        </div>
+      </div>
+    </div>
+  );
               {/* AI Analysis */}
               <Card>
                 <CardHeader>
