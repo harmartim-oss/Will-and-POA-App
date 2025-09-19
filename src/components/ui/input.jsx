@@ -16,7 +16,8 @@ const Input = React.forwardRef(({ className, type = 'text', size = 'md', invalid
         className={cn(
           "flex w-full rounded-md border bg-[var(--input-bg)] text-[var(--input-text)] placeholder:text-[var(--input-placeholder)]",
           "border-[var(--input-border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--btn-primary-bg)] ring-offset-[var(--surface-bg)]",
-          "disabled:cursor-not-allowed disabled:opacity-50 transition-[background,border,color,box-shadow] duration-[var(--duration-fast)] ease-out",
+          "hover:border-[var(--color-primary-400)] hover:shadow-sm",
+          "disabled:cursor-not-allowed disabled:opacity-50 transition-[background,border,color,box-shadow] duration-200 ease-out",
           sizes[size],
           "file:border-0 file:bg-transparent file:text-sm file:font-medium",
           "data-[invalid=true]:border-[var(--status-danger-border)] data-[invalid=true]:bg-[var(--status-danger-bg)] data-[invalid=true]:focus-visible:ring-[var(--status-danger-border)]",
