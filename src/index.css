@@ -50,11 +50,23 @@ code {
   top: 6px;
 }
 
-/* Focus management */
+/* Enhanced focus management for better accessibility */
 *:focus-visible {
-  outline: 2px solid var(--interactive-primary);
+  outline: 3px solid var(--color-brand-500);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 1px var(--color-brand-200);
+}
+
+/* Ensure high contrast focus indicators */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--color-brand-500);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px white, 0 0 0 4px var(--color-brand-500);
 }
 
 /* Remove focus styles on mouse/touch interactions */
@@ -72,15 +84,61 @@ code {
   background: linear-gradient(135deg, var(--color-neutral-900) 0%, var(--color-primary-950) 100%);
 }
 
-/* Responsive design improvements using design tokens */
+/* Enhanced responsive design improvements using design tokens */
 @media (max-width: 768px) {
   .hero-text {
-    font-size: var(--text-4xl);
+    font-size: var(--fs-3xl);
     line-height: var(--leading-tight);
   }
   
   .feature-card {
     margin-bottom: var(--space-4);
+  }
+  
+  /* Mobile-specific button adjustments */
+  .hero-buttons {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  
+  .hero-buttons button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Mobile stats layout */
+  .stats-container {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-4);
+  }
+  
+  .stats-container > div {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container-padding {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+  
+  /* Reduce hero spacing on mobile */
+  .hero-section {
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-12);
+  }
+  
+  /* Stack cards on mobile */
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+  
+  .documents-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
   }
 }
 
@@ -195,9 +253,23 @@ textarea::placeholder {
   .elevation-3 { box-shadow: var(--elevation-3); }
   .focus-ring-custom:focus-visible { outline: none; box-shadow: var(--focus-ring-offset), var(--focus-ring); }
 
-  /* Reduced motion preferences */
+  /* Enhanced reduced motion preferences for accessibility */
   @media (prefers-reduced-motion: reduce) {
-    * { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 0ms !important; }
+    *, 
+    *::before, 
+    *::after { 
+      animation-duration: 0.01ms !important; 
+      animation-iteration-count: 1 !important; 
+      transition-duration: 0.01ms !important; 
+      scroll-behavior: auto !important;
+    }
+    
+    /* Allow essential animations like loading spinners */
+    .spinner,
+    [role="progressbar"],
+    [aria-live] {
+      animation-duration: revert !important;
+    }
   }
 
 /* Enhanced animations using design tokens */
@@ -209,17 +281,44 @@ textarea::placeholder {
 @keyframes pulse-glow {
   0%, 100% { 
     opacity: 1;
-    box-shadow: 0 0 0 0 rgb(var(--color-primary-500) / 0.4);
+    box-shadow: 0 0 0 0 rgb(var(--color-brand-500) / 0.4);
   }
   50% { 
     opacity: 0.8;
-    box-shadow: 0 0 0 10px rgb(var(--color-primary-500) / 0);
+    box-shadow: 0 0 0 10px rgb(var(--color-brand-500) / 0);
   }
 }
 
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
+}
+
+@keyframes slide-in-up {
+  from { 
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .float-animation {
@@ -233,6 +332,35 @@ textarea::placeholder {
 .gradient-shift {
   background-size: 200% 200%;
   animation: gradient-shift 3s var(--ease-linear) infinite;
+}
+
+.slide-in-up {
+  animation: slide-in-up var(--motion-base) var(--ease-entrance);
+}
+
+.scale-in {
+  animation: scale-in var(--motion-base) var(--ease-entrance);
+}
+
+.bounce-subtle {
+  animation: bounce-subtle 2s var(--ease-spring) infinite;
+}
+
+/* Hover effect classes */
+.hover-lift {
+  transition: transform var(--motion-base) var(--ease-standard);
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+}
+
+.hover-glow {
+  transition: box-shadow var(--motion-base) var(--ease-standard);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 10px 25px rgb(var(--color-brand-500) / 0.15);
 }
 
 /* Glass morphism effects using design tokens */
