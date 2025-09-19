@@ -3,10 +3,12 @@ import PageHeader from './layout/PageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { HelpCircle, MessageCircle, Book, Mail } from 'lucide-react';
 import { Button } from './ui/button';
+import { ActionBar } from './ui/action-bar';
+import { SectionHeading } from './ui/section-heading';
 
 const HelpPage = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="Help & Support"
         description="Get assistance with creating your legal documents and find answers to common questions."
@@ -14,6 +16,19 @@ const HelpPage = () => {
           { label: 'Home', href: '/' },
           { label: 'Help & Support' }
         ]}
+        actions={
+          <ActionBar>
+            <ActionBar.Primary>Contact Support</ActionBar.Primary>
+            <ActionBar.Secondary>Browse FAQs</ActionBar.Secondary>
+          </ActionBar>
+        }
+      />
+
+      {/* Quick Help Section */}
+      <SectionHeading
+        title="Quick Help"
+        description="Find immediate assistance for common questions"
+        level={2}
       />
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -21,7 +36,7 @@ const HelpPage = () => {
           <CardHeader>
             <div className="flex items-center space-x-2">
               <HelpCircle className="h-5 w-5 text-blue-600" />
-              <CardTitle className="text-lg">Frequently Asked Questions</CardTitle>
+              <CardTitle level={3}>Frequently Asked Questions</CardTitle>
             </div>
             <CardDescription>
               Find answers to the most common questions about wills and power of attorney.
@@ -37,9 +52,11 @@ const HelpPage = () => {
                 <li>• What's the difference between POA types?</li>
               </ul>
             </div>
-            <Button variant="outline" size="sm">
-              View All FAQs
-            </Button>
+            <ActionBar align="left">
+              <Button variant="outline" size="sm">
+                View All FAQs
+              </Button>
+            </ActionBar>
           </CardContent>
         </Card>
 
@@ -47,7 +64,7 @@ const HelpPage = () => {
           <CardHeader>
             <div className="flex items-center space-x-2">
               <Book className="h-5 w-5 text-green-600" />
-              <CardTitle className="text-lg">User Guide</CardTitle>
+              <CardTitle level={3}>User Guide</CardTitle>
             </div>
             <CardDescription>
               Step-by-step instructions for using the document creator.
@@ -63,17 +80,29 @@ const HelpPage = () => {
                 <li>• Reviewing and finalizing documents</li>
               </ul>
             </div>
-            <Button variant="outline" size="sm">
-              Read Guide
-            </Button>
+            <ActionBar align="left">
+              <Button variant="outline" size="sm">
+                Read Guide
+              </Button>
+            </ActionBar>
           </CardContent>
         </Card>
+      </div>
 
+      {/* Support Options */}
+      <SectionHeading
+        title="Support Options"
+        description="Choose the best way to get help based on your needs"
+        level={2}
+        border
+      />
+
+      <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <div className="flex items-center space-x-2">
               <MessageCircle className="h-5 w-5 text-purple-600" />
-              <CardTitle className="text-lg">Live Chat Support</CardTitle>
+              <CardTitle level={3}>Live Chat Support</CardTitle>
             </div>
             <CardDescription>
               Chat with our support team for immediate assistance.
@@ -83,9 +112,11 @@ const HelpPage = () => {
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Our support team is available to help you with any questions about using the platform or understanding legal requirements.
             </p>
-            <Button variant="outline" size="sm" disabled>
-              Start Chat (Coming Soon)
-            </Button>
+            <ActionBar align="left">
+              <Button variant="subtle" size="sm" disabled>
+                Start Chat (Coming Soon)
+              </Button>
+            </ActionBar>
           </CardContent>
         </Card>
 
@@ -93,7 +124,7 @@ const HelpPage = () => {
           <CardHeader>
             <div className="flex items-center space-x-2">
               <Mail className="h-5 w-5 text-orange-600" />
-              <CardTitle className="text-lg">Contact Support</CardTitle>
+              <CardTitle level={3}>Contact Support</CardTitle>
             </div>
             <CardDescription>
               Send us an email for detailed questions or technical issues.
@@ -103,18 +134,20 @@ const HelpPage = () => {
             <p className="text-sm text-gray-600 dark:text-gray-400">
               For complex questions or technical issues, email our support team and we'll get back to you within 24 hours.
             </p>
-            <Button variant="outline" size="sm" disabled>
-              Send Email (Coming Soon)
-            </Button>
+            <ActionBar align="left">
+              <Button variant="subtle" size="sm" disabled>
+                Send Email (Coming Soon)
+              </Button>
+            </ActionBar>
           </CardContent>
         </Card>
       </div>
 
-      {/* Disclaimer */}
+      {/* Legal Disclaimer */}
       <Card className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20">
         <CardContent className="pt-6">
           <div className="flex items-start space-x-3">
-            <HelpCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+            <HelpCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
             <div className="space-y-2">
               <h4 className="font-medium text-yellow-800 dark:text-yellow-200">
                 Important Legal Notice
