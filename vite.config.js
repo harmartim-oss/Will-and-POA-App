@@ -17,15 +17,21 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false,
     minify: 'esbuild',
+    target: 'es2015',
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs']
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs'],
+          animation: ['framer-motion'],
+          icons: ['lucide-react']
         }
       }
-    }
+    },
+    // Optimize for GitHub Pages
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000
   },
   server: {
     port: 5173,
@@ -34,5 +40,9 @@ export default defineConfig({
   preview: {
     port: 4173,
     open: true
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'lucide-react']
   }
 })
