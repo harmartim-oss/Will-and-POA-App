@@ -13,7 +13,7 @@ export default defineConfig({
   },
   base: process.env.NODE_ENV === 'production' ? '/Will-and-POA-App/' : '/',
   build: {
-    outDir: 'dist',
+    outDir: 'docs',
     assetsDir: 'assets',
     sourcemap: false,
     minify: 'esbuild',
