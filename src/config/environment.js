@@ -57,7 +57,7 @@ export const config = {
   
   // GitHub Pages specific configuration
   githubPages: {
-    basePath: isGitHubPages ? '/ontario-wills-app' : '',
+    basePath: isGitHubPages ? '/Will-and-POA-App' : '',
     demoMode: isGitHubPages,
     offlineData: isGitHubPages // Use local storage for demo data
   },
