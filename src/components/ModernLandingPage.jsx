@@ -247,18 +247,18 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                 <Button
                   size="lg"
                   onClick={onGetStarted}
-                  className="shadow-lg hover:shadow-xl rounded-xl px-8 py-4 text-lg font-semibold"
+                  className="group shadow-xl hover:shadow-2xl rounded-xl px-8 py-4 text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300"
                 >
                   Start Creating Documents
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
                 </Button>
                 <Button
                   variant="outline"
                   size="lg"
                   onClick={onLearnMore}
-                  className="border-2 border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold rounded-xl backdrop-blur-sm"
+                  className="group border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 px-8 py-4 text-lg font-semibold rounded-xl backdrop-blur-sm transform hover:scale-105 transition-all duration-300"
                 >
-                  <Play className="mr-2 h-5 w-5" />
+                  <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                   Watch Demo
                 </Button>
               </div>
@@ -270,10 +270,11 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 + index * 0.1 }}
-                    className="text-center"
+                    whileHover={{ scale: 1.05 }}
+                    className="text-center group cursor-default"
                   >
-                    <div className="text-2xl font-bold text-cyan-400">{stat.number}</div>
-                    <div className="text-sm text-blue-200">{stat.label}</div>
+                    <div className="text-2xl font-bold text-cyan-400 group-hover:text-cyan-300 transition-colors duration-200">{stat.number}</div>
+                    <div className="text-sm text-blue-200 group-hover:text-blue-100 transition-colors duration-200">{stat.label}</div>
                   </motion.div>
                 ))}
               </div>
