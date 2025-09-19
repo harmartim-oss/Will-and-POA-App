@@ -2,7 +2,9 @@
 
 const isDevelopment = import.meta.env.MODE === 'development';
 const isProduction = import.meta.env.MODE === 'production';
-const isGitHubPages = window.location.hostname.includes('github.io');
+const isGitHubPages = window.location.hostname.includes('github.io') || 
+                      import.meta.env.VITE_GITHUB_PAGES === 'true' ||
+                      window.location.pathname.startsWith('/Will-and-POA-App/');
 
 // API Base URLs for different environments
 const API_ENDPOINTS = {
@@ -57,7 +59,7 @@ export const config = {
   
   // GitHub Pages specific configuration
   githubPages: {
-    basePath: isGitHubPages ? '/ontario-wills-app' : '',
+    basePath: isGitHubPages ? '/Will-and-POA-App' : '',
     demoMode: isGitHubPages,
     offlineData: isGitHubPages // Use local storage for demo data
   },
