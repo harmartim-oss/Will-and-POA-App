@@ -11,6 +11,7 @@ function App() {
   return (
     <ThemeProvider>
       <Router basename={config.githubPages.basePath}>
+        <a href="#main" className="skip-link">Skip to main content</a>
         <AppContent />
       </Router>
     </ThemeProvider>
@@ -35,12 +36,14 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900">
-      <Routes>
-        <Route path="/" element={<ModernLandingPage onGetStarted={handleGetStarted} onLearnMore={handleLearnMore} />} />
-        <Route path="/create/:type" element={<DocumentCreator />} />
-        <Route path="/edit/:id" element={<DocumentEditor />} />
-        <Route path="/preview/:id" element={<DocumentPreview />} />
-      </Routes>
+      <main id="main" role="main" className="block focus:outline-none">
+        <Routes>
+          <Route path="/" element={<ModernLandingPage onGetStarted={handleGetStarted} onLearnMore={handleLearnMore} />} />
+          <Route path="/create/:type" element={<DocumentCreator />} />
+          <Route path="/edit/:id" element={<DocumentEditor />} />
+          <Route path="/preview/:id" element={<DocumentPreview />} />
+        </Routes>
+      </main>
       <Toaster />
     </div>
   )
