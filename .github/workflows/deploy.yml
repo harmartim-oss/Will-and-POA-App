@@ -1,13 +1,16 @@
-name: Deploy to GitHub Pages
+name: Deploy Vite App to GitHub Pages
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     
     permissions:
@@ -36,7 +39,9 @@ jobs:
       run: npm run build
       env:
         NODE_ENV: production
-        VITE_GITHUB_PAGES: true
+        
+    - name: Copy index.html to 404.html for SPA fallback
+      run: cp dist/index.html dist/404.html
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
