@@ -103,7 +103,7 @@ const LandingPage = () => {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="bg-white shadow-sm border-b sticky top-0 z-50 backdrop-blur-sm bg-white/95"
+        className="bg-white/95 backdrop-blur-md shadow-sm border-b sticky top-0 z-50"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -113,7 +113,9 @@ const LandingPage = () => {
               transition={{ duration: 0.2 }}
             >
               <div className="relative">
-                <Scale className="h-8 w-8 text-blue-600" />
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg">
+                  <Scale className="h-6 w-6 text-white" />
+                </div>
                 <motion.div
                   className="absolute -top-1 -right-1"
                   animate={{ rotate: [0, 10, -10, 0] }}
@@ -122,15 +124,22 @@ const LandingPage = () => {
                   <Sparkles className="h-3 w-3 text-yellow-500" />
                 </motion.div>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Ontario Legal Documents</h1>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Ontario Legal Documents</h1>
+                <p className="text-xs text-gray-500 hidden sm:block">Professional • Secure • Ontario Law Compliant</p>
+              </div>
             </motion.div>
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.3 }}
+              className="flex items-center space-x-3"
             >
               <Badge variant="secondary" className="text-sm bg-blue-50 text-blue-700 border-blue-200">
                 Ontario Law Compliant
+              </Badge>
+              <Badge variant="secondary" className="text-sm bg-green-50 text-green-700 border-green-200">
+                AI-Powered
               </Badge>
             </motion.div>
           </div>
@@ -138,8 +147,13 @@ const LandingPage = () => {
       </motion.header>
 
       {/* Hero Section */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-32 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{animationDelay: '2s'}}></div>
+        </div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={mounted ? { opacity: 1, y: 0 } : {}}
@@ -191,11 +205,19 @@ const LandingPage = () => {
                 className="text-center p-6 rounded-xl bg-white shadow-sm border hover:shadow-md transition-all duration-300"
               >
                 <motion.div 
-                  className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-${feature.color}-100 mb-4`}
+                  className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-4 ${
+                    feature.color === 'blue' ? 'bg-blue-100' :
+                    feature.color === 'purple' ? 'bg-purple-100' : 
+                    'bg-green-100'
+                  }`}
                   whileHover={{ scale: 1.1, rotate: 10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <feature.icon className={`h-6 w-6 text-${feature.color}-600`} />
+                  <feature.icon className={`h-6 w-6 ${
+                    feature.color === 'blue' ? 'text-blue-600' :
+                    feature.color === 'purple' ? 'text-purple-600' : 
+                    'text-green-600'
+                  }`} />
                 </motion.div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
                 <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
@@ -217,9 +239,29 @@ const LandingPage = () => {
             <h3 className="text-3xl font-bold text-gray-900 mb-4">
               Choose Your Document Type
             </h3>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 mb-8">
               Select the legal document you need to create. Each document is tailored to Ontario legal requirements.
             </p>
+            
+            {/* Trust indicators */}
+            <div className="flex flex-wrap justify-center items-center gap-8 mb-8 text-sm text-gray-500">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span>Ontario Law Verified</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Shield className="h-5 w-5 text-blue-500" />
+                <span>Secure & Private</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Sparkles className="h-5 w-5 text-purple-500" />
+                <span>AI-Powered Guidance</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Users className="h-5 w-5 text-green-500" />
+                <span>1000+ Documents Created</span>
+              </div>
+            </div>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -284,6 +326,44 @@ const LandingPage = () => {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Call to Action Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h3 className="text-3xl font-bold text-white mb-4">
+              Ready to Create Your Legal Documents?
+            </h3>
+            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+              Join thousands of Ontarians who have created their legal documents with confidence using our platform.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="lg" 
+                variant="secondary"
+                onClick={() => handleCreateDocument('will')}
+                className="bg-white text-blue-600 hover:bg-blue-50 font-semibold px-8 py-4"
+              >
+                Start with a Will
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={() => handleCreateDocument('poa_property')}
+                className="border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-4"
+              >
+                Create Power of Attorney
+                <Shield className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+          </motion.div>
         </div>
       </section>
 
