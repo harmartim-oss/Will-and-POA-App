@@ -155,7 +155,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
   return (
   <div className="min-h-screen bg-[var(--surface-bg)] text-[var(--text-strong)] transition-colors">
       {/* Header with Theme Toggle */}
-      <header className="absolute top-0 left-0 right-0 z-50">
+      <header className="absolute top-0 left-0 right-0 z-50" role="banner">
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <motion.div 
@@ -163,10 +163,10 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center space-x-2"
             >
-              <div className="p-2 bg-white/10 backdrop-blur-sm rounded-lg">
+              <div className="p-2 bg-white/10 backdrop-blur-sm rounded-lg" aria-hidden="true">
                 <FileText className="h-6 w-6 text-white" />
               </div>
-              <span className="text-white font-semibold text-lg">Ontario Legal Docs</span>
+              <h1 className="text-white font-semibold text-lg">Ontario Legal Docs</h1>
             </motion.div>
             
             <motion.div
@@ -179,6 +179,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                 size="sm"
                 onClick={toggleTheme}
                 className="text-white hover:bg-white/10 rounded-lg"
+                aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
               >
                 {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
@@ -187,17 +188,19 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
         </div>
       </header>
 
-      {/* Hero Section */}
-  <section className="relative overflow-hidden text-white bg-gradient-to-br from-[var(--color-primary-900)] via-[var(--color-primary-800)] to-[var(--color-primary-950)]">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
+      {/* Hero Section with Enhanced Design */}
+      <section className="relative overflow-hidden text-white" role="main" aria-labelledby="hero-heading">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-brand-600)] via-[var(--color-brand-700)] to-[var(--color-accent-600)]"></div>
+        <div className="absolute inset-0 opacity-30" style={{
+          backgroundImage: `url("data:image/svg+xml,${encodeURIComponent('<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="#ffffff" fill-opacity="0.05"><circle cx="10" cy="10" r="1"/></g></g></svg>')}")`,
+        }} aria-hidden="true"></div>
         
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(20)].map((_, i) => (
+        {/* Floating elements for visual interest */}
+        <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+          {[...Array(12)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute bg-white/5 rounded-full"
+              className="absolute bg-white/10 rounded-full blur-sm"
               style={{
                 width: Math.random() * 100 + 50,
                 height: Math.random() * 100 + 50,
@@ -217,7 +220,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
           ))}
         </div>
 
-  <div className="relative container mx-auto px-6 py-24 lg:py-32 max-w-[var(--container-2xl)]">
+  <div className="relative container mx-auto px-6 py-24 lg:py-32 max-w-[var(--container-2xl)] hero-section">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -226,16 +229,16 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
               className="space-y-8"
             >
               <div className="space-y-4">
-                <Badge className="bg-blue-500/20 text-blue-100 border-blue-400/30 px-4 py-2">
+                <Badge variant="brand" className="px-4 py-2 text-sm font-medium">
                   <Zap className="h-4 w-4 mr-2" />
                   AI-Powered Legal Documents
                 </Badge>
-                <h1 className="text-5xl lg:text-7xl font-bold leading-tight tracking-tight font-semibold">
+                <h2 id="hero-heading" className="text-5xl lg:text-7xl font-bold leading-tight tracking-tight font-semibold hero-text">
                   Create Legal Documents with
                   <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                     {" "}AI Precision
                   </span>
-                </h1>
+                </h2>
                 <p className="text-xl lg:text-2xl text-blue-100 leading-relaxed max-w-2xl">
                   Generate Ontario-compliant wills and powers of attorney in minutes. 
                   Our AI analyzes your documents for legal compliance and provides 
@@ -243,27 +246,28 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 hero-buttons">
                 <Button
-                  size="lg"
+                  variant="primary"
+                  size="xl"
                   onClick={onGetStarted}
-                  className="group shadow-xl hover:shadow-2xl rounded-xl px-8 py-4 text-lg font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300"
+                  className="group bg-white text-[var(--color-brand-700)] hover:bg-gray-50 shadow-xl hover:shadow-2xl rounded-xl font-semibold"
                 >
                   Start Creating Documents
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
                 </Button>
                 <Button
                   variant="outline"
-                  size="lg"
+                  size="xl"
                   onClick={onLearnMore}
-                  className="group border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 px-8 py-4 text-lg font-semibold rounded-xl backdrop-blur-sm transform hover:scale-105 transition-all duration-300"
+                  className="group border-2 border-white/40 text-white hover:bg-white/10 hover:border-white/60 font-semibold backdrop-blur-sm"
                 >
                   <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                   Watch Demo
                 </Button>
               </div>
 
-              <div className="flex items-center space-x-8 pt-4">
+              <div className="flex items-center space-x-8 pt-4 stats-container" role="group" aria-label="Platform statistics">
                 {stats.map((stat, index) => (
                   <motion.div
                     key={index}
@@ -272,9 +276,11 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                     transition={{ delay: 0.5 + index * 0.1 }}
                     whileHover={{ scale: 1.05 }}
                     className="text-center group cursor-default"
+                    role="img"
+                    aria-label={`${stat.number} ${stat.label}`}
                   >
-                    <div className="text-2xl font-bold text-cyan-400 group-hover:text-cyan-300 transition-colors duration-200">{stat.number}</div>
-                    <div className="text-sm text-blue-200 group-hover:text-blue-100 transition-colors duration-200">{stat.label}</div>
+                    <div className="text-2xl font-bold text-cyan-400 group-hover:text-cyan-300 transition-colors duration-200" aria-hidden="true">{stat.number}</div>
+                    <div className="text-sm text-blue-200 group-hover:text-blue-100 transition-colors duration-200" aria-hidden="true">{stat.label}</div>
                   </motion.div>
                 ))}
               </div>
@@ -329,7 +335,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
       </section>
 
       {/* Features Section */}
-  <section id="features" className="py-24 bg-[var(--surface-alt)]">
+      <section id="features" className="py-24 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="features-heading">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -337,40 +343,41 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <Badge className="mb-4 bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300 border-blue-200 dark:border-blue-700">
+            <Badge variant="info" className="mb-4" aria-hidden="true">
               <Award className="h-4 w-4 mr-2" />
               Advanced Features
             </Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-[var(--text-strong)] mb-6">
+            <h2 id="features-heading" className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               Powered by Cutting-Edge Technology
             </h2>
-            <p className="text-xl text-[var(--text-default)] max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Our platform combines artificial intelligence, legal expertise, and modern design 
               to deliver the most advanced legal document creation experience.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 features-grid" role="list">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 50 }}
                 animate={isVisible.features ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
+                whileHover={{ y: -8 }}
                 className="group"
+                role="listitem"
               >
-                <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-[box-shadow,transform] duration-[var(--duration-normal)] ease-out bg-[var(--surface-elevated)] group-hover:translate-y-[-4px]">
+                <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 group-hover:-translate-y-2 bg-white border-gray-100" interactive>
                   <CardHeader className="pb-4">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`} aria-hidden="true">
                       {feature.icon}
                     </div>
-                    <CardTitle className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-900 dark:group-hover:text-blue-300 transition-colors">
+                    <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-[var(--color-brand-700)] transition-colors">
                       {feature.title}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription className="text-[var(--text-default)] leading-relaxed">
+                    <CardDescription className="text-gray-600 leading-relaxed">
                       {feature.description}
                     </CardDescription>
                   </CardContent>
@@ -382,7 +389,7 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
       </section>
 
       {/* Document Types Section */}
-  <section id="documents" className="py-24 bg-[var(--surface-muted)]">
+      <section id="documents" className="py-24 bg-white" aria-labelledby="documents-heading">
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -390,14 +397,14 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <Badge className="mb-4 bg-green-50 text-green-600 border-green-200">
+            <Badge variant="success" className="mb-4" aria-hidden="true">
               <FileText className="h-4 w-4 mr-2" />
               Document Types
             </Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-[var(--text-strong)] mb-6">
+            <h2 id="documents-heading" className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               Complete Legal Document Suite
             </h2>
-            <p className="text-xl text-[var(--text-default)] max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Create all essential legal documents with Ontario-specific compliance 
               and professional formatting.
             </p>
@@ -413,19 +420,19 @@ const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
                 whileHover={{ y: -10 }}
                 className="relative group"
               >
-                <Card className={`h-full border-0 shadow-xl hover:shadow-2xl transition-all duration-500 ${
+                {doc.popular && (
+                  <div className="absolute -top-4 left-6 z-10">
+                    <Badge variant="brand" className="shadow-lg">
+                      <Award className="h-3 w-3 mr-1" />
+                      Most Popular
+                    </Badge>
+                  </div>
+                )}
+                <Card className={`h-full shadow-lg hover:shadow-xl transition-all duration-500 ${
                   doc.popular 
-                    ? 'bg-gradient-to-br from-[var(--color-primary-600)] to-[var(--color-primary-800)] text-white' 
-                    : 'bg-[var(--surface-elevated)] hover:bg-[var(--surface-alt)]'
-                }`}>
-                  {doc.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-yellow-400 text-yellow-900 px-4 py-1 font-semibold">
-                        <Star className="h-4 w-4 mr-1" />
-                        Most Popular
-                      </Badge>
-                    </div>
-                  )}
+                    ? 'bg-gradient-to-br from-[var(--color-brand-600)] to-[var(--color-brand-700)] text-white border-0' 
+                    : 'bg-white hover:bg-gray-50 border-gray-200'
+                } group-hover:-translate-y-2`}>
                   
                   <CardHeader className="text-center pb-4">
                     <div className={`w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-4 ${
