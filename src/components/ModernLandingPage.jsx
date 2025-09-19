@@ -18,9 +18,9 @@ import {
   Phone,
   Mail
 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
+import { Button } from './ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
 
 const ModernLandingPage = ({ onGetStarted, onLearnMore }) => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
