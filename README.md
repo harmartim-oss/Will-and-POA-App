@@ -1,21 +1,37 @@
-# Ontario Wills & Power of Attorney Creator
+# Ontario Wills & Power of Attorney Creator ✨
 
 🏛️ **Professional legal document creation platform compliant with Ontario law**
+
+## 🎯 Recent Enhancements (v2.0)
+
+✅ **Enhanced UI/UX with Modern Design**  
+✅ **Smooth Animations & Transitions**  
+✅ **Improved Responsive Design**  
+✅ **Loading States & Better User Feedback**  
+✅ **Fixed GitHub Pages Deployment**  
+✅ **Professional Favicon & SEO Optimization**  
 
 ## ✨ Features
 
 - 📄 **Last Will and Testament Creation** - Comprehensive will drafting with asset distribution, executor appointment, and guardian designation
-- 🏛️ **Power of Attorney for Property** - Financial and property decision authorization
+- 🏛️ **Power of Attorney for Property** - Financial and property decision authorization  
 - 🏥 **Power of Attorney for Personal Care** - Healthcare and personal care decision authorization
 - 🤖 **AI-Powered Assistance** - Intelligent suggestions and legal guidance
 - 📱 **Responsive Design** - Works seamlessly on desktop, tablet, and mobile
 - 🔒 **Ontario Law Compliant** - All documents meet Ontario legal requirements
+- ✨ **Beautiful Animations** - Smooth transitions and interactive elements
+- 🎨 **Modern UI** - Professional design with enhanced user experience
 
 ## 🚀 Live Demo
 
 Visit the live application: **[Ontario Wills & Power of Attorney Creator](https://harmartim-oss.github.io/Will-and-POA-App/)**
 
-![Ontario Wills App Screenshot](https://github.com/user-attachments/assets/fc77d96b-142f-4f5a-aaf5-aca146e54dae)
+### 📸 App Screenshots
+
+**Enhanced Version (v2.0):**
+![Enhanced App](https://github.com/user-attachments/assets/850eea95-826e-42b2-84fc-016bce51c84b)
+
+*Features: Sticky header with animations, gradient backgrounds, enhanced feature cards, and improved typography*
 
 ## 🛠️ Tech Stack
 
@@ -61,6 +77,22 @@ The application is automatically deployed to GitHub Pages using GitHub Actions:
 - ✅ Optimized production builds
 - ✅ Environment-specific configuration
 - ✅ Asset optimization and compression
+
+### 🔍 Deployment Verification
+
+Run the deployment verification script to ensure everything is properly configured:
+
+```bash
+# Check deployment configuration
+./verify-deployment.sh
+```
+
+This script verifies:
+- ✅ Package.json homepage configuration
+- ✅ Vite base path configuration  
+- ✅ Asset paths in production build
+- ✅ Required files (404.html, favicon.svg)
+- ✅ Build artifacts and structure
 
 ## 📱 Application Features
 

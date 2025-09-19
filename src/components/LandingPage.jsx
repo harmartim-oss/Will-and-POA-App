@@ -1,14 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { FileText, Shield, Heart, ArrowRight, CheckCircle, Scale, Users } from 'lucide-react'
+import LoadingSpinner from '@/components/ui/loading-spinner'
+import { FileText, Shield, Heart, ArrowRight, CheckCircle, Scale, Users, Sparkles } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 const LandingPage = () => {
   const navigate = useNavigate()
   const [selectedDocument, setSelectedDocument] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const documentTypes = [
     {
@@ -62,73 +69,137 @@ const LandingPage = () => {
     {
       icon: Scale,
       title: 'Ontario Law Compliant',
-      description: 'All documents meet Ontario legal requirements and regulations'
+      description: 'All documents meet Ontario legal requirements and regulations',
+      color: 'blue'
     },
     {
-      icon: CheckCircle,
-      title: 'AI-Powered Suggestions',
-      description: 'Get intelligent wording suggestions and legal guidance'
+      icon: Sparkles,
+      title: 'AI-Powered Suggestions', 
+      description: 'Get intelligent wording suggestions and legal guidance',
+      color: 'purple'
     },
     {
       icon: Users,
       title: 'Professional Formatting',
-      description: 'Documents formatted to professional legal standards'
+      description: 'Documents formatted to professional legal standards',
+      color: 'green'
     }
   ]
 
-  const handleCreateDocument = (type) => {
+  const handleCreateDocument = async (type) => {
+    setIsLoading(true)
+    setSelectedDocument(type)
+    
+    // Simulate loading delay for better UX
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
     navigate(`/create/${type}`)
   }
 
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <motion.header 
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="bg-white shadow-sm border-b sticky top-0 z-50 backdrop-blur-sm bg-white/95"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Scale className="h-8 w-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">Ontario Legal Documents</h1>
-            </div>
-            <Badge variant="secondary" className="text-sm">
-              Ontario Law Compliant
-            </Badge>
+            <motion.div 
+              className="flex items-center space-x-3"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="relative">
+                <Scale className="h-8 w-8 text-blue-600" />
+                <motion.div
+                  className="absolute -top-1 -right-1"
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <Sparkles className="h-3 w-3 text-yellow-500" />
+                </motion.div>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Ontario Legal Documents</h1>
+            </motion.div>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <Badge variant="secondary" className="text-sm bg-blue-50 text-blue-700 border-blue-200">
+                Ontario Law Compliant
+              </Badge>
+            </motion.div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Hero Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={mounted ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Create Legal Documents with Confidence
-            </h2>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <motion.h2 
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight"
+              initial={{ opacity: 0 }}
+              animate={mounted ? { opacity: 1 } : {}}
+              transition={{ delay: 0.2, duration: 0.8 }}
+            >
+              Create Legal Documents with{" "}
+              <motion.span 
+                className="text-blue-600"
+                animate={{ color: ["#2563eb", "#7c3aed", "#2563eb"] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              >
+                Confidence
+              </motion.span>
+            </motion.h2>
+            <motion.p 
+              className="text-lg sm:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={mounted ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            >
               Generate professionally formatted wills and power of attorney documents that comply with Ontario law. 
               Our AI-powered platform guides you through every step with intelligent suggestions and legal expertise.
-            </p>
+            </motion.p>
           </motion.div>
 
           {/* Features Grid */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="grid md:grid-cols-3 gap-6 mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            animate={mounted ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="grid md:grid-cols-3 gap-6 sm:gap-8 mb-12"
           >
             {features.map((feature, index) => (
-              <Card key={index} className="border-0 shadow-lg">
-                <CardContent className="p-6 text-center">
-                  <feature.icon className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-gray-600 text-sm">{feature.description}</p>
-                </CardContent>
-              </Card>
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={mounted ? { opacity: 1, y: 0 } : {}}
+                transition={{ delay: 0.8 + index * 0.1, duration: 0.6 }}
+                whileHover={{ 
+                  y: -5,
+                  transition: { duration: 0.2 }
+                }}
+                className="text-center p-6 rounded-xl bg-white shadow-sm border hover:shadow-md transition-all duration-300"
+              >
+                <motion.div 
+                  className={`inline-flex items-center justify-center w-12 h-12 rounded-full bg-${feature.color}-100 mb-4`}
+                  whileHover={{ scale: 1.1, rotate: 10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <feature.icon className={`h-6 w-6 text-${feature.color}-600`} />
+                </motion.div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+              </motion.div>
             ))}
           </motion.div>
         </div>
@@ -189,14 +260,24 @@ const LandingPage = () => {
                       ))}
                     </div>
                     <Button 
-                      className="w-full"
+                      className="w-full group relative overflow-hidden"
                       onClick={(e) => {
                         e.stopPropagation()
                         handleCreateDocument(doc.id)
                       }}
+                      disabled={isLoading}
                     >
-                      Create {doc.title}
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      {isLoading && selectedDocument === doc.id ? (
+                        <div className="flex items-center">
+                          <LoadingSpinner size="sm" className="mr-2" />
+                          Creating Document...
+                        </div>
+                      ) : (
+                        <>
+                          Create {doc.title}
+                          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </>
+                      )}
                     </Button>
                   </CardContent>
                 </Card>
