@@ -12,7 +12,8 @@ from core.document_generator import OntarioDocumentGenerator
 from core.legal_knowledge import OntarioLegalKnowledgeBase
 from core.compliance_checker import OntarioComplianceChecker
 from core.risk_assessor import OntarioRiskAssessor
-from api.routes import documents, ai, compliance, blockchain
+from services.enhanced_legal_ai import EnhancedLegalAI
+from api.routes import documents, ai, compliance, blockchain, enhanced_ai
 from database.connection import init_db
 from models.schemas import (
     DocumentRequest, DocumentResponse, 
@@ -51,6 +52,7 @@ doc_generator = OntarioDocumentGenerator()
 legal_knowledge = OntarioLegalKnowledgeBase()
 compliance_checker = OntarioComplianceChecker()
 risk_assessor = OntarioRiskAssessor()
+enhanced_legal_ai = EnhancedLegalAI()
 
 @app.on_event("startup")
 async def startup_event():
@@ -63,6 +65,9 @@ async def startup_event():
     # Load AI models
     await ai_engine.initialize()
     await legal_knowledge.initialize()
+    
+    # Initialize Enhanced Legal AI
+    await enhanced_legal_ai.initialize()
     
     logger.info("System initialized successfully")
 
@@ -83,7 +88,8 @@ async def health_check():
         "components": {
             "legal_knowledge": legal_knowledge.is_ready(),
             "document_generator": doc_generator.is_ready(),
-            "compliance_checker": compliance_checker.is_ready()
+            "compliance_checker": compliance_checker.is_ready(),
+            "enhanced_legal_ai": enhanced_legal_ai.is_initialized
         }
     }
 
@@ -91,7 +97,8 @@ async def health_check():
 app.include_router(documents.router, prefix="/api/documents", tags=["documents"])
 app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
 app.include_router(compliance.router, prefix="/api/compliance", tags=["compliance"])
-app.include_router(blockchain.router, prefix="/api/blockchain", tags=["blockchain"])
+app.include_router(blockchain.router, prefix="/api/blockchain", tags=["blockchain"])  
+app.include_router(enhanced_ai.router, prefix="/api/enhanced-ai", tags=["enhanced-ai"])
 
 if __name__ == "__main__":
     uvicorn.run(
