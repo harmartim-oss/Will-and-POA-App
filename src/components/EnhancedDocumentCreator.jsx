@@ -19,17 +19,15 @@ import {
   Phone,
   Mail
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
-import { Badge } from '../ui/badge';
-import { Progress } from '../ui/progress';
-import { Alert, AlertDescription } from '../ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Separator } from '../ui/separator';
-import { Switch } from '../ui/switch';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
+import { Badge } from './ui/badge';
+import { Progress } from './ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Separator } from './ui/separator';
 
 const EnhancedDocumentCreator = ({ documentType, onSave, onPreview }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -678,7 +676,7 @@ const EnhancedDocumentCreator = ({ documentType, onSave, onPreview }) => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Create Your {documentType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+          Create Your {type ? type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Document'}
         </h1>
         <p className="text-gray-600 dark:text-gray-300">
           Follow the step-by-step guide to create a legally compliant document
