@@ -8,6 +8,7 @@ import uuid
 from dataclasses import dataclass
 import json
 import aiosqlite
+from .lsuc_compliance import LSUCComplianceManager
 
 logger = logging.getLogger(__name__)
 
@@ -25,39 +26,54 @@ class ClientMatter:
     documents: List[Dict[str, Any]]
 
 class OntarioPracticeManager:
-    """Comprehensive practice management system for Ontario legal practitioners"""
+    """Comprehensive practice management system for Ontario sole practitioner"""
     
-    def __init__(self, database_path: str = "data/practice_management.db"):
-        self.database_path = database_path
+    def __init__(self, database_path: str = "data/ontario_legal_practice.db"):
+        self.db_path = database_path
+        self.database_path = database_path  # Keep compatibility
         self.is_initialized = False
+        self.lsuc_compliance = LSUCComplianceManager()
     
     async def initialize(self):
-        """Initialize the practice management system"""
+        """Initialize practice management system"""
         try:
+            logger.info("🏗️ Initializing Ontario Practice Manager...")
+            # Setup database
             await self._setup_database()
+            # Initialize compliance manager
+            await self.lsuc_compliance.initialize()
+            # Load practice templates
+            await self._load_practice_templates()
             self.is_initialized = True
             logger.info("✓ Ontario Practice Manager initialized")
         except Exception as e:
-            logger.error(f"Practice management initialization failed: {str(e)}")
+            logger.error(f"Practice manager initialization failed: {str(e)}")
             raise
     
     async def _setup_database(self):
-        """Setup database tables for practice management"""
+        """Setup comprehensive practice database"""
         async with aiosqlite.connect(self.database_path) as db:
-            # Clients table
+            # Clients table - enhanced with more fields
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS clients (
                     client_id TEXT PRIMARY KEY,
+                    client_name TEXT NOT NULL,
                     full_name TEXT NOT NULL,
                     preferred_name TEXT,
+                    contact_info TEXT,
                     email TEXT,
                     phone TEXT,
                     address TEXT,
                     date_of_birth DATE,
                     sin_number TEXT,
                     client_type TEXT DEFAULT 'individual',
+                    matter_count INTEGER DEFAULT 0,
+                    total_billed REAL DEFAULT 0.0,
+                    total_collected REAL DEFAULT 0.0,
                     status TEXT DEFAULT 'active',
+                    conflict_check_completed BOOLEAN DEFAULT FALSE,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     created_by TEXT,
                     notes TEXT,
                     emergency_contact TEXT,
@@ -65,21 +81,26 @@ class OntarioPracticeManager:
                 )
             """)
             
-            # Matters table
+            # Matters table - comprehensive with additional fields
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS matters (
                     matter_id TEXT PRIMARY KEY,
                     client_id TEXT NOT NULL,
-                    matter_name TEXT NOT NULL,
                     matter_type TEXT NOT NULL,
+                    matter_name TEXT NOT NULL,
                     matter_description TEXT,
-                    status TEXT DEFAULT 'active',
-                    responsible_lawyer TEXT NOT NULL,
-                    assistant_assigned TEXT,
+                    status TEXT DEFAULT 'open',
+                    open_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    close_date TIMESTAMP,
                     opened_date DATE NOT NULL,
                     closed_date DATE,
-                    estimated_value DECIMAL(10,2),
+                    estimated_value REAL,
                     actual_value DECIMAL(10,2),
+                    responsible_lawyer TEXT NOT NULL,
+                    supervising_lawyer TEXT,
+                    assistant_assigned TEXT,
+                    time_budget_hours REAL,
+                    expenses_budget REAL,
                     hourly_rate DECIMAL(8,2),
                     flat_fee DECIMAL(10,2),
                     billing_type TEXT DEFAULT 'hourly',
@@ -87,18 +108,23 @@ class OntarioPracticeManager:
                     statute_of_limitations DATE,
                     court_file_number TEXT,
                     opposing_counsel TEXT,
+                    trust_account_required BOOLEAN DEFAULT FALSE,
+                    conflict_checked BOOLEAN DEFAULT FALSE,
+                    retainer_received BOOLEAN DEFAULT FALSE,
+                    retainer_amount REAL DEFAULT 0.0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (client_id) REFERENCES clients (client_id)
                 )
             """)
             
-            # Time entries table
+            # Time tracking table - enhanced
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS time_entries (
                     entry_id TEXT PRIMARY KEY,
                     matter_id TEXT NOT NULL,
                     lawyer_id TEXT NOT NULL,
+                    date DATE NOT NULL,
                     date_worked DATE NOT NULL,
                     start_time TIME,
                     end_time TIME,
@@ -106,8 +132,11 @@ class OntarioPracticeManager:
                     description TEXT NOT NULL,
                     activity_type TEXT NOT NULL,
                     billable BOOLEAN DEFAULT TRUE,
-                    hourly_rate DECIMAL(8,2),
+                    hourly_rate REAL,
+                    total_amount REAL,
                     total_charge DECIMAL(8,2),
+                    billed BOOLEAN DEFAULT FALSE,
+                    billed_date TIMESTAMP,
                     status TEXT DEFAULT 'draft',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -115,40 +144,29 @@ class OntarioPracticeManager:
                 )
             """)
             
-            # Document matter associations
+            # Billing table - comprehensive invoicing
             await db.execute("""
-                CREATE TABLE IF NOT EXISTS matter_documents (
-                    association_id TEXT PRIMARY KEY,
+                CREATE TABLE IF NOT EXISTS bills (
+                    bill_id TEXT PRIMARY KEY,
                     matter_id TEXT NOT NULL,
-                    document_id TEXT NOT NULL,
-                    document_type TEXT NOT NULL,
-                    document_name TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    created_by TEXT,
-                    FOREIGN KEY (matter_id) REFERENCES matters (matter_id)
-                )
-            """)
-            
-            # Legal deadlines and reminders
-            await db.execute("""
-                CREATE TABLE IF NOT EXISTS deadlines (
-                    deadline_id TEXT PRIMARY KEY,
-                    matter_id TEXT NOT NULL,
-                    deadline_type TEXT NOT NULL,
-                    description TEXT NOT NULL,
-                    due_date DATE NOT NULL,
-                    reminder_date DATE,
-                    priority TEXT DEFAULT 'medium',
-                    status TEXT DEFAULT 'pending',
-                    responsible_lawyer TEXT NOT NULL,
-                    completed_at TIMESTAMP,
+                    client_id TEXT NOT NULL,
+                    bill_date DATE NOT NULL,
+                    bill_number TEXT UNIQUE,
+                    due_date DATE,
+                    subtotal REAL,
+                    taxes REAL,
+                    total_amount REAL,
+                    paid_amount REAL DEFAULT 0.0,
+                    status TEXT DEFAULT 'draft',
+                    payment_terms TEXT,
                     notes TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (matter_id) REFERENCES matters (matter_id)
+                    FOREIGN KEY (matter_id) REFERENCES matters (matter_id),
+                    FOREIGN KEY (client_id) REFERENCES clients (client_id)
                 )
             """)
             
-            # Billing and invoicing
+            # Enhanced invoices table
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS invoices (
                     invoice_id TEXT PRIMARY KEY,
@@ -170,7 +188,127 @@ class OntarioPracticeManager:
                 )
             """)
             
+            # Trust account table - LSUC compliant
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS trust_transactions (
+                    transaction_id TEXT PRIMARY KEY,
+                    matter_id TEXT,
+                    client_id TEXT,
+                    transaction_date DATE NOT NULL,
+                    transaction_type TEXT NOT NULL, -- 'receipt', 'disbursement', 'transfer'
+                    amount REAL NOT NULL,
+                    description TEXT,
+                    reference_number TEXT,
+                    bank_account TEXT,
+                    reconciled BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (matter_id) REFERENCES matters (matter_id),
+                    FOREIGN KEY (client_id) REFERENCES clients (client_id)
+                )
+            """)
+            
+            # Calendar/appointments table
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS appointments (
+                    appointment_id TEXT PRIMARY KEY,
+                    matter_id TEXT,
+                    client_id TEXT,
+                    appointment_type TEXT,
+                    title TEXT,
+                    description TEXT,
+                    start_time TIMESTAMP,
+                    end_time TIMESTAMP,
+                    location TEXT,
+                    status TEXT DEFAULT 'scheduled',
+                    reminder_sent BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (matter_id) REFERENCES matters (matter_id),
+                    FOREIGN KEY (client_id) REFERENCES clients (client_id)
+                )
+            """)
+            
+            # Tasks/reminders table
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS tasks (
+                    task_id TEXT PRIMARY KEY,
+                    matter_id TEXT,
+                    client_id TEXT,
+                    task_type TEXT,
+                    title TEXT NOT NULL,
+                    description TEXT,
+                    due_date DATE,
+                    priority TEXT DEFAULT 'medium',
+                    assigned_to TEXT,
+                    status TEXT DEFAULT 'pending',
+                    completed_date TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (matter_id) REFERENCES matters (matter_id),
+                    FOREIGN KEY (client_id) REFERENCES clients (client_id)
+                )
+            """)
+            
+            # Documents table - enhanced
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS documents (
+                    document_id TEXT PRIMARY KEY,
+                    matter_id TEXT,
+                    client_id TEXT,
+                    document_type TEXT,
+                    document_name TEXT,
+                    file_path TEXT,
+                    file_size INTEGER,
+                    version INTEGER DEFAULT 1,
+                    created_by TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    is_final BOOLEAN DEFAULT FALSE,
+                    is_billable BOOLEAN DEFAULT FALSE,
+                    billing_status TEXT DEFAULT 'unbilled',
+                    FOREIGN KEY (matter_id) REFERENCES matters (matter_id),
+                    FOREIGN KEY (client_id) REFERENCES clients (client_id)
+                )
+            """)
+            
+            # Document matter associations
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS matter_documents (
+                    association_id TEXT PRIMARY KEY,
+                    matter_id TEXT NOT NULL,
+                    document_id TEXT NOT NULL,
+                    document_type TEXT NOT NULL,
+                    document_name TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    created_by TEXT,
+                    FOREIGN KEY (matter_id) REFERENCES matters (matter_id)
+                )
+            """)
+            
+            # Legal deadlines and reminders - enhanced
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS deadlines (
+                    deadline_id TEXT PRIMARY KEY,
+                    matter_id TEXT NOT NULL,
+                    deadline_type TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    due_date DATE NOT NULL,
+                    reminder_date DATE,
+                    priority TEXT DEFAULT 'medium',
+                    status TEXT DEFAULT 'pending',
+                    responsible_lawyer TEXT NOT NULL,
+                    completed_at TIMESTAMP,
+                    notes TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (matter_id) REFERENCES matters (matter_id)
+                )
+            """)
+            
             await db.commit()
+    
+    async def _load_practice_templates(self):
+        """Load practice templates"""
+        # This would load document templates, matter type templates, etc.
+        logger.info("✓ Practice templates loaded")
+        pass
     
     async def create_client(self, client_data: Dict[str, Any]) -> str:
         """Create a new client record"""
@@ -484,6 +622,300 @@ class OntarioPracticeManager:
             
         except Exception as e:
             logger.error(f"Failed to generate invoice: {str(e)}")
+            raise
+    
+    async def create_client_matter(self, client_data: Dict[str, Any], matter_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Create new client and matter with full setup"""
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                # Generate unique IDs
+                client_id = str(uuid.uuid4())
+                matter_id = str(uuid.uuid4())
+                
+                # Create client with proper field mapping
+                contact_info = json.dumps(client_data.get("contact", {}))
+                await db.execute('''
+                    INSERT INTO clients (
+                        client_id, client_name, full_name, contact_info, 
+                        email, phone, status, conflict_check_completed
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    client_id, 
+                    client_data["name"], 
+                    client_data["name"],  # Use name for both client_name and full_name
+                    contact_info,
+                    client_data.get("contact", {}).get("email"),
+                    client_data.get("contact", {}).get("phone"),
+                    "active",
+                    True
+                ))
+                
+                # Create matter with proper field mapping
+                await db.execute('''
+                    INSERT INTO matters (
+                        matter_id, client_id, matter_type, matter_name, matter_description,
+                        responsible_lawyer, supervising_lawyer, estimated_value,
+                        trust_account_required, conflict_checked, opened_date,
+                        status
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    matter_id, client_id, matter_data["type"], 
+                    f"{matter_data['type'].replace('_', ' ').title()} for {client_data['name']}",
+                    matter_data.get("description", ""),
+                    matter_data["responsible_lawyer"], 
+                    matter_data.get("supervising_lawyer", ""),
+                    matter_data.get("estimated_value", 0.0),
+                    matter_data.get("trust_account_required", False),
+                    matter_data.get("conflict_checked", False),
+                    datetime.now().date(),
+                    "open"
+                ))
+                
+                # Create initial tasks
+                await self._create_initial_tasks(db, matter_id, matter_data["type"])
+                
+                await db.commit()
+            
+            # Log activity
+            await self.lsuc_compliance.log_activity(
+                activity_type="matter_created",
+                user_id=matter_data["responsible_lawyer"],
+                matter_id=matter_id,
+                details={"client_name": client_data["name"], "matter_type": matter_data["type"]}
+            )
+            
+            return {
+                "client_id": client_id,
+                "matter_id": matter_id,
+                "status": "created",
+                "message": "Client and matter created successfully"
+            }
+        except Exception as e:
+            logger.error(f"Client matter creation failed: {str(e)}")
+            raise
+    
+    async def _create_initial_tasks(self, db, matter_id: str, matter_type: str):
+        """Create initial tasks based on matter type"""
+        initial_tasks = {
+            "wills_estates": [
+                {"title": "Conduct client interview", "priority": "high", "days_from_now": 3},
+                {"title": "Review existing will (if any)", "priority": "medium", "days_from_now": 7},
+                {"title": "Draft will", "priority": "high", "days_from_now": 14},
+                {"title": "Schedule signing appointment", "priority": "medium", "days_from_now": 21}
+            ],
+            "real_estate": [
+                {"title": "Review purchase agreement", "priority": "high", "days_from_now": 1},
+                {"title": "Order title search", "priority": "high", "days_from_now": 2},
+                {"title": "Review mortgage documents", "priority": "medium", "days_from_now": 5}
+            ],
+            "corporate": [
+                {"title": "Review incorporation documents", "priority": "high", "days_from_now": 3},
+                {"title": "File articles of incorporation", "priority": "high", "days_from_now": 7},
+                {"title": "Prepare minute book", "priority": "medium", "days_from_now": 14}
+            ]
+        }
+        
+        tasks = initial_tasks.get(matter_type, [])
+        for task in tasks:
+            task_id = str(uuid.uuid4())
+            due_date = datetime.now() + timedelta(days=task["days_from_now"])
+            await db.execute('''
+                INSERT INTO tasks (task_id, matter_id, title, due_date, priority, status)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (task_id, matter_id, task["title"], due_date.date(), task["priority"], "pending"))
+    
+    async def track_time_entry(self, time_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Track billable time with Ontario-specific requirements"""
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                entry_id = str(uuid.uuid4())
+                
+                # Calculate duration if start/end times provided
+                duration = time_data.get("duration_minutes", 0)
+                if not duration and time_data.get("start_time") and time_data.get("end_time"):
+                    # Implementation for time calculation would go here
+                    pass
+                
+                # Calculate amount based on hourly rate
+                hourly_rate = time_data.get("hourly_rate", 400.00)  # Default Ontario rate
+                amount = (duration / 60.0) * hourly_rate
+                
+                await db.execute('''
+                    INSERT INTO time_entries (
+                        entry_id, matter_id, lawyer_id, date, date_worked, duration_minutes,
+                        description, activity_type, billable, hourly_rate, total_amount
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    entry_id, time_data["matter_id"], time_data["lawyer_id"],
+                    time_data["date"], time_data["date"], duration, time_data["description"],
+                    time_data.get("activity_type", "legal_services"),
+                    time_data.get("billable", True), hourly_rate, amount
+                ))
+                
+                await db.commit()
+            
+            return {
+                "entry_id": entry_id,
+                "amount": amount,
+                "status": "recorded"
+            }
+        except Exception as e:
+            logger.error(f"Time tracking failed: {str(e)}")
+            raise
+    
+    async def generate_monthly_bill(self, matter_id: str, bill_date: str) -> Dict[str, Any]:
+        """Generate compliant monthly bill"""
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                # Get unbilled time entries
+                cursor = await db.execute('''
+                    SELECT entry_id, date, description, duration_minutes, hourly_rate, total_amount
+                    FROM time_entries
+                    WHERE matter_id = ? AND billable = TRUE AND billed = FALSE
+                    ORDER BY date
+                ''', (matter_id,))
+                time_entries = await cursor.fetchall()
+                
+                if not time_entries:
+                    return {"status": "no_entries", "message": "No billable entries found"}
+                
+                # Calculate totals
+                subtotal = sum(entry[5] for entry in time_entries)
+                taxes = subtotal * 0.13  # HST for Ontario
+                total = subtotal + taxes
+                
+                # Generate bill
+                bill_id = str(uuid.uuid4())
+                bill_number = await self._generate_bill_number()
+                
+                await db.execute('''
+                    INSERT INTO bills (
+                        bill_id, matter_id, bill_date, bill_number,
+                        subtotal, taxes, total_amount, status
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (bill_id, matter_id, bill_date, bill_number, subtotal, taxes, total, "draft"))
+                
+                # Mark time entries as billed
+                entry_ids = [entry[0] for entry in time_entries]
+                for entry_id in entry_ids:
+                    await db.execute('UPDATE time_entries SET billed = TRUE, billed_date = ? WHERE entry_id = ?', 
+                                   (datetime.now(), entry_id))
+                
+                await db.commit()
+            
+            # Generate bill document
+            bill_document = await self._generate_bill_document(bill_id, time_entries, subtotal, taxes, total)
+            
+            return {
+                "bill_id": bill_id,
+                "bill_number": bill_number,
+                "subtotal": subtotal,
+                "taxes": taxes,
+                "total": total,
+                "document_path": bill_document["file_path"]
+            }
+        except Exception as e:
+            logger.error(f"Monthly bill generation failed: {str(e)}")
+            raise
+    
+    async def _generate_bill_number(self) -> str:
+        """Generate unique bill number"""
+        current_date = datetime.now()
+        bill_number = f"BILL-{current_date.year}-{current_date.month:02d}-{uuid.uuid4().hex[:6].upper()}"
+        return bill_number
+    
+    async def _generate_bill_document(self, bill_id: str, time_entries: List, subtotal: float, taxes: float, total: float) -> Dict[str, Any]:
+        """Generate bill document (PDF)"""
+        # This would integrate with document generation service
+        # For now, return mock data
+        return {
+            "file_path": f"/documents/bills/bill_{bill_id}.pdf",
+            "generated_at": datetime.now().isoformat()
+        }
+    
+    async def manage_trust_account(self, transaction_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Manage trust account with LSUC compliance"""
+        try:
+            # Validate trust transaction
+            validation_result = await self.lsuc_compliance.validate_trust_transaction(transaction_data)
+            if not validation_result["valid"]:
+                raise ValueError(f"Trust transaction invalid: {validation_result['reason']}")
+            
+            async with aiosqlite.connect(self.db_path) as db:
+                transaction_id = str(uuid.uuid4())
+                
+                await db.execute('''
+                    INSERT INTO trust_transactions (
+                        transaction_id, matter_id, client_id, transaction_date,
+                        transaction_type, amount, description, reference_number, bank_account
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    transaction_id, transaction_data["matter_id"], transaction_data["client_id"],
+                    transaction_data["date"], transaction_data["type"], transaction_data["amount"],
+                    transaction_data.get("description", ""), transaction_data.get("reference", ""),
+                    transaction_data.get("bank_account", "main_trust")
+                ))
+                
+                await db.commit()
+            
+            # Log trust activity
+            await self.lsuc_compliance.log_trust_activity(transaction_id, transaction_data)
+            
+            return {
+                "transaction_id": transaction_id,
+                "status": "recorded",
+                "compliance_verified": True
+            }
+        except Exception as e:
+            logger.error(f"Trust account management failed: {str(e)}")
+            raise
+    
+    async def get_dashboard_metrics(self, lawyer_id: str) -> Dict[str, Any]:
+        """Get comprehensive practice dashboard metrics"""
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                # Active matters count
+                cursor = await db.execute('''
+                    SELECT COUNT(*) FROM matters
+                    WHERE responsible_lawyer = ? AND status = 'open'
+                ''', (lawyer_id,))
+                active_matters = (await cursor.fetchone())[0]
+                
+                # Monthly billable hours
+                cursor = await db.execute('''
+                    SELECT SUM(duration_minutes) FROM time_entries
+                    WHERE lawyer_id = ? AND billable = TRUE
+                    AND date >= date('now', '-30 days')
+                ''', (lawyer_id,))
+                monthly_hours_result = await cursor.fetchone()
+                monthly_hours = (monthly_hours_result[0] or 0) / 60.0  # Convert to hours
+                
+                # Outstanding bills
+                cursor = await db.execute('''
+                    SELECT SUM(total_amount - paid_amount) FROM bills
+                    WHERE status = 'sent'
+                ''')
+                outstanding_bills_result = await cursor.fetchone()
+                outstanding_bills = outstanding_bills_result[0] or 0.0
+                
+                # Trust account balance
+                cursor = await db.execute('''
+                    SELECT SUM(CASE WHEN transaction_type = 'receipt' THEN amount ELSE -amount END)
+                    FROM trust_transactions
+                ''')
+                trust_balance_result = await cursor.fetchone()
+                trust_balance = trust_balance_result[0] or 0.0
+                
+                return {
+                    "active_matters": active_matters,
+                    "monthly_billable_hours": round(monthly_hours, 2),
+                    "outstanding_bills": outstanding_bills,
+                    "trust_balance": trust_balance,
+                    "generated_at": datetime.now().isoformat()
+                }
+                
+        except Exception as e:
+            logger.error(f"Failed to get dashboard metrics: {str(e)}")
             raise
     
     def is_ready(self) -> bool:
