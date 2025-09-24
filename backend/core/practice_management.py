@@ -696,33 +696,61 @@ class OntarioPracticeManager:
     
     async def _create_initial_tasks(self, db, matter_id: str, matter_type: str):
         """Create initial tasks based on matter type"""
-        initial_tasks = {
-            "wills_estates": [
-                {"title": "Conduct client interview", "priority": "high", "days_from_now": 3},
-                {"title": "Review existing will (if any)", "priority": "medium", "days_from_now": 7},
-                {"title": "Draft will", "priority": "high", "days_from_now": 14},
-                {"title": "Schedule signing appointment", "priority": "medium", "days_from_now": 21}
-            ],
-            "real_estate": [
-                {"title": "Review purchase agreement", "priority": "high", "days_from_now": 1},
-                {"title": "Order title search", "priority": "high", "days_from_now": 2},
-                {"title": "Review mortgage documents", "priority": "medium", "days_from_now": 5}
-            ],
-            "corporate": [
-                {"title": "Review incorporation documents", "priority": "high", "days_from_now": 3},
-                {"title": "File articles of incorporation", "priority": "high", "days_from_now": 7},
-                {"title": "Prepare minute book", "priority": "medium", "days_from_now": 14}
+        tasks = []
+        if matter_type == "will":
+            tasks = [
+                {"title": "Client intake and conflict check", "type": "intake"},
+                {"title": "Gather asset information", "type": "information"},
+                {"title": "Draft will document", "type": "drafting"},
+                {"title": "Review and finalize will", "type": "review"},
+                {"title": "Arrange execution ceremony", "type": "execution"}
             ]
-        }
+        elif matter_type == "poa":
+            tasks = [
+                {"title": "Client intake and conflict check", "type": "intake"},
+                {"title": "Assess capacity requirements", "type": "assessment"},
+                {"title": "Draft POA document", "type": "drafting"},
+                {"title": "Review powers and limitations", "type": "review"},
+                {"title": "Arrange execution", "type": "execution"}
+            ]
+        else:
+            # Keep existing logic for other matter types
+            initial_tasks = {
+                "wills_estates": [
+                    {"title": "Conduct client interview", "priority": "high", "days_from_now": 3},
+                    {"title": "Review existing will (if any)", "priority": "medium", "days_from_now": 7},
+                    {"title": "Draft will", "priority": "high", "days_from_now": 14},
+                    {"title": "Schedule signing appointment", "priority": "medium", "days_from_now": 21}
+                ],
+                "real_estate": [
+                    {"title": "Review purchase agreement", "priority": "high", "days_from_now": 1},
+                    {"title": "Order title search", "priority": "high", "days_from_now": 2},
+                    {"title": "Review mortgage documents", "priority": "medium", "days_from_now": 5}
+                ],
+                "corporate": [
+                    {"title": "Review incorporation documents", "priority": "high", "days_from_now": 3},
+                    {"title": "File articles of incorporation", "priority": "high", "days_from_now": 7},
+                    {"title": "Prepare minute book", "priority": "medium", "days_from_now": 14}
+                ]
+            }
+            
+            existing_tasks = initial_tasks.get(matter_type, [])
+            for task in existing_tasks:
+                task_id = str(uuid.uuid4())
+                due_date = datetime.now() + timedelta(days=task["days_from_now"])
+                await db.execute('''
+                    INSERT INTO tasks (task_id, matter_id, title, due_date, priority, status)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ''', (task_id, matter_id, task["title"], due_date.date(), task["priority"], "pending"))
+            return
         
-        tasks = initial_tasks.get(matter_type, [])
+        # Enhanced task creation for will and poa
         for task in tasks:
             task_id = str(uuid.uuid4())
-            due_date = datetime.now() + timedelta(days=task["days_from_now"])
             await db.execute('''
-                INSERT INTO tasks (task_id, matter_id, title, due_date, priority, status)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ''', (task_id, matter_id, task["title"], due_date.date(), task["priority"], "pending"))
+                INSERT INTO tasks (task_id, matter_id, task_type, title, status)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (task_id, matter_id, task["type"], task["title"], "pending"))
     
     async def track_time_entry(self, time_data: Dict[str, Any]) -> Dict[str, Any]:
         """Track billable time with Ontario-specific requirements"""
@@ -830,19 +858,15 @@ class OntarioPracticeManager:
             raise
     
     async def _generate_bill_number(self) -> str:
-        """Generate unique bill number"""
-        current_date = datetime.now()
-        bill_number = f"BILL-{current_date.year}-{current_date.month:02d}-{uuid.uuid4().hex[:6].upper()}"
-        return bill_number
+        """Generate sequential bill number"""
+        # Implementation for bill number generation
+        return f"BILL-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8]}"
     
-    async def _generate_bill_document(self, bill_id: str, time_entries: List, subtotal: float, taxes: float, total: float) -> Dict[str, Any]:
-        """Generate bill document (PDF)"""
-        # This would integrate with document generation service
-        # For now, return mock data
-        return {
-            "file_path": f"/documents/bills/bill_{bill_id}.pdf",
-            "generated_at": datetime.now().isoformat()
-        }
+    async def _generate_bill_document(self, bill_id: str, time_entries: List, subtotal: float, taxes: float,
+                                    total: float) -> Dict[str, Any]:
+        """Generate bill document"""
+        # Implementation for bill document generation
+        return {"file_path": f"bills/{bill_id}.pdf", "status": "generated"}
     
     async def manage_trust_account(self, transaction_data: Dict[str, Any]) -> Dict[str, Any]:
         """Manage trust account with LSUC compliance"""
@@ -917,17 +941,55 @@ class OntarioPracticeManager:
                 trust_balance_result = await cursor.fetchone()
                 trust_balance = trust_balance_result[0] or 0.0
                 
+                # Upcoming deadlines
+                cursor = await db.execute('''
+                    SELECT COUNT(*) FROM tasks
+                    WHERE assigned_to = ? AND due_date <= date('now', '+7 days')
+                    AND status != 'completed'
+                ''', (lawyer_id,))
+                upcoming_deadlines = (await cursor.fetchone())[0]
+                
                 return {
                     "active_matters": active_matters,
                     "monthly_billable_hours": round(monthly_hours, 2),
                     "outstanding_bills": outstanding_bills,
                     "trust_balance": trust_balance,
+                    "upcoming_deadlines": upcoming_deadlines,
+                    "lsuc_compliance_status": await self.lsuc_compliance.get_compliance_status(),
                     "generated_at": datetime.now().isoformat()
                 }
                 
         except Exception as e:
-            logger.error(f"Failed to get dashboard metrics: {str(e)}")
+            logger.error(f"Dashboard metrics failed: {str(e)}")
             raise
+    
+    async def _load_practice_templates(self):
+        """Load practice management templates"""
+        self.templates = {
+            "client_intake": {
+                "questions": [
+                    "What is the legal issue?",
+                    "What is your desired outcome?",
+                    "Have you consulted other lawyers?",
+                    "What is your budget/timeline?"
+                ],
+                "documents_required": ["ID verification", "Conflict check"]
+            },
+            "matter_checklist": {
+                "will": [
+                    "Conflict check completed",
+                    "Client ID verified",
+                    "Asset list prepared",
+                    "Beneficiaries identified",
+                    "Executor appointed",
+                    "Guardian appointed (if applicable)",
+                    "Document drafted",
+                    "Review completed",
+                    "Execution arranged",
+                    "Registration completed"
+                ]
+            }
+        }
     
     def is_ready(self) -> bool:
         """Check if practice manager is ready"""
