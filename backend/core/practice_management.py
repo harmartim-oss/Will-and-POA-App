@@ -767,6 +767,17 @@ class OntarioPracticeManager:
         """Generate compliant monthly bill"""
         try:
             async with aiosqlite.connect(self.db_path) as db:
+                # Get matter details including client_id
+                cursor = await db.execute('''
+                    SELECT client_id FROM matters WHERE matter_id = ?
+                ''', (matter_id,))
+                matter_result = await cursor.fetchone()
+                
+                if not matter_result:
+                    return {"status": "error", "message": "Matter not found"}
+                
+                client_id = matter_result[0]
+                
                 # Get unbilled time entries
                 cursor = await db.execute('''
                     SELECT entry_id, date, description, duration_minutes, hourly_rate, total_amount
@@ -790,10 +801,10 @@ class OntarioPracticeManager:
                 
                 await db.execute('''
                     INSERT INTO bills (
-                        bill_id, matter_id, bill_date, bill_number,
+                        bill_id, matter_id, client_id, bill_date, bill_number,
                         subtotal, taxes, total_amount, status
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (bill_id, matter_id, bill_date, bill_number, subtotal, taxes, total, "draft"))
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (bill_id, matter_id, client_id, bill_date, bill_number, subtotal, taxes, total, "draft"))
                 
                 # Mark time entries as billed
                 entry_ids = [entry[0] for entry in time_entries]
