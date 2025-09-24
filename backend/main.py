@@ -12,8 +12,13 @@ from core.document_generator import OntarioDocumentGenerator
 from core.legal_knowledge import OntarioLegalKnowledgeBase
 from core.compliance_checker import OntarioComplianceChecker
 from core.risk_assessor import OntarioRiskAssessor
+from core.practice_management import OntarioPracticeManager
+from core.lsuc_compliance import LSUCComplianceManager
 from services.enhanced_legal_ai import EnhancedLegalAI
 from api.routes import documents, ai, compliance, blockchain, enhanced_ai
+# Import new practice management routes individually to avoid circular imports
+from api.routes.practice import router as practice_router
+from api.routes.lsuc_compliance import router as lsuc_router
 from database.connection import init_db
 from models.schemas import (
     DocumentRequest, DocumentResponse, 
@@ -27,9 +32,9 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Ontario Legal Document AI System",
-    description="AI-powered legal document generation and analysis for Ontario jurisdiction",
-    version="1.0.0",
+    title="Ontario Legal Document AI System with Practice Management",
+    description="AI-powered legal document generation, analysis, and comprehensive practice management for Ontario sole practitioners",
+    version="2.0.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc"
 )
@@ -46,7 +51,7 @@ app.add_middleware(
 # Security
 security = HTTPBearer()
 
-# Initialize AI components
+# Initialize AI components and practice management
 ai_engine = OntarioLegalAIEngine()
 doc_generator = OntarioDocumentGenerator()
 legal_knowledge = OntarioLegalKnowledgeBase()
@@ -54,10 +59,14 @@ compliance_checker = OntarioComplianceChecker()
 risk_assessor = OntarioRiskAssessor()
 enhanced_legal_ai = EnhancedLegalAI()
 
+# Initialize practice management components
+practice_manager = OntarioPracticeManager()
+lsuc_compliance_manager = LSUCComplianceManager()
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    logger.info("Starting Ontario Legal Document AI System...")
+    logger.info("Starting Ontario Legal Document AI System with Practice Management...")
     
     # Initialize database
     await init_db()
@@ -69,14 +78,32 @@ async def startup_event():
     # Initialize Enhanced Legal AI
     await enhanced_legal_ai.initialize()
     
-    logger.info("System initialized successfully")
+    # Initialize practice management system
+    logger.info("Initializing Practice Management System...")
+    await practice_manager.initialize()
+    
+    # Set global instances for API routes (better approach would be dependency injection)
+    import api.routes.practice as practice_module
+    import api.routes.lsuc_compliance as compliance_module
+    practice_module.practice_manager = practice_manager
+    compliance_module.compliance_manager = lsuc_compliance_manager
+    
+    logger.info("✓ System initialized successfully with practice management")
 
 @app.get("/")
 async def root():
     return {
-        "message": "Ontario Legal Document AI System",
-        "version": "1.0.0",
-        "status": "operational"
+        "message": "Ontario Legal Document AI System with Practice Management",
+        "version": "2.0.0",
+        "status": "operational",
+        "features": [
+            "AI-powered document generation",
+            "Legal compliance checking",
+            "Comprehensive practice management",
+            "LSUC compliance tracking",
+            "Trust account management",
+            "Time tracking and billing"
+        ]
     }
 
 @app.get("/health")
@@ -89,7 +116,9 @@ async def health_check():
             "legal_knowledge": legal_knowledge.is_ready(),
             "document_generator": doc_generator.is_ready(),
             "compliance_checker": compliance_checker.is_ready(),
-            "enhanced_legal_ai": enhanced_legal_ai.is_initialized
+            "enhanced_legal_ai": enhanced_legal_ai.is_initialized,
+            "practice_manager": practice_manager.is_ready(),
+            "lsuc_compliance": lsuc_compliance_manager.is_ready()
         }
     }
 
@@ -99,6 +128,10 @@ app.include_router(ai.router, prefix="/api/ai", tags=["ai"])
 app.include_router(compliance.router, prefix="/api/compliance", tags=["compliance"])
 app.include_router(blockchain.router, prefix="/api/blockchain", tags=["blockchain"])  
 app.include_router(enhanced_ai.router, prefix="/api/enhanced-ai", tags=["enhanced-ai"])
+
+# Include new practice management routes
+app.include_router(practice_router, prefix="/api/practice", tags=["practice-management"])
+app.include_router(lsuc_router, prefix="/api/lsuc", tags=["lsuc-compliance"])
 
 if __name__ == "__main__":
     uvicorn.run(
