@@ -1,6 +1,4 @@
 # backend/core/enhanced_ai_assistant.py
-import spacy
-from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from typing import Dict, List, Any, Optional
 import logging
 from datetime import datetime
@@ -8,8 +6,31 @@ import asyncio
 import json
 import re
 from dataclasses import dataclass
-import numpy as np
-from sentence_transformers import SentenceTransformer
+
+# Optional dependencies with fallbacks
+try:
+    import spacy
+    SPACY_AVAILABLE = True
+except ImportError:
+    SPACY_AVAILABLE = False
+
+try:
+    from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
+    TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    TRANSFORMERS_AVAILABLE = False
+
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    NUMPY_AVAILABLE = False
+
+try:
+    from sentence_transformers import SentenceTransformer
+    SENTENCE_TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    SENTENCE_TRANSFORMERS_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -50,35 +71,47 @@ class OntarioEnhancedAIAssistant:
         try:
             logger.info("🤖 Initializing Enhanced Ontario AI Assistant...")
             # Load spaCy with legal enhancements
-            try:
-                self.nlp = spacy.load("en_core_web_lg")
-            except OSError:
-                # Fallback to smaller model if large model not available
-                logger.warning("Large spaCy model not available, using smaller model")
+            if SPACY_AVAILABLE:
                 try:
-                    self.nlp = spacy.load("en_core_web_sm")
+                    self.nlp = spacy.load("en_core_web_lg")
                 except OSError:
-                    logger.warning("spaCy models not available, initializing without NLP")
-                    self.nlp = None
+                    # Fallback to smaller model if large model not available
+                    logger.warning("Large spaCy model not available, using smaller model")
+                    try:
+                        self.nlp = spacy.load("en_core_web_sm")
+                    except OSError:
+                        logger.warning("spaCy models not available, initializing without NLP")
+                        self.nlp = None
+            else:
+                logger.warning("spaCy not available, initializing without NLP")
+                self.nlp = None
             
             if self.nlp:
                 self._add_legal_patterns()
             
             # Initialize sentence transformer with fallback
-            try:
-                self.sentence_transformer = SentenceTransformer('all-mpnet-base-v2')
-            except Exception as e:
-                logger.warning(f"Sentence transformer not available: {e}")
+            if SENTENCE_TRANSFORMERS_AVAILABLE:
+                try:
+                    self.sentence_transformer = SentenceTransformer('all-mpnet-base-v2')
+                except Exception as e:
+                    logger.warning(f"Sentence transformer not available: {e}")
+                    self.sentence_transformer = None
+            else:
+                logger.warning("Sentence transformers not available")
                 self.sentence_transformer = None
             
             # Initialize legal classifier with fallback
-            try:
-                self.legal_classifier = pipeline(
-                    "zero-shot-classification",
-                    model="facebook/bart-large-mnli"
-                )
-            except Exception as e:
-                logger.warning(f"Legal classifier not available: {e}")
+            if TRANSFORMERS_AVAILABLE:
+                try:
+                    self.legal_classifier = pipeline(
+                        "zero-shot-classification",
+                        model="facebook/bart-large-mnli"
+                    )
+                except Exception as e:
+                    logger.warning(f"Legal classifier not available: {e}")
+                    self.legal_classifier = None
+            else:
+                logger.warning("Transformers not available")
                 self.legal_classifier = None
             
             self.is_initialized = True

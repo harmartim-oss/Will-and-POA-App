@@ -70,6 +70,8 @@ class DashboardResponse(BaseModel):
     monthly_billable_hours: float
     outstanding_bills: float
     trust_balance: float
+    upcoming_deadlines: int
+    lsuc_compliance_status: Dict[str, Any]
     generated_at: str
 
 # API endpoints
