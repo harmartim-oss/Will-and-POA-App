@@ -327,25 +327,20 @@ async def conduct_legal_research(research_request: Dict[str, Any]):
 
 @router.post("/case-prediction")
 async def predict_case_outcome(prediction_request: Dict[str, Any]):
-    """Predict case outcome using AI analysis"""
+    """Predict case outcome based on Ontario precedents"""
     try:
         case_facts = prediction_request.get("case_facts", {})
-        legal_issue = prediction_request.get("legal_issue")
+        case_type = prediction_request.get("case_type", prediction_request.get("legal_issue"))
         
-        if not legal_issue:
-            raise HTTPException(status_code=400, detail="Legal issue is required")
+        if not case_facts:
+            raise HTTPException(status_code=400, detail="Case facts are required")
         
-        prediction = await ai_legal_service.predict_case_outcome(case_facts, legal_issue)
+        # Use the enhanced prediction method
+        prediction = await ai_legal_service.predict_case_outcome(case_facts, case_type)
         
         return {
             "success": True,
-            "prediction": {
-                "case_outcome": prediction.case_outcome,
-                "probability": prediction.probability,
-                "key_factors": prediction.key_factors,
-                "similar_cases": prediction.similar_cases,
-                "confidence_level": prediction.confidence_level
-            }
+            "prediction": prediction
         }
         
     except Exception as e:
