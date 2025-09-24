@@ -48,7 +48,9 @@ class OntarioCaseLawAnalyzer:
                     "Will made significant changes to previous will"
                 ],
                 "legal_test": "Banks v Goodfellow test applied",
-                "relevance_tags": ["will", "capacity", "elderly", "medical_evidence"]
+                "relevance_tags": ["will", "capacity", "elderly", "medical_evidence"],
+                "outcome": "will_upheld",
+                "key_factors": ["medical_evidence", "proper_execution", "independent_legal_advice"]
             },
             {
                 "id": "case_002",
@@ -64,9 +66,76 @@ class OntarioCaseLawAnalyzer:
                     "Beneficiaries sought compensation"
                 ],
                 "legal_test": "Fiduciary duty standard",
-                "relevance_tags": ["poa", "fiduciary", "financial", "abuse"]
+                "relevance_tags": ["poa", "fiduciary", "financial", "abuse"],
+                "outcome": "poa_revoked",
+                "key_factors": ["financial_abuse", "conflict_of_interest", "inadequate_records"]
+            },
+            {
+                "id": "case_003",
+                "case_name": "Thompson v. Thompson Estate",
+                "citation": "[2021] O.J. No. 789",
+                "court": "Ontario Superior Court",
+                "year": 2021,
+                "legal_principle": "will_execution_requirements",
+                "summary": "Will upheld despite capacity concerns due to proper execution and medical evidence",
+                "key_facts": [
+                    "Testator had mild dementia",
+                    "Will properly witnessed",
+                    "Independent legal advice obtained",
+                    "Medical assessment confirmed capacity for simple will"
+                ],
+                "legal_test": "Banks v Goodfellow test with medical evidence",
+                "relevance_tags": ["will", "capacity", "execution", "medical_evidence"],
+                "outcome": "will_upheld",
+                "key_factors": ["medical_evidence", "proper_execution", "independent_legal_advice"]
+            },
+            {
+                "id": "case_004", 
+                "case_name": "Wilson Capacity Challenge",
+                "citation": "[2022] O.J. No. 234",
+                "court": "Ontario Superior Court",
+                "year": 2022,
+                "legal_principle": "testamentary_capacity",
+                "summary": "Will invalidated due to lack of testamentary capacity and suspicious circumstances",
+                "key_facts": [
+                    "Testator had severe dementia",
+                    "Will executed shortly before death",
+                    "Primary beneficiary was sole caregiver",
+                    "No independent legal advice"
+                ],
+                "legal_test": "Banks v Goodfellow test failed",
+                "relevance_tags": ["will", "capacity", "dementia", "suspicious_circumstances"],
+                "outcome": "will_invalid",
+                "key_factors": ["dementia", "lack_of_capacity", "undue_influence", "suspicious_circumstances"]
             }
         ]
+
+    def predict_case_outcome_integration(self, issue_description: str, case_facts: dict) -> Dict[str, Any]:
+        """Integration point for case outcome prediction using case law analysis"""
+        relevant_cases = self._find_relevant_cases(issue_description, "will")
+        applicable_principles = self._find_applicable_principles(issue_description)
+        
+        # Calculate prediction based on similar case outcomes
+        outcomes = [case.get("outcome", "unknown") for case in relevant_cases]
+        outcome_counts = {}
+        for outcome in outcomes:
+            outcome_counts[outcome] = outcome_counts.get(outcome, 0) + 1
+        
+        # Determine most likely outcome
+        if outcome_counts:
+            predicted_outcome = max(outcome_counts.keys(), key=lambda k: outcome_counts[k])
+            confidence = outcome_counts[predicted_outcome] / len(outcomes)
+        else:
+            predicted_outcome = "uncertain"
+            confidence = 0.5
+        
+        return {
+            "predicted_outcome": predicted_outcome,
+            "confidence": confidence,
+            "supporting_cases": relevant_cases[:3],
+            "applicable_principles": applicable_principles,
+            "case_law_analysis": self.analyze_legal_issue(issue_description, "will")
+        }
 
     def _load_legal_principles(self):
         """Load key legal principles"""

@@ -14,7 +14,9 @@ from core.compliance_checker import OntarioComplianceChecker
 from core.risk_assessor import OntarioRiskAssessor
 from core.practice_management import OntarioPracticeManager
 from core.lsuc_compliance import LSUCComplianceManager
+from core.case_law_analyzer import OntarioCaseLawAnalyzer
 from services.enhanced_legal_ai import EnhancedLegalAI
+from services.enhanced_ai_legal_service import EnhancedAILegalService
 from api.routes import documents, ai, compliance, blockchain, enhanced_ai
 # Import new practice management routes individually to avoid circular imports
 from api.routes.practice import router as practice_router
@@ -58,6 +60,8 @@ legal_knowledge = OntarioLegalKnowledgeBase()
 compliance_checker = OntarioComplianceChecker()
 risk_assessor = OntarioRiskAssessor()
 enhanced_legal_ai = EnhancedLegalAI()
+enhanced_ai_legal_service = EnhancedAILegalService()
+case_law_analyzer = OntarioCaseLawAnalyzer()
 
 # Initialize practice management components
 practice_manager = OntarioPracticeManager()
@@ -78,17 +82,26 @@ async def startup_event():
     # Initialize Enhanced Legal AI
     await enhanced_legal_ai.initialize()
     
+    # Initialize Case Law Analyzer
+    await case_law_analyzer.initialize()
+    
     # Initialize practice management system
     logger.info("Initializing Practice Management System...")
     await practice_manager.initialize()
     
-    # Set global instances for API routes (better approach would be dependency injection)
+    # Make services available to API routes
     import api.routes.practice as practice_module
     import api.routes.lsuc_compliance as compliance_module
+    import api.routes.documents as documents_module
+    
     practice_module.practice_manager = practice_manager
     compliance_module.compliance_manager = lsuc_compliance_manager
+    documents_module.ai_legal_service = enhanced_ai_legal_service
+    documents_module.case_law_analyzer = case_law_analyzer
     
-    logger.info("✓ System initialized successfully with practice management")
+    logger.info("✓ System initialized successfully with Ontario case outcome prediction")
+    logger.info("✓ Enhanced AI Legal Service ready for case predictions")
+    logger.info("✓ Case Law Analyzer loaded with Ontario legal precedents")
 
 @app.get("/")
 async def root():
@@ -117,6 +130,8 @@ async def health_check():
             "document_generator": doc_generator.is_ready(),
             "compliance_checker": compliance_checker.is_ready(),
             "enhanced_legal_ai": enhanced_legal_ai.is_initialized,
+            "enhanced_ai_legal_service": enhanced_ai_legal_service.is_ready(),
+            "case_law_analyzer": case_law_analyzer.is_ready(),
             "practice_manager": practice_manager.is_ready(),
             "lsuc_compliance": lsuc_compliance_manager.is_ready()
         }
