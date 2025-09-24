@@ -20,6 +20,12 @@ try:
 except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
 
+try:
+    import openai
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+
 from typing import Dict, List, Any, Optional
 import logging
 from datetime import datetime
@@ -49,6 +55,7 @@ class OntarioLegalAIEngine:
         self.legal_classifier = None
         self.entity_recognizer = None
         self.sentence_transformer = None
+        self.openai_client = None
         self.legal_knowledge = OntarioLegalKnowledgeBase()
         self.nlp_models = OntarioLegalNLPModels()
         self.case_law_analyzer = OntarioCaseLawAnalyzer()
@@ -61,6 +68,11 @@ class OntarioLegalAIEngine:
             "estate_administration": ["probate", "estate", "administrator"],
             "trusts": ["trustee", "beneficiary", "trust agreement"]
         }
+        
+        # Enhanced AI capabilities
+        self.compliance_checker = None
+        self.risk_assessor = None
+        self.document_intelligence = None
         
         self.is_initialized = False
 
@@ -447,8 +459,288 @@ class OntarioLegalAIEngine:
             "models_loaded": {
                 "spacy": self.nlp is not None,
                 "sentence_transformer": self.sentence_transformer is not None,
+                "openai": self.openai_client is not None,
                 "legal_knowledge": self.legal_knowledge.is_ready(),
                 "case_law": self.case_law_analyzer.is_ready()
             },
             "timestamp": datetime.now().isoformat()
         }
+
+    async def analyze_document_requirements(self, document_type: str, user_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract legal requirements based on user situation using advanced AI"""
+        try:
+            requirements = []
+            
+            # Use case law analysis for requirements
+            case_analysis = self.case_law_analyzer.analyze_legal_issue(
+                f"Requirements for {document_type}", document_type
+            )
+            
+            if document_type == "will":
+                requirements.extend(self._analyze_will_requirements(user_data))
+            elif document_type == "poa_property":
+                requirements.extend(self._analyze_poa_property_requirements(user_data))
+            elif document_type == "poa_personal_care":
+                requirements.extend(self._analyze_poa_care_requirements(user_data))
+            
+            return {
+                "requirements": requirements,
+                "case_law_guidance": case_analysis,
+                "ai_recommendations": await self._generate_ai_recommendations(document_type, user_data)
+            }
+            
+        except Exception as e:
+            logger.error(f"Error analyzing document requirements: {str(e)}")
+            return {"requirements": [], "error": str(e)}
+
+    def _analyze_will_requirements(self, user_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Analyze will-specific requirements"""
+        requirements = []
+        
+        # Age and capacity requirements
+        age = user_data.get("age", 0)
+        if age < 18:
+            requirements.append({
+                "type": "age_requirement",
+                "description": "Must be 18 years or older to make a will",
+                "met": False,
+                "critical": True
+            })
+        
+        # Mental capacity assessment
+        if user_data.get("has_cognitive_concerns", False):
+            requirements.append({
+                "type": "capacity_assessment",
+                "description": "Medical assessment of testamentary capacity required",
+                "met": False,
+                "critical": True,
+                "recommendation": "Obtain medical opinion on capacity"
+            })
+        
+        # Executor requirements
+        executors = user_data.get("executors", [])
+        if not executors:
+            requirements.append({
+                "type": "executor_appointment",
+                "description": "At least one executor must be appointed",
+                "met": False,
+                "critical": True
+            })
+        
+        # Witness requirements
+        requirements.append({
+            "type": "witness_requirement",
+            "description": "Two witnesses required for will execution",
+            "met": False,
+            "critical": True,
+            "details": "Witnesses must be present when will is signed"
+        })
+        
+        return requirements
+
+    def _analyze_poa_property_requirements(self, user_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Analyze POA property-specific requirements"""
+        requirements = []
+        
+        # Attorney appointment
+        attorneys = user_data.get("attorneys", [])
+        if not attorneys:
+            requirements.append({
+                "type": "attorney_appointment",
+                "description": "At least one attorney must be appointed",
+                "met": False,
+                "critical": True
+            })
+        
+        # Capacity for property decisions
+        requirements.append({
+            "type": "property_capacity",
+            "description": "Capacity to make property decisions required",
+            "met": True,
+            "critical": True,
+            "assessment_needed": user_data.get("has_cognitive_concerns", False)
+        })
+        
+        # Witness requirements
+        requirements.append({
+            "type": "witness_requirement",
+            "description": "Witness required for POA execution",
+            "met": False,
+            "critical": True
+        })
+        
+        return requirements
+
+    def _analyze_poa_care_requirements(self, user_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Analyze POA personal care-specific requirements"""
+        requirements = []
+        
+        # Attorney appointment
+        attorneys = user_data.get("attorneys", [])
+        if not attorneys:
+            requirements.append({
+                "type": "attorney_appointment",
+                "description": "At least one attorney for personal care must be appointed",
+                "met": False,
+                "critical": True
+            })
+        
+        # Capacity for personal care decisions
+        requirements.append({
+            "type": "personal_care_capacity",
+            "description": "Capacity to make personal care decisions required",
+            "met": True,
+            "critical": True
+        })
+        
+        # Healthcare directive considerations
+        if user_data.get("has_healthcare_preferences", False):
+            requirements.append({
+                "type": "healthcare_directive",
+                "description": "Healthcare preferences should be clearly documented",
+                "met": False,
+                "recommendation": "Include specific healthcare instructions"
+            })
+        
+        return requirements
+
+    async def _generate_ai_recommendations(self, document_type: str, user_data: Dict[str, Any]) -> List[str]:
+        """Generate AI-powered recommendations"""
+        recommendations = []
+        
+        # Use NLP models for recommendations if available
+        if self.nlp_models.is_ready():
+            try:
+                analysis_result = {
+                    "document_type": document_type,
+                    "user_data": user_data
+                }
+                ai_recommendations = await self.nlp_models.generate_recommendations(analysis_result)
+                recommendations.extend(ai_recommendations)
+            except Exception as e:
+                logger.warning(f"AI recommendation generation failed: {str(e)}")
+        
+        # Fallback to rule-based recommendations
+        if not recommendations:
+            recommendations = self._get_fallback_recommendations(document_type, user_data)
+        
+        return recommendations
+
+    def _get_fallback_recommendations(self, document_type: str, user_data: Dict[str, Any]) -> List[str]:
+        """Fallback recommendations when AI is not available"""
+        recommendations = []
+        
+        if document_type == "will":
+            recommendations.extend([
+                "Consider appointing alternate executors",
+                "Clearly specify distribution of assets",
+                "Include funeral and burial instructions",
+                "Review beneficiary designations on registered accounts"
+            ])
+        elif document_type in ["poa_property", "poa_personal_care"]:
+            recommendations.extend([
+                "Appoint alternate attorneys",
+                "Provide clear instructions for decision-making",
+                "Consider any restrictions on attorney powers",
+                "Discuss your wishes with appointed attorneys"
+            ])
+        
+        return recommendations
+
+    async def validate_compliance(self, document_content: str, document_type: str) -> Dict[str, Any]:
+        """Real-time compliance checking against Ontario law"""
+        try:
+            compliance_issues = []
+            
+            # Check against relevant legislation
+            if document_type == "will":
+                compliance_issues.extend(self._check_will_compliance(document_content))
+            elif document_type == "poa_property":
+                compliance_issues.extend(self._check_poa_compliance(document_content, "property"))
+            elif document_type == "poa_personal_care":
+                compliance_issues.extend(self._check_poa_compliance(document_content, "personal_care"))
+            
+            # Calculate compliance score
+            total_checks = 10  # Base number of compliance checks
+            issues_count = len([issue for issue in compliance_issues if issue.get("severity") == "critical"])
+            compliance_score = max(0, (total_checks - issues_count) / total_checks * 100)
+            
+            return {
+                "compliance_score": compliance_score,
+                "issues": compliance_issues,
+                "status": "compliant" if compliance_score >= 80 else "non_compliant",
+                "recommendations": self._get_compliance_recommendations(compliance_issues)
+            }
+            
+        except Exception as e:
+            logger.error(f"Compliance validation failed: {str(e)}")
+            return {"error": str(e), "compliance_score": 0}
+
+    def _check_will_compliance(self, content: str) -> List[Dict[str, Any]]:
+        """Check will compliance with Ontario Succession Law Reform Act"""
+        issues = []
+        content_lower = content.lower()
+        
+        # Check for essential elements
+        if "executor" not in content_lower:
+            issues.append({
+                "type": "missing_executor",
+                "severity": "critical",
+                "message": "No executor appointment found",
+                "statute": "Succession Law Reform Act, s. 3"
+            })
+        
+        if "witness" not in content_lower:
+            issues.append({
+                "type": "missing_witnesses",
+                "severity": "critical", 
+                "message": "No witness references found",
+                "statute": "Succession Law Reform Act, s. 4"
+            })
+        
+        if "revoke" not in content_lower:
+            issues.append({
+                "type": "missing_revocation",
+                "severity": "medium",
+                "message": "Should include revocation of previous wills",
+                "recommendation": "Add clause revoking all previous wills"
+            })
+        
+        return issues
+
+    def _check_poa_compliance(self, content: str, poa_type: str) -> List[Dict[str, Any]]:
+        """Check POA compliance with Substitute Decisions Act"""
+        issues = []
+        content_lower = content.lower()
+        
+        if "attorney" not in content_lower:
+            issues.append({
+                "type": "missing_attorney",
+                "severity": "critical",
+                "message": "No attorney appointment found",
+                "statute": "Substitute Decisions Act, s. 7"
+            })
+        
+        if poa_type == "personal_care" and "healthcare" not in content_lower:
+            issues.append({
+                "type": "missing_healthcare_provisions",
+                "severity": "medium",
+                "message": "Consider including healthcare decision provisions",
+                "recommendation": "Add specific healthcare instructions"
+            })
+        
+        return issues
+
+    def _get_compliance_recommendations(self, issues: List[Dict[str, Any]]) -> List[str]:
+        """Generate recommendations based on compliance issues"""
+        recommendations = []
+        
+        for issue in issues:
+            if issue.get("recommendation"):
+                recommendations.append(issue["recommendation"])
+            elif issue.get("type") == "missing_executor":
+                recommendations.append("Appoint a qualified executor to manage your estate")
+            elif issue.get("type") == "missing_witnesses":
+                recommendations.append("Ensure proper witnessing according to Ontario law")
+        
+        return recommendations

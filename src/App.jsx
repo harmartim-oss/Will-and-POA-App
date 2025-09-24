@@ -6,6 +6,7 @@ import DocumentCreator from './components/DocumentCreator'
 import EnhancedDocumentCreator from './components/EnhancedDocumentCreator'
 import DocumentEditor from './components/DocumentEditor'
 import DocumentPreview from './components/DocumentPreview'
+import DemoShowcase from './components/DemoShowcase'
 import { config } from './config/environment'
 
 function App() {
@@ -39,7 +40,8 @@ function AppContent() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900">
       <main id="main" role="main" className="block focus:outline-none">
         <Routes>
-          <Route path="/" element={<ModernLandingPage onGetStarted={handleGetStarted} onLearnMore={handleLearnMore} />} />
+          <Route path="/" element={<DemoShowcase />} />
+          <Route path="/landing" element={<ModernLandingPage onGetStarted={handleGetStarted} onLearnMore={handleLearnMore} />} />
           <Route path="/create/:type" element={<DocumentCreator />} />
           <Route path="/edit/:id" element={<DocumentEditor />} />
           <Route path="/preview/:id" element={<DocumentPreview />} />

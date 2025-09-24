@@ -25,9 +25,9 @@ except ImportError:
         def __init__(self, *args, **kwargs):
             pass
 
-from ai_enhanced_document_generator import AIEnhancedDocumentGenerator
-from enhanced_ai_legal_service import EnhancedAILegalService
-from ontario_legal_kb import OntarioLegalKnowledgeBase
+from backend.core.ai_enhanced_document_generator import AIEnhancedDocumentGenerator
+from backend.core.enhanced_ai_legal_service import EnhancedAILegalService
+from backend.core.legal_knowledge import OntarioLegalKnowledgeBase
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -361,6 +361,178 @@ if FASTAPI_AVAILABLE:
         except Exception as e:
             logger.error(f"Error getting insights: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Error getting insights: {str(e)}")
+
+    @app.post("/api/ai/enhanced-analysis")
+    async def enhanced_ai_analysis(request: DocumentAnalysisRequest):
+        """Enhanced AI document analysis with advanced features"""
+        try:
+            logger.info(f"Performing enhanced AI analysis for {request.document_type}")
+            
+            # Use the enhanced AI service
+            analysis = ai_service.analyze_document(request.document_type, request.content)
+            insights = ai_service.generate_document_insights(request.document_type, request.content)
+            
+            return JSONResponse(content={
+                "success": True,
+                "analysis": asdict(analysis),
+                "insights": insights,
+                "capabilities": {
+                    "compliance_checking": True,
+                    "risk_assessment": True,
+                    "case_law_analysis": True,
+                    "ai_recommendations": True
+                }
+            })
+            
+        except Exception as e:
+            logger.error(f"Enhanced AI analysis failed: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Enhanced AI analysis failed: {str(e)}")
+
+    @app.post("/api/documents/generate-enhanced")
+    async def generate_enhanced_document(request: Dict[str, Any]):
+        """Generate document using enhanced AI document generator"""
+        try:
+            document_type = request.get("document_type", "will")
+            user_data = request.get("user_data", {})
+            ai_enhancements = request.get("ai_enhancements", True)
+            
+            logger.info(f"Generating enhanced {document_type} document")
+            
+            if document_type == "will":
+                result = await document_generator.generate_ontario_will(user_data, ai_enhancements)
+            elif document_type in ["poa_property", "poa_personal_care"]:
+                result = await document_generator.generate_ontario_poa(user_data, document_type, ai_enhancements)
+            else:
+                raise HTTPException(status_code=400, detail="Unsupported document type")
+            
+            return JSONResponse(content=result)
+            
+        except Exception as e:
+            logger.error(f"Enhanced document generation failed: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Enhanced document generation failed: {str(e)}")
+
+    @app.get("/api/ai/capabilities")
+    async def get_ai_capabilities():
+        """Get AI system capabilities and status"""
+        try:
+            health_check = await ai_service.health_check()
+            generator_status = await document_generator.health_check()
+            
+            return JSONResponse(content={
+                "success": True,
+                "ai_service": health_check,
+                "document_generator": generator_status,
+                "features": {
+                    "advanced_nlp": True,
+                    "case_law_analysis": True,
+                    "compliance_checking": True,
+                    "risk_assessment": True,
+                    "document_optimization": True,
+                    "semantic_analysis": True,
+                    "real_time_guidance": True
+                }
+            })
+            
+        except Exception as e:
+            logger.error(f"Error getting AI capabilities: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error getting AI capabilities: {str(e)}")
+
+    @app.post("/api/documents/preview")
+    async def generate_document_preview(request: Dict[str, Any]):
+        """Generate document preview without full processing"""
+        try:
+            document_type = request.get("document_type", "will")
+            user_data = request.get("user_data", {})
+            
+            preview = document_generator.get_document_preview(document_type, user_data)
+            
+            return JSONResponse(content={
+                "success": True,
+                "preview": preview
+            })
+            
+        except Exception as e:
+            logger.error(f"Preview generation failed: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Preview generation failed: {str(e)}")
+
+    @app.post("/api/documents/validate-data")
+    async def validate_document_data(request: Dict[str, Any]):
+        """Validate document data completeness and correctness"""
+        try:
+            document_type = request.get("document_type", "will")
+            user_data = request.get("user_data", {})
+            
+            validation = document_generator.validate_document_data(document_type, user_data)
+            
+            return JSONResponse(content={
+                "success": True,
+                "validation": validation
+            })
+            
+        except Exception as e:
+            logger.error(f"Data validation failed: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Data validation failed: {str(e)}")
+
+    @app.get("/api/templates/fields/{document_type}")
+    async def get_template_fields(document_type: str):
+        """Get required and optional fields for document type"""
+        try:
+            fields = document_generator.get_template_fields(document_type)
+            
+            return JSONResponse(content={
+                "success": True,
+                "document_type": document_type,
+                "fields": fields
+            })
+            
+        except Exception as e:
+            logger.error(f"Error getting template fields: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error getting template fields: {str(e)}")
+
+    @app.get("/api/system/health")
+    async def system_health_check():
+        """Comprehensive system health check"""
+        try:
+            health_status = {
+                "timestamp": datetime.now().isoformat(),
+                "status": "healthy",
+                "components": {
+                    "ai_service": await ai_service.health_check() if ai_service.is_ready() else {"status": "not_ready"},
+                    "document_generator": await document_generator.health_check() if document_generator.is_ready() else {"status": "not_ready"},
+                    "legal_kb": {
+                        "status": "ready" if legal_kb.is_ready() else "not_ready",
+                        "stats": legal_kb.get_knowledge_base_stats()
+                    }
+                },
+                "features": {
+                    "fastapi_available": FASTAPI_AVAILABLE,
+                    "ai_enhancements": ai_service.is_ready(),
+                    "document_generation": document_generator.is_ready(),
+                    "legal_knowledge": legal_kb.is_ready()
+                }
+            }
+            
+            # Determine overall health
+            component_health = [
+                comp.get("status") == "ready" or comp.get("service_status") == "ready" 
+                for comp in health_status["components"].values()
+            ]
+            
+            if not all(component_health):
+                health_status["status"] = "degraded"
+            
+            return JSONResponse(content=health_status)
+            
+        except Exception as e:
+            logger.error(f"Health check failed: {str(e)}")
+            return JSONResponse(
+                content={
+                    "status": "unhealthy",
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat()
+                },
+                status_code=500
+            )
 
 else:
     # Fallback Flask implementation for when FastAPI is not available
