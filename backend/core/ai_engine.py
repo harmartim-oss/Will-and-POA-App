@@ -744,3 +744,227 @@ class OntarioLegalAIEngine:
                 recommendations.append("Ensure proper witnessing according to Ontario law")
         
         return recommendations
+
+    async def analyze_document(self, text: str, document_type: str, case_context: str = None) -> Dict[str, Any]:
+        """Main document analysis method called by API"""
+        try:
+            # Use existing analyze_document_intent method
+            basic_analysis = await self.analyze_document_intent(text)
+            
+            # Add compliance analysis
+            compliance_issues = self._check_document_compliance(text, document_type)
+            
+            # Generate recommendations
+            recommendations = self._get_compliance_recommendations(compliance_issues)
+            
+            # Add case context analysis if provided
+            if case_context:
+                context_analysis = await self._analyze_case_context(case_context)
+                recommendations.extend(context_analysis.get("recommendations", []))
+            
+            return {
+                "document_type": document_type,
+                "confidence": basic_analysis.get("confidence", 0.5),
+                "entities": basic_analysis.get("entities", []),
+                "requirements": self._get_document_requirements(document_type),
+                "compliance_issues": compliance_issues,
+                "recommendations": recommendations,
+                "sentiment": basic_analysis.get("sentiment", {"label": "NEUTRAL", "score": 0.5})
+            }
+            
+        except Exception as e:
+            logger.error(f"Document analysis failed: {str(e)}")
+            return {
+                "document_type": document_type,
+                "confidence": 0.1,
+                "entities": [],
+                "requirements": [],
+                "compliance_issues": [{"type": "analysis_error", "message": str(e)}],
+                "recommendations": ["Please review document manually"],
+                "sentiment": {"label": "NEUTRAL", "score": 0.5}
+            }
+
+    async def generate_document_recommendations(self, document_type: str, user_data: Dict[str, Any]) -> List[str]:
+        """Generate AI recommendations for document generation"""
+        try:
+            recommendations = []
+            
+            if document_type == "will":
+                recommendations.extend(self._get_will_recommendations(user_data))
+            elif document_type == "poa_property":
+                recommendations.extend(self._get_poa_property_recommendations(user_data))
+            elif document_type == "poa_personal_care":
+                recommendations.extend(self._get_poa_personal_care_recommendations(user_data))
+            
+            # Add general recommendations
+            recommendations.extend([
+                "Consider consulting with an Ontario lawyer for complex provisions",
+                "Ensure all parties understand the document implications",
+                "Keep copies of all signed documents in a secure location"
+            ])
+            
+            return recommendations
+            
+        except Exception as e:
+            logger.error(f"Failed to generate recommendations: {str(e)}")
+            return ["Consider legal consultation"]
+
+    async def answer_legal_question(self, question: str, context: str = "", document_type: str = None) -> Dict[str, Any]:
+        """Answer legal questions using AI"""
+        try:
+            # Simple keyword-based responses - in production would use more sophisticated AI
+            answer = "Based on Ontario law, "
+            confidence = 0.5
+            
+            question_lower = question.lower()
+            
+            if "will" in question_lower or "testament" in question_lower:
+                answer += "a valid will in Ontario must be in writing, signed by the testator, and witnessed by two people present at the same time."
+                confidence = 0.8
+            elif "power of attorney" in question_lower:
+                answer += "powers of attorney in Ontario are governed by the Substitute Decisions Act and must meet specific requirements for validity."
+                confidence = 0.8
+            elif "executor" in question_lower:
+                answer += "an executor has a fiduciary duty to administer the estate according to the will and Ontario law."
+                confidence = 0.7
+            else:
+                answer += "please consult with a qualified Ontario lawyer for specific legal advice."
+                confidence = 0.3
+            
+            return {
+                "answer": answer,
+                "confidence": confidence,
+                "sources": ["Ontario Wills Act", "Substitute Decisions Act"],
+                "disclaimer": "This is general information only and not legal advice."
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to answer legal question: {str(e)}")
+            return {
+                "answer": "I apologize, but I cannot provide an answer at this time. Please consult with a qualified lawyer.",
+                "confidence": 0.1,
+                "sources": [],
+                "disclaimer": "This is general information only and not legal advice."
+            }
+
+    async def generate_query_recommendations(self, query: str, relevant_cases: List[Dict[str, Any]], 
+                                           ai_answer: Dict[str, Any]) -> List[str]:
+        """Generate recommendations based on query and case law"""
+        try:
+            recommendations = []
+            
+            # Add case-based recommendations
+            if relevant_cases:
+                recommendations.append(f"Review {len(relevant_cases)} relevant cases for similar situations")
+                
+                for case in relevant_cases[:3]:  # Top 3 cases
+                    case_name = case.get("case_name", "Unknown case")
+                    recommendations.append(f"Consider precedent from {case_name}")
+            
+            # Add confidence-based recommendations
+            confidence = ai_answer.get("confidence", 0.5)
+            if confidence < 0.6:
+                recommendations.append("Consider seeking additional legal research or consultation")
+            
+            # Add general recommendations
+            recommendations.extend([
+                "Verify current law as legislation may have changed",
+                "Consider consulting with an Ontario lawyer for specific advice",
+                "Review any applicable regulations or court rules"
+            ])
+            
+            return recommendations
+            
+        except Exception as e:
+            logger.error(f"Failed to generate query recommendations: {str(e)}")
+            return ["Consider legal consultation"]
+
+    def _get_will_recommendations(self, user_data: Dict[str, Any]) -> List[str]:
+        """Get will-specific recommendations"""
+        recommendations = []
+        
+        if user_data.get("has_minor_children") and not user_data.get("guardian_appointed"):
+            recommendations.append("Consider appointing a guardian for minor children")
+        
+        if not user_data.get("backup_executor"):
+            recommendations.append("Consider appointing an alternate executor")
+        
+        if user_data.get("complex_assets"):
+            recommendations.append("Consider establishing trusts for complex asset management")
+        
+        return recommendations
+
+    def _get_poa_property_recommendations(self, user_data: Dict[str, Any]) -> List[str]:
+        """Get POA property-specific recommendations"""
+        recommendations = []
+        
+        if not user_data.get("backup_attorney"):
+            recommendations.append("Consider appointing an alternate attorney")
+        
+        if user_data.get("significant_assets"):
+            recommendations.append("Consider specific instructions for asset management")
+        
+        recommendations.append("Ensure attorney understands their duties and limitations")
+        
+        return recommendations
+
+    def _get_poa_personal_care_recommendations(self, user_data: Dict[str, Any]) -> List[str]:
+        """Get POA personal care-specific recommendations"""
+        recommendations = []
+        
+        if not user_data.get("healthcare_wishes_specified"):
+            recommendations.append("Consider including specific healthcare wishes")
+        
+        if user_data.get("has_specific_treatments"):
+            recommendations.append("Include detailed treatment preferences")
+        
+        recommendations.append("Discuss wishes with appointed attorney in advance")
+        
+        return recommendations
+
+    async def _analyze_case_context(self, context: str) -> Dict[str, Any]:
+        """Analyze additional case context"""
+        try:
+            # Simple context analysis
+            recommendations = []
+            
+            if "complex" in context.lower():
+                recommendations.append("Due to complexity, consider professional legal review")
+            
+            if "urgent" in context.lower():
+                recommendations.append("Expedite document preparation and execution")
+            
+            return {
+                "context_type": "general",
+                "recommendations": recommendations
+            }
+            
+        except Exception as e:
+            logger.error(f"Context analysis failed: {str(e)}")
+            return {"context_type": "unknown", "recommendations": []}
+
+    def _get_document_requirements(self, document_type: str) -> List[Dict[str, Any]]:
+        """Get statutory requirements for document type"""
+        requirements = []
+        
+        if document_type == "will":
+            requirements = [
+                {"requirement": "Must be in writing", "statute": "Wills Act, s. 4"},
+                {"requirement": "Signed by testator", "statute": "Wills Act, s. 4"},
+                {"requirement": "Two witnesses required", "statute": "Wills Act, s. 5"},
+                {"requirement": "Testator must be 18+ years old", "statute": "Wills Act, s. 1"}
+            ]
+        elif document_type == "poa_property":
+            requirements = [
+                {"requirement": "Must be in writing", "statute": "Substitute Decisions Act, s. 2"},
+                {"requirement": "Grantor must be 18+ years old", "statute": "Substitute Decisions Act, s. 2"},
+                {"requirement": "Two witnesses required", "statute": "Substitute Decisions Act, s. 10"}
+            ]
+        elif document_type == "poa_personal_care":
+            requirements = [
+                {"requirement": "Must be in writing", "statute": "Substitute Decisions Act, s. 45"},
+                {"requirement": "Grantor must be 16+ years old", "statute": "Substitute Decisions Act, s. 45"},
+                {"requirement": "Two witnesses required", "statute": "Substitute Decisions Act, s. 46"}
+            ]
+        
+        return requirements

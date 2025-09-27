@@ -7,16 +7,19 @@ from models.schemas import (
     DocumentRequest, DocumentResponse,
     ComplianceCheckRequest, ComplianceCheckResponse
 )
-from backend.services.enhanced_document_manager import EnhancedDocumentManager
-from backend.services.enhanced_ai_legal_service import EnhancedAILegalService
+# Remove problematic imports - services will be injected from main.py
+# from backend.services.enhanced_document_manager import EnhancedDocumentManager
+# from backend.services.enhanced_ai_legal_service import EnhancedAILegalService
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Initialize services
-document_manager = EnhancedDocumentManager()
-ai_legal_service = EnhancedAILegalService()
+# Services will be injected from main.py
+# document_manager = EnhancedDocumentManager()
+# ai_legal_service = EnhancedAILegalService()
+document_manager = None
+ai_legal_service = None
 
 @router.post("/generate", response_model=DocumentResponse)
 async def generate_document(request: DocumentRequest):
