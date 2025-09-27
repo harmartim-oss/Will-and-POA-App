@@ -469,24 +469,146 @@ class OntarioLegalKnowledgeBase:
                     )
         return None
 
-    def search_case_law(self, query: str, area: str = None) -> List[CaseLaw]:
-        """Search case law by query"""
+    def search_case_law(self, query: str, category: Optional[str] = None) -> List[CaseLaw]:
+        """Search case law database"""
         results = []
-        search_areas = [area] if area else self.case_law.keys()
+        if category and category in self.case_law:
+            cases = self.case_law[category]
+        else:
+            cases = []
+            for category_cases in self.case_law.values():
+                cases.extend(category_cases)
         
-        for area_name in search_areas:
-            if area_name in self.case_law:
-                for case in self.case_law[area_name]:
-                    # Simple text matching - in production would use more sophisticated search
-                    if (query.lower() in case.case_name.lower() or
-                        any(query.lower() in principle.lower() for principle in case.key_principles)):
-                        results.append(case)
+        # Simple text-based search
+        query_lower = query.lower()
+        for case in cases:
+            # Search in case name, principles, and legal test
+            search_text = f"{case.case_name} {' '.join(case.key_principles)} {case.legal_test or ''}".lower()
+            if query_lower in search_text:
+                results.append(case)
         
         return results
 
     def get_legal_definition(self, term: str) -> Optional[Dict[str, Any]]:
-        """Get legal definition"""
+        """Get comprehensive legal definition"""
         return self.legal_definitions.get(term.lower())
+    
+    def check_compliance(self, document_type: str, content: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Check document compliance against Ontario law"""
+        compliance_issues = []
+        
+        if document_type == "will":
+            compliance_issues.extend(self._check_will_compliance(content))
+        elif document_type == "poa_property":
+            compliance_issues.extend(self._check_poa_property_compliance(content))
+        elif document_type == "poa_personal_care":
+            compliance_issues.extend(self._check_poa_care_compliance(content))
+        
+        return compliance_issues
+
+    def _check_will_compliance(self, content: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Check will compliance"""
+        issues = []
+        
+        # Check execution requirements
+        if not content.get("testator_signature"):
+            issues.append({
+                "type": "execution",
+                "severity": "critical",
+                "description": "Missing testator signature",
+                "requirement": "Will must be signed by testator",
+                "fix": "Add testator signature"
+            })
+        
+        # Check witness requirements
+        witnesses = content.get("witnesses", [])
+        if len(witnesses) < 2:
+            issues.append({
+                "type": "execution",
+                "severity": "critical",
+                "description": "Insufficient witnesses",
+                "requirement": "Minimum 2 witnesses required",
+                "fix": "Add at least 2 witnesses"
+            })
+        
+        # Check for beneficiary witnesses
+        for witness in witnesses:
+            if witness.get("is_beneficiary"):
+                issues.append({
+                    "type": "execution",
+                    "severity": "critical",
+                    "description": "Beneficiary cannot be witness",
+                    "requirement": "Witnesses cannot be beneficiaries",
+                    "fix": "Replace beneficiary witness"
+                })
+        
+        return issues
+
+    def _check_poa_property_compliance(self, content: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Check POA property compliance"""
+        issues = []
+        
+        # Check capacity
+        if not content.get("grantor_capacity"):
+            issues.append({
+                "type": "capacity",
+                "severity": "critical",
+                "description": "Grantor capacity not confirmed",
+                "requirement": "Grantor must have capacity",
+                "fix": "Add capacity confirmation"
+            })
+        
+        # Check attorney acceptance
+        if not content.get("attorney_acceptance"):
+            issues.append({
+                "type": "appointment",
+                "severity": "major",
+                "description": "Attorney acceptance missing",
+                "requirement": "Attorney must accept appointment",
+                "fix": "Add attorney acceptance"
+            })
+        
+        return issues
+
+    def _check_poa_care_compliance(self, content: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Check POA personal care compliance"""
+        issues = []
+        
+        # Check age requirement
+        if content.get("grantor_age", 0) < 16:
+            issues.append({
+                "type": "age",
+                "severity": "critical",
+                "description": "Grantor under minimum age",
+                "requirement": "Grantor must be 16+ years old",
+                "fix": "Verify grantor age"
+            })
+        
+        # Check capacity for personal care
+        if not content.get("personal_care_capacity"):
+            issues.append({
+                "type": "capacity",
+                "severity": "critical",
+                "description": "Personal care capacity not confirmed",
+                "requirement": "Grantor must understand personal care decisions",
+                "fix": "Add capacity assessment"
+            })
+        
+        return issues
+
+    def get_relevant_case_law(self, legal_issue: str, document_type: str) -> List[CaseLaw]:
+        """Get relevant case law for specific legal issue"""
+        # Map document types to case law categories
+        category_map = {
+            "will": "wills_interpretation",
+            "poa_property": "poa_validity",
+            "poa_personal_care": "poa_validity"
+        }
+        
+        category = category_map.get(document_type)
+        if category and category in self.case_law:
+            return self.search_case_law(legal_issue, category)
+        return []
 
     def get_statutory_requirements(self, document_type: str) -> List[str]:
         """Get statutory requirements for document type"""
@@ -510,3 +632,12 @@ class OntarioLegalKnowledgeBase:
     def is_ready(self) -> bool:
         """Check if knowledge base is ready"""
         return self.is_initialized
+
+    def get_statistics(self) -> Dict[str, int]:
+        """Get knowledge base statistics"""
+        return {
+            "legislation_acts": len(self.legislation),
+            "case_law_entries": sum(len(cases) for cases in self.case_law.values()),
+            "legal_definitions": len(self.legal_definitions),
+            "regulations": len(self.regulations)
+        }

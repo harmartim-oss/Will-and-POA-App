@@ -61,6 +61,19 @@ const DemoShowcase = () => {
         'Interactive zoom/rotate',
         'Professional layouts'
       ]
+    },
+    {
+      id: 'sole-practitioner',
+      title: 'Sole Practitioner Dashboard',
+      description: 'Comprehensive practice management system for Ontario lawyers',
+      icon: Scale,
+      color: 'from-emerald-500 to-teal-600',
+      highlights: [
+        'Client & matter management',
+        'Case law search',
+        'Document compliance',
+        'Time tracking & billing'
+      ]
     }
   ];
 
@@ -71,6 +84,9 @@ const DemoShowcase = () => {
       // Already shows the premium creator
     } else if (featureId === 'preview-system') {
       setShowPreview(true);
+    } else if (featureId === 'sole-practitioner') {
+      // Navigate to sole practitioner dashboard
+      window.location.href = '/sole-practitioner';
     }
   };
 
