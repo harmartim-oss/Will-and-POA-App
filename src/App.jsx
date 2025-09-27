@@ -7,6 +7,7 @@ import EnhancedDocumentCreator from './components/EnhancedDocumentCreator'
 import DocumentEditor from './components/DocumentEditor'
 import DocumentPreview from './components/DocumentPreview'
 import DemoShowcase from './components/DemoShowcase'
+import SolePractitionerDashboard from './components/SolePractitionerDashboard'
 import { config } from './config/environment'
 
 function App() {
@@ -45,6 +46,7 @@ function AppContent() {
           <Route path="/create/:type" element={<DocumentCreator />} />
           <Route path="/edit/:id" element={<DocumentEditor />} />
           <Route path="/preview/:id" element={<DocumentPreview />} />
+          <Route path="/sole-practitioner" element={<SolePractitionerDashboard />} />
         </Routes>
       </main>
       <Toaster />
