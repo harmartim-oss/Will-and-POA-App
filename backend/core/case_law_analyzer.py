@@ -367,3 +367,109 @@ class OntarioCaseLawAnalyzer:
             "years_covered": sorted(set(case.get("year", 0) for case in self.case_database)),
             "status": "ready" if self.is_initialized else "not_ready"
         }
+
+    async def find_relevant_cases(self, query: str, document_context: str = None, 
+                                document_type: str = None) -> List[Dict[str, Any]]:
+        """Find cases relevant to the legal query"""
+        try:
+            relevant_cases = []
+            query_lower = query.lower()
+            
+            for case in self.case_database:
+                relevance_score = self._calculate_case_relevance(case, query_lower, document_type)
+                
+                if relevance_score > 0.3:  # Minimum relevance threshold
+                    case_result = {
+                        "case_name": case.get("case_name", "Unknown"),
+                        "citation": case.get("citation", "Citation unknown"),
+                        "year": case.get("year", 0),
+                        "court": case.get("court", "Court unknown"),
+                        "relevance_score": relevance_score,
+                        "key_principles": case.get("key_principles", []),
+                        "legal_test": case.get("legal_test"),
+                        "outcome": case.get("outcome")
+                    }
+                    relevant_cases.append(case_result)
+            
+            # Sort by relevance score
+            relevant_cases.sort(key=lambda x: x["relevance_score"], reverse=True)
+            
+            return relevant_cases[:10]  # Return top 10 most relevant cases
+            
+        except Exception as e:
+            logger.error(f"Failed to find relevant cases: {str(e)}")
+            return []
+
+    async def perform_research(self, query: str, jurisdiction: str = "ontario", 
+                             max_results: int = 10) -> List[Dict[str, Any]]:
+        """Perform real-time legal research"""
+        try:
+            # Find relevant cases
+            relevant_cases = await self.find_relevant_cases(query)
+            
+            # Find applicable legal principles
+            applicable_principles = self._find_applicable_principles(query)
+            
+            # Combine results
+            research_results = []
+            
+            # Add case law results
+            for case in relevant_cases[:max_results]:
+                research_results.append({
+                    "type": "case_law",
+                    "title": case["case_name"],
+                    "citation": case["citation"],
+                    "year": case["year"],
+                    "court": case["court"],
+                    "relevance": case["relevance_score"],
+                    "summary": f"Key principles: {', '.join(case['key_principles'][:3])}",
+                    "legal_test": case.get("legal_test"),
+                    "jurisdiction": jurisdiction
+                })
+            
+            # Add legal principle results
+            for principle in applicable_principles[:5]:
+                research_results.append({
+                    "type": "legal_principle",
+                    "title": principle.get("name", "Legal Principle"),
+                    "description": principle.get("description", ""),
+                    "source": principle.get("source", "Common Law"),
+                    "relevance": principle.get("relevance_score", 0.5),
+                    "jurisdiction": jurisdiction
+                })
+            
+            return research_results
+            
+        except Exception as e:
+            logger.error(f"Legal research failed: {str(e)}")
+            return []
+
+    def _calculate_case_relevance(self, case: Dict[str, Any], query: str, document_type: str = None) -> float:
+        """Calculate relevance score for a case"""
+        score = 0.0
+        
+        # Check case name
+        case_name = case.get("case_name", "").lower()
+        if any(word in case_name for word in query.split()):
+            score += 0.3
+        
+        # Check key principles
+        principles = case.get("key_principles", [])
+        for principle in principles:
+            if any(word in principle.lower() for word in query.split()):
+                score += 0.2
+        
+        # Check legal area match
+        if document_type:
+            legal_area = case.get("legal_area", "").lower()
+            if document_type.lower() in legal_area:
+                score += 0.4
+        
+        # Check court level (higher courts get more weight)
+        court = case.get("court", "").lower()
+        if "supreme court" in court:
+            score += 0.1
+        elif "court of appeal" in court:
+            score += 0.05
+        
+        return min(score, 1.0)  # Cap at 1.0
