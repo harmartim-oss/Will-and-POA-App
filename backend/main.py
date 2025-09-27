@@ -25,10 +25,15 @@ from core.ontario_legal_knowledge import OntarioLegalKnowledgeBase as EnhancedLe
 from core.ontario_document_generator import OntarioLegalDocumentGenerator
 from core.sole_practitioner_security import OntarioLegalSecurityManager
 
+# Import enhanced sole practitioner components
+from core.sole_practitioner_management import OntarioSolePractitionerManager
+from core.enhanced_ontario_document_generator import OntarioLegalDocumentGenerator as EnhancedDocumentGenerator
+
 from api.routes import documents, ai, compliance, blockchain, enhanced_ai
 # Import new practice management routes individually to avoid circular imports
 from api.routes.practice import router as practice_router
 from api.routes.lsuc_compliance import router as lsuc_router
+from api.routes.sole_practitioner import router as sole_practitioner_router
 from database.connection import init_db
 from models.schemas import (
     DocumentRequest, DocumentResponse, 
@@ -85,6 +90,10 @@ enhanced_legal_knowledge = EnhancedLegalKnowledge()
 enhanced_doc_generator = OntarioLegalDocumentGenerator()
 security_manager = OntarioLegalSecurityManager()
 
+# Initialize sole practitioner components
+sole_practitioner_manager = OntarioSolePractitionerManager()
+enhanced_document_generator = EnhancedDocumentGenerator()
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize AI systems on startup"""
@@ -122,15 +131,26 @@ async def startup_event():
         logger.info("Initializing Practice Management System...")
         await practice_manager.initialize()
         
+        # Initialize sole practitioner system
+        logger.info("Initializing Sole Practitioner Management System...")
+        await sole_practitioner_manager.initialize()
+        await enhanced_document_generator.initialize()
+        
         # Make services available to API routes
         import api.routes.practice as practice_module
         import api.routes.lsuc_compliance as compliance_module
         import api.routes.documents as documents_module
+        import api.routes.sole_practitioner as sole_practitioner_module
         
         practice_module.practice_manager = practice_manager
         compliance_module.compliance_manager = lsuc_compliance_manager
         documents_module.ai_legal_service = enhanced_ai_legal_service
         documents_module.case_law_analyzer = case_law_analyzer
+        
+        # Inject sole practitioner services
+        sole_practitioner_module.practice_manager = sole_practitioner_manager
+        sole_practitioner_module.document_generator = enhanced_document_generator
+        sole_practitioner_module.legal_knowledge = enhanced_legal_knowledge
         
         logger.info("✓ All systems initialized successfully")
         logger.info("✓ Enhanced AI Legal Service ready for case predictions")
@@ -181,7 +201,9 @@ async def health_check():
                 "enhanced_ai_legal_service": enhanced_ai_legal_service.is_ready(),
                 "case_law_analyzer": case_law_analyzer.is_ready(),
                 "practice_manager": practice_manager.is_ready(),
-                "lsuc_compliance": lsuc_compliance_manager.is_ready()
+                "lsuc_compliance": lsuc_compliance_manager.is_ready(),
+                "sole_practitioner_manager": sole_practitioner_manager.is_ready(),
+                "enhanced_document_generator": enhanced_document_generator.is_ready()
             }
         }
     except Exception as e:
@@ -197,6 +219,7 @@ app.include_router(enhanced_ai.router, prefix="/api/enhanced-ai", tags=["enhance
 # Include new practice management routes
 app.include_router(practice_router, prefix="/api/practice", tags=["practice-management"])
 app.include_router(lsuc_router, prefix="/api/lsuc", tags=["lsuc-compliance"])
+app.include_router(sole_practitioner_router, tags=["sole-practitioner"])
 
 # New enhanced AI endpoints
 @app.post("/api/analyze-document", response_model=DocumentAnalysisResponse)
