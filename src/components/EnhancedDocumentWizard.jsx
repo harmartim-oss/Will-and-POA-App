@@ -29,6 +29,7 @@ import { Badge } from '../ui/badge';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Progress } from '../ui/progress';
 import { Separator } from '../ui/separator';
+import { apiCall, API_ENDPOINTS } from '../utils/apiConfig';
 
 const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -37,6 +38,7 @@ const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
   const [aiSuggestions, setAiSuggestions] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [complianceScore, setComplianceScore] = useState(0);
+  const [analysisResults, setAnalysisResults] = useState(null);
 
   const documentTypeConfig = {
     will: {
@@ -99,8 +101,77 @@ const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
     }
   }, [formData]);
 
-  const analyzeFormData = () => {
-    // Simulate AI analysis and suggestions
+  const analyzeFormData = async () => {
+    try {
+      setIsAnalyzing(true);
+      
+      // Convert form data to document text for analysis
+      const documentText = generateDocumentPreviewText();
+      
+      // Call the integrated AI service
+      const response = await apiCall(API_ENDPOINTS.ANALYZE_COMPREHENSIVE, {
+        method: 'POST',
+        body: JSON.stringify({
+          document_text: documentText,
+          document_type: documentType,
+          user_context: {
+            form_completion: Object.keys(formData).length,
+            user_preferences: formData
+          },
+          include_research: true,
+          include_citations: true
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Transform AI suggestions into UI format
+        const suggestions = result.suggestions.map((suggestion, index) => ({
+          type: index < 2 ? 'improvement' : 'legal',
+          title: `AI Suggestion ${index + 1}`,
+          description: suggestion,
+          icon: index < 2 ? <Lightbulb className="h-4 w-4" /> : <Scale className="h-4 w-4" />
+        }));
+        
+        // Add compliance suggestions
+        if (result.compliance_score < 0.8) {
+          suggestions.unshift({
+            type: 'compliance',
+            title: 'Compliance Review Needed',
+            description: 'Some sections may need attention to meet Ontario legal requirements.',
+            icon: <AlertCircle className="h-4 w-4" />
+          });
+        } else {
+          suggestions.unshift({
+            type: 'compliance',
+            title: 'Good Compliance Score',
+            description: 'Your document meets most Ontario legal requirements.',
+            icon: <CheckCircle className="h-4 w-4" />
+          });
+        }
+        
+        setAiSuggestions(suggestions);
+        setComplianceScore(Math.round(result.compliance_score * 100));
+        
+        // Store additional analysis results for potential use
+        setAnalysisResults(result);
+        
+      } else {
+        // Fallback to original simulation if API fails
+        analyzeFormDataFallback();
+      }
+    } catch (error) {
+      console.error('AI analysis failed:', error);
+      // Fallback to original simulation
+      analyzeFormDataFallback();
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const analyzeFormDataFallback = () => {
+    // Original simulation logic as fallback
     const suggestions = [
       {
         type: 'improvement',
@@ -124,6 +195,27 @@ const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
     
     setAiSuggestions(suggestions);
     setComplianceScore(Math.min(95, 60 + Object.keys(formData).length * 5));
+  };
+
+  const generateDocumentPreviewText = () => {
+    // Generate a preview text of the document for AI analysis
+    let text = `Ontario ${documentType === 'will' ? 'Last Will and Testament' : 'Power of Attorney'}\n\n`;
+    
+    if (formData.fullName) text += `I, ${formData.fullName}, `;
+    if (formData.address) text += `of ${formData.address}, `;
+    
+    text += `being of sound mind and disposing memory, do hereby make, publish and declare this to be my ${documentType === 'will' ? 'last will and testament' : 'power of attorney'}.\n\n`;
+    
+    if (documentType === 'will') {
+      if (formData.executorName) text += `I appoint ${formData.executorName} as my executor.\n`;
+      if (formData.guardianName) text += `I appoint ${formData.guardianName} as guardian for my minor children.\n`;
+      if (formData.beneficiaries) text += `I leave my estate to my beneficiaries as specified.\n`;
+    } else {
+      if (formData.attorneyName) text += `I appoint ${formData.attorneyName} as my attorney.\n`;
+      if (formData.attorneyPowers) text += `The powers granted include: ${formData.attorneyPowers}.\n`;
+    }
+    
+    return text;
   };
 
   const updateFormData = (field, value) => {

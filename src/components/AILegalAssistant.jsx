@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Brain, FileText, Shield, BookOpen, Zap, CheckCircle, AlertTriangle, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../utils/mockApi.js'; // Import mock API for development
+import { apiCall, API_ENDPOINTS } from '../utils/apiConfig';
 
 const AILegalAssistant = ({ documentType, formData, onSuggestionsReceived }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -19,23 +20,58 @@ const AILegalAssistant = ({ documentType, formData, onSuggestionsReceived }) => 
   const analyzeDocument = async () => {
     setIsAnalyzing(true);
     try {
-      // Simulate AI analysis call
-      const response = await fetch('/api/ai/analyze', {
+      // Generate document text for analysis
+      const documentText = generateDocumentText(formData, documentType);
+      
+      // Use the integrated AI service
+      const response = await fetch('/api/integrated-ai/analyze-comprehensive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          document_text: documentText,
           document_type: documentType,
-          content: formData
+          user_context: formData,
+          include_research: true,
+          include_citations: true
         })
       });
       
       if (response.ok) {
         const data = await response.json();
-        setAnalysis(data.analysis);
-        setInsights(data.insights);
+        
+        // Transform the integrated AI response to match the expected format
+        setAnalysis({
+          compliance_score: data.compliance_score,
+          legal_issues: data.risk_assessment?.risk_factors?.map(r => r.description) || [],
+          recommendations: data.improvements || [],
+          confidence_score: data.confidence_score
+        });
+        
+        setInsights({
+          summary: {
+            total_sections: Object.keys(formData).length,
+            completed_sections: Object.values(formData).filter(v => v && v !== '').length,
+            missing_requirements: data.analysis?.nlp_analysis?.compliance_issues || []
+          },
+          recommendations: {
+            priority_recommendations: data.suggestions || []
+          },
+          legal_research: {
+            relevant_cases: data.legal_citations || [],
+            case_count: data.legal_citations?.length || 0
+          }
+        });
+        
         if (onSuggestionsReceived) {
-          onSuggestionsReceived(data.analysis);
+          onSuggestionsReceived({
+            compliance_score: data.compliance_score,
+            suggestions: data.suggestions,
+            improvements: data.improvements
+          });
         }
+      } else {
+        // Fallback to original simulation
+        throw new Error('API call failed');
       }
     } catch (error) {
       console.error('AI analysis error:', error);
@@ -79,6 +115,27 @@ const AILegalAssistant = ({ documentType, formData, onSuggestionsReceived }) => 
     if (score >= 0.9) return 'Excellent';
     if (score >= 0.7) return 'Good';
     return 'Needs Improvement';
+  };
+
+  const generateDocumentText = (formData, documentType) => {
+    // Generate a preview text of the document for AI analysis
+    let text = `Ontario ${documentType === 'will' ? 'Last Will and Testament' : 'Power of Attorney'}\n\n`;
+    
+    if (formData.fullName) text += `I, ${formData.fullName}, `;
+    if (formData.address) text += `of ${formData.address}, `;
+    
+    text += `being of sound mind and disposing memory, do hereby make, publish and declare this to be my ${documentType === 'will' ? 'last will and testament' : 'power of attorney'}.\n\n`;
+    
+    if (documentType === 'will') {
+      if (formData.executorName) text += `I appoint ${formData.executorName} as my executor.\n`;
+      if (formData.guardianName) text += `I appoint ${formData.guardianName} as guardian for my minor children.\n`;
+      if (formData.beneficiaries) text += `I leave my estate to my beneficiaries as specified.\n`;
+    } else {
+      if (formData.attorneyName) text += `I appoint ${formData.attorneyName} as my attorney.\n`;
+      if (formData.attorneyPowers) text += `The powers granted include: ${formData.attorneyPowers}.\n`;
+    }
+    
+    return text;
   };
 
   return (
