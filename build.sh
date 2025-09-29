@@ -1,1 +1,8 @@
-{"status":500,"name":"Error","message":"Input buffer contains unsupported image format"}
+#!/bin/bash
+set -e
+
+echo "Building frontend..."
+npm ci --legacy-peer-deps
+npm run build
+
+echo "Build complete!"

@@ -1,1 +1,12 @@
-{"status":500,"name":"Error","message":"Input buffer contains unsupported image format"}
+steps:
+  # Install dependencies
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['ci', '--legacy-peer-deps']
+  
+  # Build the application
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['run', 'build']
+  
+  # Deploy to Cloud Storage or Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['app', 'deploy']
