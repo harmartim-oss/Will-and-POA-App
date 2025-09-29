@@ -34,6 +34,7 @@ from api.routes import documents, ai, compliance, blockchain, enhanced_ai
 from api.routes.practice import router as practice_router
 from api.routes.lsuc_compliance import router as lsuc_router
 from api.routes.sole_practitioner import router as sole_practitioner_router
+from api.routes.integrated_ai import router as integrated_ai_router
 from database.connection import init_db
 from models.schemas import (
     DocumentRequest, DocumentResponse, 
@@ -220,6 +221,9 @@ app.include_router(enhanced_ai.router, prefix="/api/enhanced-ai", tags=["enhance
 app.include_router(practice_router, prefix="/api/practice", tags=["practice-management"])
 app.include_router(lsuc_router, prefix="/api/lsuc", tags=["lsuc-compliance"])
 app.include_router(sole_practitioner_router, tags=["sole-practitioner"])
+
+# Include integrated AI services
+app.include_router(integrated_ai_router, prefix="/api/integrated-ai", tags=["integrated-ai"])
 
 # New enhanced AI endpoints
 @app.post("/api/analyze-document", response_model=DocumentAnalysisResponse)

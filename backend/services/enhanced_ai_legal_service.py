@@ -7,9 +7,15 @@ import asyncio
 import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
-import numpy as np
 from dataclasses import dataclass
 import json
+
+# Optional dependencies with fallbacks
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    NUMPY_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 

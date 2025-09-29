@@ -17,12 +17,41 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: false,
     minify: 'esbuild',
+    chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs']
+        manualChunks: (id) => {
+          // Vendor chunk for core dependencies
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor';
+            }
+            if (id.includes('react-router')) {
+              return 'router';
+            }
+            if (id.includes('@radix-ui')) {
+              return 'ui';
+            }
+            if (id.includes('framer-motion')) {
+              return 'animation';
+            }
+            if (id.includes('lucide-react')) {
+              return 'icons';
+            }
+            if (id.includes('@react-pdf') || id.includes('pdfjs-dist')) {
+              return 'pdf';
+            }
+            // Group other vendor dependencies
+            return 'vendor-misc';
+          }
+          
+          // Application chunks
+          if (id.includes('/components/')) {
+            return 'components';
+          }
+          if (id.includes('/utils/')) {
+            return 'utils';
+          }
         }
       }
     }
