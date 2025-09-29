@@ -3,7 +3,13 @@ Advanced NLP Service for Legal Text Analysis
 Integrates spaCy, Blackstone, and other open-source NLP libraries for legal document processing
 """
 
-import spacy
+# Optional dependencies with fallbacks
+try:
+    import spacy
+    SPACY_AVAILABLE = True
+except ImportError:
+    SPACY_AVAILABLE = False
+    
 import re
 import json
 import logging
@@ -57,6 +63,12 @@ class LegalNLPService:
     def _initialize_models(self):
         """Initialize spaCy models and legal-specific pipelines"""
         try:
+            if not SPACY_AVAILABLE:
+                logger.warning("spaCy not available - using fallback text analysis")
+                self.nlp = None
+                self.blackstone_nlp = None
+                return
+                
             # Try to load Blackstone legal model first
             try:
                 import blackstone
@@ -71,16 +83,18 @@ class LegalNLPService:
                 self.nlp = spacy.load("en_core_web_sm")
                 logger.info("Standard English model loaded successfully")
             except OSError:
-                logger.warning("Standard English model not found, downloading...")
-                spacy.cli.download("en_core_web_sm")
-                self.nlp = spacy.load("en_core_web_sm")
+                logger.warning("Standard English model not found, using fallback")
+                self.nlp = None
             
-            # Add custom legal entity recognition
-            self._add_legal_entity_patterns()
+            # Add custom legal entity recognition if models available
+            if self.nlp:
+                self._add_legal_entity_patterns()
             
         except Exception as e:
             logger.error(f"Error initializing NLP models: {e}")
-            raise
+            # Don't raise - use fallback mode instead
+            self.nlp = None
+            self.blackstone_nlp = None
     
     def _load_legal_terms(self) -> Dict[str, List[str]]:
         """Load legal terminology and concepts"""
@@ -204,11 +218,12 @@ class LegalNLPService:
             LegalAnalysis object with comprehensive results
         """
         try:
+            # Check if spaCy models are available
+            if not SPACY_AVAILABLE or (not self.nlp and not self.blackstone_nlp):
+                return self._analyze_text_fallback(text)
+                
             # Choose the best available model
             nlp_model = self.blackstone_nlp if self.blackstone_nlp else self.nlp
-            
-            if not nlp_model:
-                raise ValueError("No NLP model available")
             
             # Process text
             doc = nlp_model(text)
@@ -589,6 +604,114 @@ class LegalNLPService:
                 "complexity_score": analysis.complexity_score
             }
         }
+    
+    def _analyze_text_fallback(self, text: str) -> LegalAnalysis:
+        """
+        Fallback text analysis when spaCy is not available
+        Uses basic regex and text analysis techniques
+        """
+        try:
+            # Basic text metrics
+            words = text.split()
+            sentences = text.split('.')
+            word_count = len(words)
+            sentence_count = len([s for s in sentences if s.strip()])
+            
+            # Simple readability estimate (Flesch-like)
+            avg_words_per_sentence = word_count / max(sentence_count, 1)
+            readability_score = max(0, min(100, 100 - avg_words_per_sentence * 2))
+            
+            # Basic entity extraction using regex
+            entities = []
+            
+            # Names (capitalized words)
+            name_pattern = r'\b[A-Z][a-z]+ [A-Z][a-z]+\b'
+            names = re.findall(name_pattern, text)
+            for name in names:
+                entities.append(LegalEntity(
+                    text=name,
+                    label="PERSON",
+                    start=text.find(name),
+                    end=text.find(name) + len(name),
+                    confidence=0.7
+                ))
+            
+            # Legal concepts (basic keywords)
+            legal_keywords = [
+                'executor', 'beneficiary', 'testament', 'will', 'attorney', 
+                'power of attorney', 'guardian', 'estate', 'assets', 'property',
+                'witness', 'signature', 'Ontario', 'bequest', 'inheritance'
+            ]
+            
+            legal_concepts = []
+            text_lower = text.lower()
+            for keyword in legal_keywords:
+                if keyword.lower() in text_lower:
+                    legal_concepts.append(keyword)
+            
+            # Basic sentiment (positive/neutral/negative based on keywords)
+            positive_words = ['grant', 'give', 'bequeath', 'appoint', 'authorize']
+            negative_words = ['revoke', 'refuse', 'deny', 'prohibit', 'restrict']
+            
+            pos_count = sum(1 for word in positive_words if word in text_lower)
+            neg_count = sum(1 for word in negative_words if word in text_lower)
+            
+            if pos_count > neg_count:
+                sentiment = {"positive": 0.7, "negative": 0.1, "neutral": 0.2}
+            elif neg_count > pos_count:
+                sentiment = {"positive": 0.1, "negative": 0.7, "neutral": 0.2}
+            else:
+                sentiment = {"positive": 0.2, "negative": 0.2, "neutral": 0.6}
+            
+            # Basic suggestions
+            suggestions = []
+            if 'executor' not in text_lower:
+                suggestions.append("Consider appointing an executor")
+            if 'witness' not in text_lower:
+                suggestions.append("Ensure proper witness requirements are met")
+                
+            # Risk factors
+            risk_factors = []
+            if len(text) < 100:
+                risk_factors.append("Document appears incomplete")
+            if word_count < 50:
+                risk_factors.append("Document may be too brief")
+                
+            # Compliance issues
+            compliance_issues = []
+            if 'ontario' not in text_lower:
+                compliance_issues.append("Consider specifying Ontario jurisdiction")
+                
+            complexity_score = min(1.0, word_count / 200.0)  # Normalize to 0-1
+            
+            return LegalAnalysis(
+                entities=entities,
+                sentiment=sentiment,
+                readability_score=readability_score,
+                legal_concepts=legal_concepts,
+                suggestions=suggestions,
+                risk_factors=risk_factors,
+                compliance_issues=compliance_issues,
+                word_count=word_count,
+                sentence_count=sentence_count,
+                complexity_score=complexity_score
+            )
+            
+        except Exception as e:
+            logger.error(f"Fallback analysis failed: {e}")
+            # Return minimal analysis
+            return LegalAnalysis(
+                entities=[],
+                sentiment={"positive": 0.5, "negative": 0.0, "neutral": 0.5},
+                readability_score=50.0,
+                legal_concepts=[],
+                suggestions=["Professional legal review recommended"],
+                risk_factors=["Unable to analyze document"],
+                compliance_issues=[],
+                word_count=len(text.split()),
+                sentence_count=len(text.split('.')),
+                complexity_score=0.5
+            )
 
 # Initialize global NLP service instance
 nlp_service = LegalNLPService()

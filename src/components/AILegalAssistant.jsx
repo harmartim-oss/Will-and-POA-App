@@ -24,9 +24,8 @@ const AILegalAssistant = ({ documentType, formData, onSuggestionsReceived }) => 
       const documentText = generateDocumentText(formData, documentType);
       
       // Use the integrated AI service
-      const response = await fetch('/api/integrated-ai/analyze-comprehensive', {
+      const response = await apiCall(API_ENDPOINTS.ANALYZE_COMPREHENSIVE, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           document_text: documentText,
           document_type: documentType,
