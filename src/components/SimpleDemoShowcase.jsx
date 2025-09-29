@@ -22,7 +22,10 @@ const SimpleDemoShowcase = () => {
   const [activeDemo, setActiveDemo] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
 
+  console.log('🎨 SimpleDemoShowcase component initializing...');
+
   useEffect(() => {
+    console.log('✅ SimpleDemoShowcase mounted successfully');
     setIsVisible(true);
   }, []);
 
