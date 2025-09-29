@@ -47,10 +47,18 @@ try {
   
   console.log('✅ React app rendered successfully');
   
-  // Remove initial loader
-  if (window.removeInitialLoader) {
-    window.removeInitialLoader();
-  }
+  // Remove initial loader with a small delay to ensure React has fully rendered
+  setTimeout(() => {
+    if (window.removeInitialLoader) {
+      window.removeInitialLoader();
+    }
+    // Fallback: directly remove the loader if the function doesn't work
+    const loader = document.getElementById('initial-loader');
+    if (loader && loader.parentNode) {
+      console.log('🔄 Fallback: removing loader directly');
+      loader.remove();
+    }
+  }, 100);
 } catch (error) {
   console.error('❌ Failed to initialize React app:', error);
   

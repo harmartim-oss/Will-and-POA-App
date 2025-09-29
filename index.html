@@ -177,11 +177,47 @@
       document.getElementById('debug-host').textContent = window.location.hostname;
       document.getElementById('debug-time').textContent = new Date().toISOString();
       
-      // Hide loader after 10 seconds if React hasn't loaded
-      setTimeout(function() {
+      // Check if React has loaded by looking for React root or specific React-rendered content
+      var reactLoadCheckInterval;
+      var reactLoadTimeout;
+      
+      // Function to check if React has successfully loaded
+      function isReactLoaded() {
+        // Check if React has rendered content by looking for React-specific indicators
+        var rootElement = document.getElementById('root');
+        if (!rootElement) return false;
+        
+        // Look for React-rendered content (non-loader content)
+        var hasReactContent = rootElement.children.length > 1 || 
+                             (rootElement.children.length === 1 && 
+                              rootElement.children[0].id !== 'initial-loader');
+        
+        // Check if window.React exists (indicates React has loaded)
+        var hasReactGlobal = typeof window.React !== 'undefined';
+        
+        return hasReactContent || hasReactGlobal;
+      }
+      
+      // Periodically check if React has loaded (every 2 seconds)
+      reactLoadCheckInterval = setInterval(function() {
+        if (isReactLoaded()) {
+          console.log('✅ React app loaded successfully');
+          clearInterval(reactLoadCheckInterval);
+          clearTimeout(reactLoadTimeout);
+          // Remove loader if it's still there
+          var loader = document.getElementById('initial-loader');
+          if (loader && loader.parentNode) {
+            loader.remove();
+          }
+        }
+      }, 2000);
+      
+      // Show error message only after 30 seconds if React hasn't loaded
+      reactLoadTimeout = setTimeout(function() {
+        clearInterval(reactLoadCheckInterval);
         var loader = document.getElementById('initial-loader');
-        if (loader && loader.parentNode) {
-          console.log('⚠️ React app did not load within 10 seconds');
+        if (loader && loader.parentNode && !isReactLoaded()) {
+          console.log('⚠️ React app did not load within 30 seconds');
           loader.innerHTML = `
             <div style="text-align: center;">
               <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
@@ -205,13 +241,24 @@
             </div>
           `;
         }
-      }, 10000);
+      }, 30000);
       
       // Remove loader once React takes over
       window.removeInitialLoader = function() {
+        console.log('🔄 Attempting to remove initial loader...');
         var loader = document.getElementById('initial-loader');
         if (loader && loader.parentNode) {
+          console.log('✅ Initial loader removed successfully');
           loader.remove();
+          // Clear any existing timers since React has loaded
+          if (typeof reactLoadCheckInterval !== 'undefined') {
+            clearInterval(reactLoadCheckInterval);
+          }
+          if (typeof reactLoadTimeout !== 'undefined') {
+            clearTimeout(reactLoadTimeout);
+          }
+        } else {
+          console.log('ℹ️ Initial loader already removed or not found');
         }
       };
     </script>
