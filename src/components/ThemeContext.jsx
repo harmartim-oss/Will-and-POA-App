@@ -14,33 +14,41 @@ export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState('light');
   const [systemTheme, setSystemTheme] = useState('light');
 
+  console.log('🎨 ThemeProvider initializing...');
+
   useEffect(() => {
-    // Check for saved theme preference or default to system preference
-    const savedTheme = localStorage.getItem('theme');
-    const systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    
-    setSystemTheme(systemPreference);
-    
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      setTheme(systemPreference);
-    }
-
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e) => {
-      const newSystemTheme = e.matches ? 'dark' : 'light';
-      setSystemTheme(newSystemTheme);
+    try {
+      // Check for saved theme preference or default to system preference
+      const savedTheme = localStorage.getItem('theme');
+      const systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       
-      // If user hasn't set a preference, follow system
-      if (!localStorage.getItem('theme')) {
-        setTheme(newSystemTheme);
+      console.log('🎨 Theme setup:', { savedTheme, systemPreference });
+      
+      setSystemTheme(systemPreference);
+      
+      if (savedTheme) {
+        setTheme(savedTheme);
+      } else {
+        setTheme(systemPreference);
       }
-    };
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+      // Listen for system theme changes
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e) => {
+        const newSystemTheme = e.matches ? 'dark' : 'light';
+        setSystemTheme(newSystemTheme);
+        
+        // If user hasn't set a preference, follow system
+        if (!localStorage.getItem('theme')) {
+          setTheme(newSystemTheme);
+        }
+      };
+
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } catch (error) {
+      console.error('❌ ThemeProvider initialization error:', error);
+    }
   }, []);
 
   useEffect(() => {
