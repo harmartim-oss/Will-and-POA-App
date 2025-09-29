@@ -17,8 +17,20 @@ class ErrorBoundary extends React.Component {
       errorInfo: errorInfo
     });
     
-    // Log to console for debugging
+    // Enhanced logging for production debugging
     console.error('Error caught by boundary:', error, errorInfo);
+    console.error('Error stack:', error.stack);
+    console.error('Component stack:', errorInfo.componentStack);
+    
+    // Log environment info for debugging
+    console.error('Environment info:', {
+      href: window.location.href,
+      pathname: window.location.pathname,
+      hostname: window.location.hostname,
+      isGitHubPages: window.location.hostname.includes('github.io'),
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString()
+    });
   }
 
   handleRetry = () => {
@@ -64,15 +76,19 @@ class ErrorBoundary extends React.Component {
               </button>
             </div>
             
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {this.state.error && (
               <details className="mt-6 text-left">
                 <summary className="cursor-pointer text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                  Error Details (Development Mode)
+                  Error Details {process.env.NODE_ENV === 'development' ? '(Development Mode)' : '(Check Console)'}
                 </summary>
                 <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 text-xs font-mono text-red-600 dark:text-red-400 overflow-auto max-h-32">
                   {this.state.error.toString()}
-                  <br />
-                  {this.state.errorInfo.componentStack}
+                  {process.env.NODE_ENV === 'development' && (
+                    <>
+                      <br />
+                      {this.state.errorInfo.componentStack}
+                    </>
+                  )}
                 </div>
               </details>
             )}

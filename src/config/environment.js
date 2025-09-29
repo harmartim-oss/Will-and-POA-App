@@ -2,9 +2,26 @@
 
 const isDevelopment = import.meta.env.MODE === 'development';
 const isProduction = import.meta.env.MODE === 'production';
-const isGitHubPages = window.location.hostname.includes('github.io') || 
-                      import.meta.env.VITE_GITHUB_PAGES === 'true' ||
-                      window.location.pathname.startsWith('/Will-and-POA-App/');
+
+// Enhanced GitHub Pages detection with multiple fallbacks
+const isGitHubPages = (
+  window.location.hostname.includes('github.io') || 
+  window.location.hostname.includes('githubpages.com') ||
+  import.meta.env.VITE_GITHUB_PAGES === 'true' ||
+  window.location.pathname.startsWith('/Will-and-POA-App/') ||
+  // Additional detection for GitHub Pages environment
+  (isProduction && window.location.hostname !== 'localhost' && !window.location.hostname.includes('.com') && !window.location.hostname.includes('.net'))
+);
+
+console.log('🔍 Environment Detection:', {
+  isDevelopment,
+  isProduction,
+  isGitHubPages,
+  hostname: window.location.hostname,
+  pathname: window.location.pathname,
+  VITE_GITHUB_PAGES: import.meta.env.VITE_GITHUB_PAGES,
+  MODE: import.meta.env.MODE
+});
 
 // API Base URLs for different environments
 const API_ENDPOINTS = {

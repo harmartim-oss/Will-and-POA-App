@@ -5,6 +5,17 @@ import SimpleDemoShowcase from './components/SimpleDemoShowcase'
 import { config } from './config/environment'
 
 function App() {
+  // Enhanced logging for debugging
+  console.log('🔧 App component initializing...', {
+    basePath: config.githubPages.basePath,
+    isGitHubPages: config.isGitHubPages,
+    isDevelopment: config.isDevelopment,
+    isProduction: config.isProduction,
+    demoMode: config.githubPages.demoMode,
+    apiBaseUrl: config.apiBaseUrl,
+    features: config.features
+  });
+
   return (
     <ErrorBoundary>
       <ThemeProvider>
