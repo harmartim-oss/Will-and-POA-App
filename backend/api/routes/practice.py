@@ -55,6 +55,19 @@ class TimeEntryData(BaseModel):
     billable: Optional[bool] = Field(True, description="Whether time is billable")
     hourly_rate: Optional[float] = Field(400.0, description="Hourly rate")
 
+class DisbursementData(BaseModel):
+    matter_id: str = Field(..., description="Matter ID")
+    date: Optional[str] = Field(None, description="Date of disbursement (YYYY-MM-DD)")
+    description: str = Field(..., description="Description of disbursement")
+    category: Optional[str] = Field("other", description="Category (e.g., title_insurance, filing_fees, courier)")
+    amount: float = Field(..., description="Amount (before HST)")
+    hst_applicable: Optional[bool] = Field(True, description="Whether HST applies")
+    payee: Optional[str] = Field("", description="Who was paid")
+    reference_number: Optional[str] = Field("", description="Reference number")
+    billable: Optional[bool] = Field(True, description="Whether disbursement is billable")
+    notes: Optional[str] = Field("", description="Additional notes")
+    created_by: Optional[str] = Field("", description="Created by user")
+
 class TrustTransactionData(BaseModel):
     matter_id: str = Field(..., description="Matter ID")
     client_id: str = Field(..., description="Client ID")
@@ -119,6 +132,27 @@ async def track_time_entry(
     except Exception as e:
         logger.error(f"Time tracking failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Time tracking failed: {str(e)}")
+
+@router.post("/disbursement", response_model=Dict[str, Any])
+async def add_disbursement(
+    disbursement_data: DisbursementData,
+    practice_mgr: OntarioPracticeManager = Depends(get_practice_manager)
+):
+    """Add a disbursement entry (out-of-pocket expense) for billing"""
+    try:
+        logger.info(f"Recording disbursement for matter: {disbursement_data.matter_id}")
+        
+        result = await practice_mgr.add_disbursement(disbursement_data.dict())
+        
+        return {
+            "success": True,
+            "data": result,
+            "message": "Disbursement recorded successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"Disbursement recording failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Disbursement recording failed: {str(e)}")
 
 @router.post("/trust-transaction", response_model=Dict[str, Any])
 async def manage_trust_account(
@@ -271,3 +305,139 @@ async def health_check():
             "error": str(e),
             "timestamp": datetime.now().isoformat()
         }
+
+# Invoice Template Management Endpoints
+
+class InvoiceTemplateData(BaseModel):
+    template_id: Optional[str] = Field(None, description="Template ID (for updates)")
+    template_name: str = Field(..., description="Template name")
+    template_type: Optional[str] = Field("custom", description="Template type")
+    layout_config: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Layout configuration")
+    header_template: Optional[str] = Field("", description="Header template HTML/text")
+    footer_template: Optional[str] = Field("", description="Footer template HTML/text")
+    line_item_template: Optional[str] = Field("", description="Line item template HTML/text")
+    include_logo: Optional[bool] = Field(True, description="Include firm logo")
+    include_timesheet: Optional[bool] = Field(True, description="Include detailed timesheet")
+    include_disbursements: Optional[bool] = Field(True, description="Include disbursements section")
+    is_default: Optional[bool] = Field(False, description="Set as default template")
+    created_by: Optional[str] = Field("", description="Creator user ID")
+
+@router.post("/invoice-template", response_model=Dict[str, Any])
+async def save_invoice_template(
+    template_data: InvoiceTemplateData,
+    practice_mgr: OntarioPracticeManager = Depends(get_practice_manager)
+):
+    """Save or update a custom invoice template"""
+    try:
+        logger.info(f"Saving invoice template: {template_data.template_name}")
+        
+        template_id = await practice_mgr.save_invoice_template(template_data.dict())
+        
+        return {
+            "success": True,
+            "data": {"template_id": template_id},
+            "message": "Invoice template saved successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"Invoice template save failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Invoice template save failed: {str(e)}")
+
+@router.get("/invoice-templates", response_model=Dict[str, Any])
+async def get_invoice_templates(
+    practice_mgr: OntarioPracticeManager = Depends(get_practice_manager)
+):
+    """Get all invoice templates"""
+    try:
+        templates = await practice_mgr.get_invoice_templates()
+        
+        return {
+            "success": True,
+            "data": templates,
+            "message": f"Retrieved {len(templates)} templates"
+        }
+        
+    except Exception as e:
+        logger.error(f"Template retrieval failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Template retrieval failed: {str(e)}")
+
+@router.get("/invoice-template/{template_id}", response_model=Dict[str, Any])
+async def get_invoice_template(
+    template_id: str,
+    practice_mgr: OntarioPracticeManager = Depends(get_practice_manager)
+):
+    """Get a specific invoice template"""
+    try:
+        template = await practice_mgr.get_invoice_template(template_id)
+        
+        if not template:
+            raise HTTPException(status_code=404, detail="Template not found")
+        
+        return {
+            "success": True,
+            "data": template,
+            "message": "Template retrieved successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Template retrieval failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Template retrieval failed: {str(e)}")
+
+# Firm Settings Management Endpoints
+
+class FirmSettingData(BaseModel):
+    setting_key: str = Field(..., description="Setting key")
+    setting_value: Any = Field(..., description="Setting value")
+    setting_type: Optional[str] = Field("text", description="Setting type (text, json, image, file)")
+    description: Optional[str] = Field(None, description="Setting description")
+
+@router.post("/firm-setting", response_model=Dict[str, Any])
+async def save_firm_setting(
+    setting_data: FirmSettingData,
+    practice_mgr: OntarioPracticeManager = Depends(get_practice_manager)
+):
+    """Save a firm setting (e.g., logo, letterhead)"""
+    try:
+        logger.info(f"Saving firm setting: {setting_data.setting_key}")
+        
+        await practice_mgr.save_firm_setting(
+            setting_data.setting_key,
+            setting_data.setting_value,
+            setting_data.setting_type,
+            setting_data.description
+        )
+        
+        return {
+            "success": True,
+            "message": "Firm setting saved successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"Firm setting save failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Firm setting save failed: {str(e)}")
+
+@router.get("/firm-setting/{setting_key}", response_model=Dict[str, Any])
+async def get_firm_setting(
+    setting_key: str,
+    practice_mgr: OntarioPracticeManager = Depends(get_practice_manager)
+):
+    """Get a firm setting"""
+    try:
+        value = await practice_mgr.get_firm_setting(setting_key)
+        
+        if value is None:
+            raise HTTPException(status_code=404, detail="Setting not found")
+        
+        return {
+            "success": True,
+            "data": {"setting_key": setting_key, "setting_value": value},
+            "message": "Setting retrieved successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Setting retrieval failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Setting retrieval failed: {str(e)}")
