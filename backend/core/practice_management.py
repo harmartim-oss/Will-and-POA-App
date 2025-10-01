@@ -207,6 +207,31 @@ class OntarioPracticeManager:
                 )
             """)
             
+            # Disbursements table - for out-of-pocket expenses to be billed to clients
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS disbursements (
+                    disbursement_id TEXT PRIMARY KEY,
+                    matter_id TEXT NOT NULL,
+                    date DATE NOT NULL,
+                    description TEXT NOT NULL,
+                    category TEXT, -- e.g., 'title_insurance', 'filing_fees', 'courier', etc.
+                    amount REAL NOT NULL,
+                    hst_applicable BOOLEAN DEFAULT TRUE,
+                    hst_amount REAL DEFAULT 0.0,
+                    total_amount REAL NOT NULL,
+                    payee TEXT, -- who was paid (e.g., title company)
+                    reference_number TEXT,
+                    billable BOOLEAN DEFAULT TRUE,
+                    billed BOOLEAN DEFAULT FALSE,
+                    billed_date TIMESTAMP,
+                    status TEXT DEFAULT 'draft',
+                    notes TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    created_by TEXT,
+                    FOREIGN KEY (matter_id) REFERENCES matters (matter_id)
+                )
+            """)
+            
             # Calendar/appointments table
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS appointments (
@@ -280,6 +305,39 @@ class OntarioPracticeManager:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     created_by TEXT,
                     FOREIGN KEY (matter_id) REFERENCES matters (matter_id)
+                )
+            """)
+            
+            # Custom invoice templates
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS invoice_templates (
+                    template_id TEXT PRIMARY KEY,
+                    template_name TEXT NOT NULL UNIQUE,
+                    template_type TEXT DEFAULT 'standard', -- 'standard', 'detailed', 'summary', 'custom'
+                    layout_config TEXT, -- JSON configuration
+                    header_template TEXT,
+                    footer_template TEXT,
+                    line_item_template TEXT,
+                    include_logo BOOLEAN DEFAULT TRUE,
+                    include_timesheet BOOLEAN DEFAULT TRUE,
+                    include_disbursements BOOLEAN DEFAULT TRUE,
+                    is_default BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    created_by TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            
+            # Firm settings and branding
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS firm_settings (
+                    setting_id TEXT PRIMARY KEY,
+                    setting_key TEXT NOT NULL UNIQUE,
+                    setting_value TEXT,
+                    setting_type TEXT DEFAULT 'text', -- 'text', 'json', 'image', 'file'
+                    description TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_by TEXT
                 )
             """)
             
@@ -791,8 +849,56 @@ class OntarioPracticeManager:
             logger.error(f"Time tracking failed: {str(e)}")
             raise
     
+    async def add_disbursement(self, disbursement_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Add a disbursement entry (out-of-pocket expense) for billing"""
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                disbursement_id = str(uuid.uuid4())
+                
+                # Calculate HST if applicable
+                amount = disbursement_data.get("amount", 0.0)
+                hst_applicable = disbursement_data.get("hst_applicable", True)
+                hst_amount = amount * 0.13 if hst_applicable else 0.0
+                total_amount = amount + hst_amount
+                
+                await db.execute('''
+                    INSERT INTO disbursements (
+                        disbursement_id, matter_id, date, description, category,
+                        amount, hst_applicable, hst_amount, total_amount, payee,
+                        reference_number, billable, notes, created_by
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    disbursement_id,
+                    disbursement_data["matter_id"],
+                    disbursement_data.get("date", datetime.now().date()),
+                    disbursement_data["description"],
+                    disbursement_data.get("category", "other"),
+                    amount,
+                    hst_applicable,
+                    hst_amount,
+                    total_amount,
+                    disbursement_data.get("payee", ""),
+                    disbursement_data.get("reference_number", ""),
+                    disbursement_data.get("billable", True),
+                    disbursement_data.get("notes", ""),
+                    disbursement_data.get("created_by", "")
+                ))
+                
+                await db.commit()
+            
+            return {
+                "disbursement_id": disbursement_id,
+                "amount": amount,
+                "hst_amount": hst_amount,
+                "total_amount": total_amount,
+                "status": "recorded"
+            }
+        except Exception as e:
+            logger.error(f"Disbursement tracking failed: {str(e)}")
+            raise
+    
     async def generate_monthly_bill(self, matter_id: str, bill_date: str) -> Dict[str, Any]:
-        """Generate compliant monthly bill"""
+        """Generate compliant monthly bill with time entries and disbursements"""
         try:
             async with aiosqlite.connect(self.db_path) as db:
                 # Get matter details including client_id
@@ -815,13 +921,28 @@ class OntarioPracticeManager:
                 ''', (matter_id,))
                 time_entries = await cursor.fetchall()
                 
-                if not time_entries:
-                    return {"status": "no_entries", "message": "No billable entries found"}
+                # Get unbilled disbursements
+                cursor = await db.execute('''
+                    SELECT disbursement_id, date, description, category, amount, hst_amount, total_amount, payee
+                    FROM disbursements
+                    WHERE matter_id = ? AND billable = TRUE AND billed = FALSE
+                    ORDER BY date
+                ''', (matter_id,))
+                disbursements = await cursor.fetchall()
+                
+                # Check if there are any billable items
+                if not time_entries and not disbursements:
+                    return {"status": "no_entries", "message": "No billable entries or disbursements found"}
                 
                 # Calculate totals
-                subtotal = sum(entry[5] for entry in time_entries)
-                taxes = subtotal * 0.13  # HST for Ontario
-                total = subtotal + taxes
+                time_subtotal = sum(entry[5] for entry in time_entries) if time_entries else 0.0
+                disbursement_subtotal = sum(disb[4] for disb in disbursements) if disbursements else 0.0  # amount before HST
+                disbursement_hst = sum(disb[5] for disb in disbursements) if disbursements else 0.0  # HST on disbursements
+                
+                subtotal = time_subtotal + disbursement_subtotal
+                time_hst = time_subtotal * 0.13  # HST on legal services
+                total_hst = time_hst + disbursement_hst
+                total = subtotal + total_hst
                 
                 # Generate bill
                 bill_id = str(uuid.uuid4())
@@ -832,25 +953,39 @@ class OntarioPracticeManager:
                         bill_id, matter_id, client_id, bill_date, bill_number,
                         subtotal, taxes, total_amount, status
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ''', (bill_id, matter_id, client_id, bill_date, bill_number, subtotal, taxes, total, "draft"))
+                ''', (bill_id, matter_id, client_id, bill_date, bill_number, subtotal, total_hst, total, "draft"))
                 
                 # Mark time entries as billed
-                entry_ids = [entry[0] for entry in time_entries]
-                for entry_id in entry_ids:
-                    await db.execute('UPDATE time_entries SET billed = TRUE, billed_date = ? WHERE entry_id = ?', 
-                                   (datetime.now(), entry_id))
+                if time_entries:
+                    entry_ids = [entry[0] for entry in time_entries]
+                    for entry_id in entry_ids:
+                        await db.execute('UPDATE time_entries SET billed = TRUE, billed_date = ? WHERE entry_id = ?', 
+                                       (datetime.now(), entry_id))
+                
+                # Mark disbursements as billed
+                if disbursements:
+                    disbursement_ids = [disb[0] for disb in disbursements]
+                    for disb_id in disbursement_ids:
+                        await db.execute('UPDATE disbursements SET billed = TRUE, billed_date = ? WHERE disbursement_id = ?',
+                                       (datetime.now(), disb_id))
                 
                 await db.commit()
             
             # Generate bill document
-            bill_document = await self._generate_bill_document(bill_id, time_entries, subtotal, taxes, total)
+            bill_document = await self._generate_bill_document(
+                bill_id, time_entries, disbursements, time_subtotal, disbursement_subtotal, total_hst, total
+            )
             
             return {
                 "bill_id": bill_id,
                 "bill_number": bill_number,
+                "time_subtotal": time_subtotal,
+                "disbursement_subtotal": disbursement_subtotal,
                 "subtotal": subtotal,
-                "taxes": taxes,
+                "taxes": total_hst,
                 "total": total,
+                "time_entry_count": len(time_entries) if time_entries else 0,
+                "disbursement_count": len(disbursements) if disbursements else 0,
                 "document_path": bill_document["file_path"]
             }
         except Exception as e:
@@ -862,10 +997,12 @@ class OntarioPracticeManager:
         # Implementation for bill number generation
         return f"BILL-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8]}"
     
-    async def _generate_bill_document(self, bill_id: str, time_entries: List, subtotal: float, taxes: float,
-                                    total: float) -> Dict[str, Any]:
-        """Generate bill document"""
+    async def _generate_bill_document(self, bill_id: str, time_entries: List, disbursements: List,
+                                    time_subtotal: float, disbursement_subtotal: float, 
+                                    taxes: float, total: float) -> Dict[str, Any]:
+        """Generate bill document with time entries and disbursements"""
         # Implementation for bill document generation
+        # This will be enhanced with the Ontario document generator
         return {"file_path": f"bills/{bill_id}.pdf", "status": "generated"}
     
     async def manage_trust_account(self, transaction_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -994,3 +1131,197 @@ class OntarioPracticeManager:
     def is_ready(self) -> bool:
         """Check if practice manager is ready"""
         return self.is_initialized
+    
+    async def save_invoice_template(self, template_data: Dict[str, Any]) -> str:
+        """Save a custom invoice template"""
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                template_id = template_data.get("template_id", str(uuid.uuid4()))
+                
+                # If setting as default, unset other defaults first
+                if template_data.get("is_default", False):
+                    await db.execute('''
+                        UPDATE invoice_templates SET is_default = FALSE
+                    ''')
+                
+                # Check if template exists (for update)
+                cursor = await db.execute('''
+                    SELECT template_id FROM invoice_templates WHERE template_id = ?
+                ''', (template_id,))
+                existing = await cursor.fetchone()
+                
+                if existing:
+                    # Update existing template
+                    await db.execute('''
+                        UPDATE invoice_templates SET
+                            template_name = ?, template_type = ?, layout_config = ?,
+                            header_template = ?, footer_template = ?, line_item_template = ?,
+                            include_logo = ?, include_timesheet = ?, include_disbursements = ?,
+                            is_default = ?, updated_at = ?
+                        WHERE template_id = ?
+                    ''', (
+                        template_data["template_name"],
+                        template_data.get("template_type", "custom"),
+                        json.dumps(template_data.get("layout_config", {})),
+                        template_data.get("header_template", ""),
+                        template_data.get("footer_template", ""),
+                        template_data.get("line_item_template", ""),
+                        template_data.get("include_logo", True),
+                        template_data.get("include_timesheet", True),
+                        template_data.get("include_disbursements", True),
+                        template_data.get("is_default", False),
+                        datetime.now(),
+                        template_id
+                    ))
+                else:
+                    # Insert new template
+                    await db.execute('''
+                        INSERT INTO invoice_templates (
+                            template_id, template_name, template_type, layout_config,
+                            header_template, footer_template, line_item_template,
+                            include_logo, include_timesheet, include_disbursements,
+                            is_default, created_by
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (
+                        template_id,
+                        template_data["template_name"],
+                        template_data.get("template_type", "custom"),
+                        json.dumps(template_data.get("layout_config", {})),
+                        template_data.get("header_template", ""),
+                        template_data.get("footer_template", ""),
+                        template_data.get("line_item_template", ""),
+                        template_data.get("include_logo", True),
+                        template_data.get("include_timesheet", True),
+                        template_data.get("include_disbursements", True),
+                        template_data.get("is_default", False),
+                        template_data.get("created_by", "")
+                    ))
+                
+                await db.commit()
+            
+            return template_id
+        except Exception as e:
+            logger.error(f"Failed to save invoice template: {str(e)}")
+            raise
+    
+    async def get_invoice_templates(self) -> List[Dict[str, Any]]:
+        """Get all invoice templates"""
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                cursor = await db.execute('''
+                    SELECT template_id, template_name, template_type, is_default, created_at
+                    FROM invoice_templates
+                    ORDER BY is_default DESC, template_name
+                ''')
+                rows = await cursor.fetchall()
+                
+                templates = []
+                for row in rows:
+                    templates.append({
+                        "template_id": row[0],
+                        "template_name": row[1],
+                        "template_type": row[2],
+                        "is_default": bool(row[3]),
+                        "created_at": row[4]
+                    })
+                
+                return templates
+        except Exception as e:
+            logger.error(f"Failed to get invoice templates: {str(e)}")
+            raise
+    
+    async def get_invoice_template(self, template_id: str) -> Dict[str, Any]:
+        """Get a specific invoice template"""
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                cursor = await db.execute('''
+                    SELECT * FROM invoice_templates WHERE template_id = ?
+                ''', (template_id,))
+                row = await cursor.fetchone()
+                
+                if not row:
+                    return None
+                
+                columns = [description[0] for description in cursor.description]
+                template = dict(zip(columns, row))
+                
+                # Parse JSON fields
+                if template.get("layout_config"):
+                    template["layout_config"] = json.loads(template["layout_config"])
+                
+                return template
+        except Exception as e:
+            logger.error(f"Failed to get invoice template: {str(e)}")
+            raise
+    
+    async def save_firm_setting(self, setting_key: str, setting_value: Any, 
+                               setting_type: str = "text", description: str = None) -> None:
+        """Save a firm setting (e.g., logo, letterhead)"""
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                setting_id = str(uuid.uuid4())
+                
+                # Convert value to string based on type
+                if setting_type == "json":
+                    value_str = json.dumps(setting_value)
+                elif setting_type == "image" or setting_type == "file":
+                    # For binary data, we'll store base64 encoded
+                    if isinstance(setting_value, bytes):
+                        import base64
+                        value_str = base64.b64encode(setting_value).decode('utf-8')
+                    else:
+                        value_str = str(setting_value)
+                else:
+                    value_str = str(setting_value)
+                
+                # Check if setting exists
+                cursor = await db.execute('''
+                    SELECT setting_id FROM firm_settings WHERE setting_key = ?
+                ''', (setting_key,))
+                existing = await cursor.fetchone()
+                
+                if existing:
+                    # Update existing setting
+                    await db.execute('''
+                        UPDATE firm_settings SET
+                            setting_value = ?, setting_type = ?, description = ?, updated_at = ?
+                        WHERE setting_key = ?
+                    ''', (value_str, setting_type, description, datetime.now(), setting_key))
+                else:
+                    # Insert new setting
+                    await db.execute('''
+                        INSERT INTO firm_settings (
+                            setting_id, setting_key, setting_value, setting_type, description
+                        ) VALUES (?, ?, ?, ?, ?)
+                    ''', (setting_id, setting_key, value_str, setting_type, description))
+                
+                await db.commit()
+        except Exception as e:
+            logger.error(f"Failed to save firm setting: {str(e)}")
+            raise
+    
+    async def get_firm_setting(self, setting_key: str) -> Any:
+        """Get a firm setting"""
+        try:
+            async with aiosqlite.connect(self.db_path) as db:
+                cursor = await db.execute('''
+                    SELECT setting_value, setting_type FROM firm_settings WHERE setting_key = ?
+                ''', (setting_key,))
+                row = await cursor.fetchone()
+                
+                if not row:
+                    return None
+                
+                value_str, setting_type = row
+                
+                # Convert value based on type
+                if setting_type == "json":
+                    return json.loads(value_str)
+                elif setting_type == "image" or setting_type == "file":
+                    # Return base64 encoded string, let caller decode if needed
+                    return value_str
+                else:
+                    return value_str
+        except Exception as e:
+            logger.error(f"Failed to get firm setting: {str(e)}")
+            raise
