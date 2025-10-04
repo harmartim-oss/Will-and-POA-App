@@ -259,8 +259,20 @@
         console.log('🔄 Attempting to remove initial loader...');
         var loader = document.getElementById('initial-loader');
         if (loader && loader.parentNode) {
-          console.log('✅ Initial loader removed successfully');
-          loader.remove();
+          console.log('✅ Fading out initial loader');
+          // Add smooth fade-out animation
+          loader.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+          loader.style.opacity = '0';
+          loader.style.transform = 'scale(0.95)';
+          
+          // Remove after animation completes
+          setTimeout(function() {
+            if (loader && loader.parentNode) {
+              loader.remove();
+              console.log('✅ Initial loader removed successfully');
+            }
+          }, 500);
+          
           // Clear any existing timers since React has loaded
           if (typeof reactLoadCheckInterval !== 'undefined') {
             clearInterval(reactLoadCheckInterval);

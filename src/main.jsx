@@ -53,20 +53,59 @@ try {
   
   console.log('✅ React app rendered successfully');
   
-  // Remove initial loader with a small delay to ensure React has fully rendered
-  setTimeout(() => {
-    if (window.removeInitialLoader) {
-      console.log('🔄 Using removeInitialLoader function');
-      window.removeInitialLoader();
-    }
-    // Fallback: directly remove the loader if the function doesn't work
+  // Remove initial loader with proper timing to ensure React has fully mounted
+  // Use a combination of DOM mutation observation and timeout
+  const removeLoader = () => {
     const loader = document.getElementById('initial-loader');
     if (loader && loader.parentNode) {
-      console.log('🔄 Removing initial loader');
-      loader.remove();
-      console.log('✅ Initial loader removed - app fully loaded');
+      console.log('🔄 Removing initial loader with fade-out animation');
+      // Add fade-out class for smooth transition
+      loader.style.transition = 'opacity 0.5s ease-out';
+      loader.style.opacity = '0';
+      
+      // Remove after fade-out completes
+      setTimeout(() => {
+        if (loader.parentNode) {
+          loader.remove();
+          console.log('✅ Initial loader removed - app fully loaded');
+        }
+      }, 500);
     }
-  }, 100);
+  };
+  
+  // Wait for React components to mount and render
+  // Check multiple times to ensure content is visible
+  let checkCount = 0;
+  const maxChecks = 20; // Max 2 seconds (20 * 100ms)
+  
+  const checkAndRemoveLoader = () => {
+    checkCount++;
+    
+    // Check if React has rendered actual content (not just the root)
+    const root = document.getElementById('root');
+    const hasContent = root && 
+                       root.children.length > 0 && 
+                       (root.children.length > 1 || root.children[0].id !== 'initial-loader');
+    
+    if (hasContent) {
+      console.log('✅ React content detected, removing loader');
+      if (window.removeInitialLoader) {
+        window.removeInitialLoader();
+      } else {
+        removeLoader();
+      }
+    } else if (checkCount < maxChecks) {
+      // Keep checking
+      setTimeout(checkAndRemoveLoader, 100);
+    } else {
+      // Timeout reached, force remove loader
+      console.warn('⚠️ Loader removal timeout reached, forcing removal');
+      removeLoader();
+    }
+  };
+  
+  // Start checking after a brief initial delay
+  setTimeout(checkAndRemoveLoader, 150);
 } catch (error) {
   console.error('❌ Failed to initialize React app:', error);
   console.error('Stack trace:', error.stack);

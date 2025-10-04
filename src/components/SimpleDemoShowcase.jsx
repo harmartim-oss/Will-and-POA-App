@@ -45,7 +45,13 @@ const SimpleDemoShowcase = () => {
 
   useEffect(() => {
     console.log('✅ SimpleDemoShowcase mounted successfully');
-    setIsVisible(true);
+    // Set visible with a small delay to ensure smooth rendering
+    setTimeout(() => {
+      setIsVisible(true);
+      // Signal that the app is fully loaded and ready
+      window.dispatchEvent(new Event('app-ready'));
+      console.log('🎉 App is fully ready and visible');
+    }, 50);
   }, []);
 
   const documentTypes = [
