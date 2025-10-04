@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './components/ThemeContext'
 import ErrorBoundary from './components/ErrorBoundary'
+import Navigation from './components/Navigation'
+import Footer from './components/Footer'
 import SimpleDemoShowcase from './components/SimpleDemoShowcase'
 import { config } from './config/environment'
 
@@ -20,15 +22,21 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <Router basename={config.githubPages.basePath}>
-          <a href="#main" className="skip-link">Skip to main content</a>
-          <main id="main" role="main" className="block focus:outline-none">
-            <ErrorBoundary>
-              <Routes>
-                <Route path="/" element={<SimpleDemoShowcase />} />
-                <Route path="*" element={<SimpleDemoShowcase />} />
-              </Routes>
-            </ErrorBoundary>
-          </main>
+          <div className="min-h-screen flex flex-col">
+            <a href="#main" className="skip-link">Skip to main content</a>
+            <Navigation />
+            <main id="main" role="main" className="flex-grow focus:outline-none">
+              <ErrorBoundary>
+                <Routes>
+                  <Route path="/" element={<SimpleDemoShowcase />} />
+                  <Route path="/about" element={<SimpleDemoShowcase />} />
+                  <Route path="/contact" element={<SimpleDemoShowcase />} />
+                  <Route path="*" element={<SimpleDemoShowcase />} />
+                </Routes>
+              </ErrorBoundary>
+            </main>
+            <Footer />
+          </div>
         </Router>
       </ThemeProvider>
     </ErrorBoundary>
