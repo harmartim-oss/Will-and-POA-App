@@ -40,12 +40,54 @@ const SimpleDemoShowcase = () => {
   const [showDocumentTypes, setShowDocumentTypes] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showKeyboardHint, setShowKeyboardHint] = useState(false);
 
   console.log('🎨 SimpleDemoShowcase component initializing...');
 
   useEffect(() => {
     console.log('✅ SimpleDemoShowcase mounted successfully');
-    setIsVisible(true);
+    // Set visible with a small delay to ensure smooth rendering
+    setTimeout(() => {
+      setIsVisible(true);
+      // Signal that the app is fully loaded and ready
+      window.dispatchEvent(new Event('app-ready'));
+      console.log('🎉 App is fully ready and visible');
+      
+      // Show welcome message after a brief delay
+      setTimeout(() => {
+        setShowWelcome(true);
+        // Auto-hide welcome after 5 seconds
+        setTimeout(() => setShowWelcome(false), 5000);
+      }, 500);
+    }, 50);
+    
+    // Keyboard shortcuts
+    const handleKeyPress = (e) => {
+      // Show keyboard hint on '?' key
+      if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        setShowKeyboardHint(true);
+      }
+      // Close modals on Escape
+      if (e.key === 'Escape') {
+        setShowDocumentTypes(false);
+        setShowKeyboardHint(false);
+      }
+      // Quick search focus on '/'
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        document.querySelector('input[type="text"]')?.focus();
+      }
+      // Quick new document on Ctrl/Cmd + N
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        setShowDocumentTypes(true);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
 
   const documentTypes = [
@@ -150,6 +192,31 @@ const SimpleDemoShowcase = () => {
 
   return (
     <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Welcome Notification Toast */}
+      {showWelcome && (
+        <div className="fixed top-20 right-4 z-50 animate-in slide-in-from-right duration-500">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-xl shadow-2xl max-w-md">
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0">
+                <Sparkles className="h-6 w-6 text-yellow-300" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-lg mb-1">Welcome to Ontario Legal Documents! 🎉</h4>
+                <p className="text-sm text-blue-100">
+                  Create professional legal documents with AI-powered assistance. All documents are Ontario law compliant.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowWelcome(false)}
+                className="flex-shrink-0 text-white/80 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Header Section with Breadcrumbs and Actions */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 lg:top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -559,6 +626,62 @@ const SimpleDemoShowcase = () => {
           </div>
         </div>
       )}
+
+      {/* Keyboard Shortcuts Modal */}
+      {showKeyboardHint && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowKeyboardHint(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+                <Zap className="h-6 w-6 mr-2 text-yellow-500" />
+                Keyboard Shortcuts
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Speed up your workflow with these handy shortcuts
+              </p>
+            </div>
+            <div className="p-6 space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <span className="text-sm text-gray-700 dark:text-gray-300">Show this help</span>
+                <kbd className="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm font-mono">?</kbd>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <span className="text-sm text-gray-700 dark:text-gray-300">Focus search</span>
+                <kbd className="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm font-mono">/</kbd>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <span className="text-sm text-gray-700 dark:text-gray-300">New document</span>
+                <div className="flex items-center space-x-1">
+                  <kbd className="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm font-mono">Ctrl</kbd>
+                  <span className="text-gray-400">+</span>
+                  <kbd className="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm font-mono">N</kbd>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <span className="text-sm text-gray-700 dark:text-gray-300">Close modal</span>
+                <kbd className="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm font-mono">Esc</kbd>
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => setShowKeyboardHint(false)}
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all"
+              >
+                Got it!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Keyboard Hint Button */}
+      <button
+        onClick={() => setShowKeyboardHint(true)}
+        className="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-40 group"
+        title="Keyboard Shortcuts (Press ?)"
+      >
+        <span className="text-xl font-bold group-hover:scale-110 transition-transform">?</span>
+      </button>
     </div>
   );
 };
