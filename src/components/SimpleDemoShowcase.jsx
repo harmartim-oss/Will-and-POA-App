@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Brain, 
   FileText, 
@@ -15,12 +16,15 @@ import {
   Download,
   Eye,
   Layers,
-  PlusCircle
+  PlusCircle,
+  Heart
 } from 'lucide-react';
 
 const SimpleDemoShowcase = () => {
+  const navigate = useNavigate();
   const [activeDemo, setActiveDemo] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [showDocumentTypes, setShowDocumentTypes] = useState(false);
 
   console.log('🎨 SimpleDemoShowcase component initializing...');
 
@@ -28,6 +32,33 @@ const SimpleDemoShowcase = () => {
     console.log('✅ SimpleDemoShowcase mounted successfully');
     setIsVisible(true);
   }, []);
+
+  const documentTypes = [
+    {
+      id: 'will',
+      title: 'Last Will & Testament',
+      description: 'Plan your estate and distribute your assets',
+      icon: FileText,
+      color: 'from-blue-500 to-cyan-500',
+      estimatedTime: '15-30 minutes'
+    },
+    {
+      id: 'poa_property',
+      title: 'Power of Attorney for Property',
+      description: 'Authorize financial and property decisions',
+      icon: Shield,
+      color: 'from-green-500 to-emerald-500',
+      estimatedTime: '10-20 minutes'
+    },
+    {
+      id: 'poa_care',
+      title: 'Power of Attorney for Personal Care',
+      description: 'Authorize healthcare and personal decisions',
+      icon: Heart,
+      color: 'from-red-500 to-pink-500',
+      estimatedTime: '10-20 minutes'
+    }
+  ];
 
   const features = [
     {
@@ -130,19 +161,73 @@ const SimpleDemoShowcase = () => {
                 Create legally compliant wills and POA documents with confidence and ease.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                <button 
+                  onClick={() => setShowDocumentTypes(!showDocumentTypes)}
+                  className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
                   <span className="flex items-center justify-center">
                     Get Started Free
                     <ArrowRight className="inline-block ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </span>
                 </button>
-                <button className="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-white font-semibold py-4 px-8 rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300 hover:shadow-lg">
+                <button 
+                  onClick={() => {
+                    const featuresSection = document.getElementById('features');
+                    if (featuresSection) {
+                      featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }}
+                  className="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-900 dark:text-white font-semibold py-4 px-8 rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300 hover:shadow-lg"
+                >
                   <span className="flex items-center justify-center">
                     <Eye className="mr-2 h-5 w-5" />
-                    Watch Demo
+                    Explore Features
                   </span>
                 </button>
               </div>
+              
+              {/* Document Type Selection Modal */}
+              {showDocumentTypes && (
+                <div className="mt-8 p-6 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 animate-fade-in">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">
+                    Choose Your Document Type
+                  </h3>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {documentTypes.map((docType) => (
+                      <button
+                        key={docType.id}
+                        onClick={() => {
+                          console.log(`Creating document: ${docType.id}`);
+                          // In demo mode, just show a message
+                          alert(`Document creation for "${docType.title}" will be available soon. This is a demo version.`);
+                          setShowDocumentTypes(false);
+                        }}
+                        className="group p-4 bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 text-left"
+                      >
+                        <div className={`w-12 h-12 bg-gradient-to-r ${docType.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                          <docType.icon className="h-6 w-6 text-white" />
+                        </div>
+                        <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-sm">
+                          {docType.title}
+                        </h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
+                          {docType.description}
+                        </p>
+                        <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {docType.estimatedTime}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setShowDocumentTypes(false)}
+                    className="mt-4 w-full py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm font-medium transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -177,7 +262,7 @@ const SimpleDemoShowcase = () => {
       </div>
 
       {/* Enhanced Features Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 scroll-mt-20">
         <div className={`transform transition-all duration-1000 delay-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
@@ -300,13 +385,24 @@ const SimpleDemoShowcase = () => {
                 Join thousands of satisfied users who trust our platform.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <button className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                <button 
+                  onClick={() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    setTimeout(() => setShowDocumentTypes(true), 500);
+                  }}
+                  className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
                   <span className="flex items-center justify-center">
                     Start Creating Your Document
                     <ArrowRight className="inline-block ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </span>
                 </button>
-                <button className="group bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold py-4 px-8 rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300">
+                <button 
+                  onClick={() => {
+                    alert('Sample documents will be available for download soon. This is a demo version showcasing the platform capabilities.');
+                  }}
+                  className="group bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold py-4 px-8 rounded-xl border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300"
+                >
                   <span className="flex items-center justify-center">
                     <Download className="mr-2 h-5 w-5" />
                     Download Sample
