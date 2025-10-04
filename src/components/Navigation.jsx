@@ -1,141 +1,229 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, FileText, Home, Info, Phone, Moon, Sun } from 'lucide-react';
+import { 
+  Menu, 
+  X, 
+  FileText, 
+  Home, 
+  Info, 
+  Phone, 
+  Moon, 
+  Sun, 
+  ChevronLeft,
+  ChevronRight,
+  Settings,
+  HelpCircle,
+  BookOpen,
+  Bell,
+  Search
+} from 'lucide-react';
 import { useTheme } from './ThemeContext';
 
 const Navigation = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
 
   const navLinks = [
-    { path: '/', label: 'Home', icon: Home },
+    { path: '/', label: 'Dashboard', icon: Home },
     { path: '/about', label: 'About', icon: Info },
-    { path: '/contact', label: 'Contact', icon: Phone }
+    { path: '/contact', label: 'Support', icon: Phone },
+    { path: '/docs', label: 'Documentation', icon: BookOpen },
+    { path: '/settings', label: 'Settings', icon: Settings }
   ];
 
   const isActive = (path) => {
     return location.pathname === path;
   };
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
   };
 
   return (
-    <nav className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo and Brand */}
-          <div className="flex items-center">
+    <>
+      {/* Top Bar for Mobile and Notifications */}
+      <div className="fixed top-0 left-0 right-0 h-16 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 z-50 lg:hidden">
+        <div className="flex items-center justify-between h-full px-4">
+          <button
+            onClick={toggleMobileSidebar}
+            className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle menu"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+          
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="p-1.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Ontario Wills
+            </span>
+          </Link>
+
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop Sidebar */}
+      <aside
+        className={`hidden lg:flex flex-col fixed left-0 top-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 z-40 ${
+          isSidebarOpen ? 'w-64' : 'w-20'
+        }`}
+      >
+        {/* Sidebar Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          {isSidebarOpen && (
             <Link to="/" className="flex items-center space-x-2 group">
               <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg group-hover:scale-110 transition-transform duration-200">
-                <FileText className="h-6 w-6 text-white" />
+                <FileText className="h-5 w-5 text-white" />
               </div>
-              <span className="hidden sm:block text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Ontario Wills & POA
+              <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Ontario Wills
               </span>
             </Link>
-          </div>
+          )}
+          {!isSidebarOpen && (
+            <div className="mx-auto p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
+          )}
+          <button
+            onClick={toggleSidebar}
+            className="p-1.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Toggle sidebar"
+          >
+            {isSidebarOpen ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+          </button>
+        </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+        {/* Navigation Links */}
+        <nav className="flex-1 overflow-y-auto py-4">
+          <div className="space-y-1 px-3">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
+                className={`flex items-center space-x-3 px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                   isActive(link.path)
-                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
+                } ${!isSidebarOpen && 'justify-center'}`}
+                title={!isSidebarOpen ? link.label : ''}
               >
-                <link.icon className="h-4 w-4" />
-                <span>{link.label}</span>
+                <link.icon className="h-5 w-5 flex-shrink-0" />
+                {isSidebarOpen && <span>{link.label}</span>}
               </Link>
             ))}
-            
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="ml-2 p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </button>
-
-            {/* CTA Button */}
-            <Link
-              to="/"
-              className="ml-4 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 shadow-md"
-            >
-              Get Started
-            </Link>
           </div>
+        </nav>
 
-          {/* Mobile Menu Button */}
-          <div className="flex items-center md:hidden space-x-2">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </button>
-            <button
-              onClick={toggleMenu}
-              className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-          </div>
+        {/* Sidebar Footer */}
+        <div className="border-t border-gray-200 dark:border-gray-700 p-3 space-y-1">
+          <button
+            onClick={toggleTheme}
+            className={`flex items-center space-x-3 w-full px-3 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
+              !isSidebarOpen && 'justify-center'
+            }`}
+            title={!isSidebarOpen ? 'Toggle theme' : ''}
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {isSidebarOpen && <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
+          </button>
+          
+          <button
+            className={`flex items-center space-x-3 w-full px-3 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
+              !isSidebarOpen && 'justify-center'
+            }`}
+            title={!isSidebarOpen ? 'Help' : ''}
+          >
+            <HelpCircle className="h-5 w-5" />
+            {isSidebarOpen && <span>Help & Support</span>}
+          </button>
         </div>
+      </aside>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden pb-4 animate-fade-in">
-            <div className="flex flex-col space-y-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  onClick={() => setIsMenuOpen(false)}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-3 ${
-                    isActive(link.path)
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  <link.icon className="h-5 w-5" />
-                  <span>{link.label}</span>
-                </Link>
-              ))}
-              
-              <Link
-                to="/"
-                onClick={() => setIsMenuOpen(false)}
-                className="px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold text-center transition-all duration-200 transform hover:scale-105 shadow-md"
-              >
-                Get Started
+      {/* Mobile Sidebar */}
+      {isMobileSidebarOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={toggleMobileSidebar}
+          ></div>
+          <aside className="fixed left-0 top-0 h-screen w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 z-50 lg:hidden transform transition-transform duration-300">
+            {/* Mobile Sidebar Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <Link to="/" className="flex items-center space-x-2">
+                <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
+                  <FileText className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Ontario Wills
+                </span>
               </Link>
+              <button
+                onClick={toggleMobileSidebar}
+                className="p-1.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
-          </div>
-        )}
-      </div>
-    </nav>
+
+            {/* Mobile Navigation Links */}
+            <nav className="flex-1 overflow-y-auto py-4">
+              <div className="space-y-1 px-3">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={toggleMobileSidebar}
+                    className={`flex items-center space-x-3 px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      isActive(link.path)
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <link.icon className="h-5 w-5" />
+                    <span>{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </nav>
+
+            {/* Mobile Sidebar Footer */}
+            <div className="border-t border-gray-200 dark:border-gray-700 p-3 space-y-1">
+              <button
+                onClick={toggleTheme}
+                className="flex items-center space-x-3 w-full px-3 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+              </button>
+              
+              <button className="flex items-center space-x-3 w-full px-3 py-3 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <HelpCircle className="h-5 w-5" />
+                <span>Help & Support</span>
+              </button>
+            </div>
+          </aside>
+        </>
+      )}
+
+      {/* Spacer for desktop sidebar */}
+      <div className={`hidden lg:block transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}></div>
+    </>
   );
 };
 

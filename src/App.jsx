@@ -22,10 +22,14 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <Router basename={config.githubPages.basePath}>
-          <div className="min-h-screen flex flex-col">
+          <div className="min-h-screen">
             <a href="#main" className="skip-link">Skip to main content</a>
             <Navigation />
-            <main id="main" role="main" className="flex-grow focus:outline-none">
+            <main 
+              id="main" 
+              role="main" 
+              className="pt-16 lg:pt-0 focus:outline-none"
+            >
               <ErrorBoundary>
                 <Routes>
                   <Route path="/" element={<SimpleDemoShowcase />} />
