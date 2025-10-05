@@ -43,16 +43,12 @@ const SimpleDemoShowcase = () => {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showKeyboardHint, setShowKeyboardHint] = useState(false);
 
-  console.log('🎨 SimpleDemoShowcase component initializing...');
-
   useEffect(() => {
-    console.log('✅ SimpleDemoShowcase mounted successfully');
     // Set visible with a small delay to ensure smooth rendering
     setTimeout(() => {
       setIsVisible(true);
       // Signal that the app is fully loaded and ready
       window.dispatchEvent(new Event('app-ready'));
-      console.log('🎉 App is fully ready and visible');
       
       // Show welcome message after a brief delay
       setTimeout(() => {

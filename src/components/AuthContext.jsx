@@ -35,8 +35,7 @@ export const AuthProvider = ({ children }) => {
           localStorage.removeItem('session_token');
         }
       }
-    } catch (error) {
-      console.error('Auth check failed:', error);
+    } catch (err) {
       setError('Authentication check failed');
     } finally {
       setLoading(false);
@@ -66,7 +65,7 @@ export const AuthProvider = ({ children }) => {
         setError(result.errors?.[0] || 'Login failed');
         return { success: false, error: result.errors?.[0] || 'Login failed' };
       }
-    } catch (error) {
+    } catch (err) {
       const errorMessage = 'Login failed. Please try again.';
       setError(errorMessage);
       return { success: false, error: errorMessage };
@@ -94,7 +93,7 @@ export const AuthProvider = ({ children }) => {
         setError(result.errors?.[0] || 'Registration failed');
         return { success: false, error: result.errors?.[0] || 'Registration failed' };
       }
-    } catch (error) {
+    } catch (err) {
       const errorMessage = 'Registration failed. Please try again.';
       setError(errorMessage);
       return { success: false, error: errorMessage };
