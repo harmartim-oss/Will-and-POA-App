@@ -132,24 +132,50 @@ try {
   if (rootElement) {
     rootElement.innerHTML = `
       <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; font-family: system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-        <div style="max-width: 500px; text-align: center; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <div style="max-width: 600px; text-align: center; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
           <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
-          <h1 style="color: #dc2626; margin-bottom: 1rem;">Application Failed to Load</h1>
+          <h1 style="color: #dc2626; margin-bottom: 1rem; font-size: 1.5rem;">Application Failed to Load</h1>
           <p style="color: #374151; margin-bottom: 1.5rem;">
-            There was an error loading the Ontario Wills & Power of Attorney Creator. 
-            Please check the browser console for details and try refreshing the page.
+            There was an error loading the Ontario Wills & Power of Attorney Creator.
           </p>
+          <div style="margin-bottom: 1.5rem; padding: 1rem; background: #fef2f2; border-left: 4px solid #dc2626; text-align: left;">
+            <strong style="color: #dc2626;">Troubleshooting Steps:</strong>
+            <ol style="margin: 0.5rem 0 0 1.5rem; color: #374151; font-size: 0.875rem;">
+              <li>Try a hard refresh (Ctrl+Shift+R or Cmd+Shift+R)</li>
+              <li>Clear your browser cache and reload</li>
+              <li>Check your internet connection</li>
+              <li>Try a different browser</li>
+              <li>Disable browser extensions temporarily</li>
+            </ol>
+          </div>
           <button 
             onclick="window.location.reload()" 
-            style="background: #3b82f6; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; margin-bottom: 1rem;">
+            style="background: #3b82f6; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; margin: 0 0.5rem 1rem; transition: background 0.2s;"
+            onmouseover="this.style.background='#2563eb'"
+            onmouseout="this.style.background='#3b82f6'">
             Reload Page
           </button>
-          <div style="margin-top: 1rem; padding: 1rem; background: #f9fafb; border-radius: 6px; text-align: left; font-family: monospace; font-size: 0.875rem; color: #dc2626; word-break: break-word;">
-            <strong>Error:</strong> ${error.message}<br/>
-            <strong>Location:</strong> ${window.location.pathname}
-          </div>
+          <button 
+            onclick="localStorage.clear(); sessionStorage.clear(); window.location.reload()" 
+            style="background: #6b7280; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; margin: 0 0.5rem 1rem; transition: background 0.2s;"
+            onmouseover="this.style.background='#4b5563'"
+            onmouseout="this.style.background='#6b7280'">
+            Clear Cache & Reload
+          </button>
+          <details style="margin-top: 1rem; text-align: left;">
+            <summary style="cursor: pointer; color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">
+              Show Technical Details
+            </summary>
+            <div style="padding: 1rem; background: #f9fafb; border-radius: 6px; font-family: monospace; font-size: 0.75rem; color: #dc2626; word-break: break-word; overflow: auto; max-height: 200px;">
+              <strong>Error:</strong> ${error.message}<br/>
+              <strong>Location:</strong> ${window.location.pathname}<br/>
+              <strong>Base URL:</strong> ${import.meta.env.BASE_URL}<br/>
+              <strong>Mode:</strong> ${import.meta.env.MODE}<br/>
+              ${error.stack ? '<strong>Stack:</strong><br/>' + error.stack.substring(0, 500) : ''}
+            </div>
+          </details>
           <p style="margin-top: 1rem; font-size: 0.75rem; color: #6b7280;">
-            If this persists, please open your browser's developer console (F12) for more details.
+            Press F12 to open developer console for detailed error information.
           </p>
         </div>
       </div>

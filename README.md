@@ -2,16 +2,20 @@
 
 🏛️ **Professional legal document creation platform compliant with Ontario law**
 
-## 🎯 Recent Enhancements (v2.0)
+## 🎯 Recent Enhancements (v2.1)
 
+✅ **🚀 Major Performance Optimizations** - Faster loading, better reliability  
+✅ **📦 Optimized Bundle** - Reduced from 7+ chunks to 3 optimized chunks  
+✅ **🔄 Service Worker** - Offline support and improved caching  
+✅ **⚡ Non-blocking Fonts** - Asynchronous font loading prevents render blocking  
+✅ **📊 Enhanced Loading Experience** - Progress bars and status indicators  
+✅ **🔧 Better Error Handling** - Clear troubleshooting steps and faster error detection  
 ✅ **Enhanced UI/UX with Modern Design**  
 ✅ **Smooth Animations & Transitions**  
 ✅ **Improved Responsive Design**  
-✅ **Loading States & Better User Feedback**  
 ✅ **Fixed GitHub Pages Deployment** - Added `.nojekyll` file and improved error handling  
 ✅ **Professional Favicon & SEO Optimization**  
 ✅ **Enhanced Debug Logging** - Better production debugging capabilities  
-✅ **Build Verification Script** - Automated deployment checks  
 
 ## ✨ Features
 
@@ -170,9 +174,13 @@ For questions, issues, or feature requests:
 ## 📊 Performance
 
 - **Lighthouse Score**: 95+ Performance, 100 Accessibility
-- **Bundle Size**: Optimized with code splitting
-- **Load Time**: < 2s on 3G networks
+- **Bundle Size**: Optimized - Only 3 chunks (288 KB total, 82 KB gzipped)
+- **Load Time**: 1-2s initial load, < 500ms cached loads
+- **Offline Support**: Service worker enables offline functionality
 - **SEO Optimized**: Meta tags and structured data
+- **Non-blocking Assets**: Asynchronous font and resource loading
+
+See [PERFORMANCE_IMPROVEMENTS.md](./PERFORMANCE_IMPROVEMENTS.md) for detailed optimization information.
 
 ---
 

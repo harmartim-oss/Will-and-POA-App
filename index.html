@@ -333,6 +333,21 @@
       };
     </script>
     
+    <script>
+      // Register service worker for offline support and better caching
+      if ('serviceWorker' in navigator && window.location.hostname.includes('github.io')) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/Will-and-POA-App/sw.js')
+            .then(function(registration) {
+              console.log('✅ Service Worker registered successfully:', registration.scope);
+            })
+            .catch(function(error) {
+              console.log('⚠️ Service Worker registration failed (this is OK):', error);
+            });
+        });
+      }
+    </script>
+    
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
