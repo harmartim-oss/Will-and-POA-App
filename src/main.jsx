@@ -13,10 +13,22 @@ window.addEventListener('error', (event) => {
     colno: event.colno,
     stack: event.error?.stack
   });
+  
+  // Detect chunk loading errors
+  if (event.message && (event.message.includes('Loading chunk') || event.message.includes('Failed to fetch'))) {
+    console.error('🚨 CHUNK LOADING ERROR DETECTED - This is likely a network or caching issue');
+    console.error('Recommended action: Hard refresh the page (Ctrl+Shift+R or Cmd+Shift+R)');
+  }
 });
 
 window.addEventListener('unhandledrejection', (event) => {
   console.error('❌ Unhandled promise rejection:', event.reason);
+  
+  // Detect chunk loading promise rejections
+  if (event.reason && event.reason.toString().includes('Loading chunk')) {
+    console.error('🚨 CHUNK LOADING PROMISE REJECTION - Network or caching issue');
+    console.error('Recommended action: Hard refresh the page (Ctrl+Shift+R or Cmd+Shift+R)');
+  }
 });
 
 // Enhanced logging for production debugging
@@ -76,7 +88,7 @@ try {
   // Wait for React components to mount and render
   // Check multiple times to ensure content is visible
   let checkCount = 0;
-  const maxChecks = 20; // Max 2 seconds (20 * 100ms)
+  const maxChecks = 30; // Max 3 seconds (30 * 100ms)
   
   const checkAndRemoveLoader = () => {
     checkCount++;
@@ -95,17 +107,17 @@ try {
         removeLoader();
       }
     } else if (checkCount < maxChecks) {
-      // Keep checking
+      // Keep checking more frequently
       setTimeout(checkAndRemoveLoader, 100);
     } else {
-      // Timeout reached, force remove loader
+      // Timeout reached, force remove loader anyway (app should be loaded by now)
       console.warn('⚠️ Loader removal timeout reached, forcing removal');
       removeLoader();
     }
   };
   
-  // Start checking after a brief initial delay
-  setTimeout(checkAndRemoveLoader, 150);
+  // Start checking immediately for faster loader removal
+  setTimeout(checkAndRemoveLoader, 50);
 } catch (error) {
   console.error('❌ Failed to initialize React app:', error);
   console.error('Stack trace:', error.stack);

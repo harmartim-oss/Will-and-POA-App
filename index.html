@@ -14,14 +14,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Ontario Wills" />
-  <!-- Font Performance: Preconnect & modern font stack -->
+  <!-- Font Performance: Load fonts asynchronously to prevent blocking -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Source+Serif+4:opsz@8..60&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  
-  <!-- DNS prefetch for potential external resources -->
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Source+Serif+4:opsz@8..60&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Source+Serif+4:opsz@8..60&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -89,7 +86,25 @@
             margin: 0 auto 20px;
           "></div>
           <h2 style="margin: 0 0 10px 0; font-weight: 600;">Ontario Wills & Power of Attorney Creator</h2>
-          <p style="margin: 0; opacity: 0.8;">Loading application...</p>
+          <p style="margin: 0 0 15px 0; opacity: 0.8;">Loading application...</p>
+          <div id="loading-progress" style="
+            width: 200px;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            margin: 0 auto 20px;
+            overflow: hidden;
+          ">
+            <div style="
+              width: 0%;
+              height: 100%;
+              background: white;
+              animation: progressBar 2s ease-in-out infinite;
+            "></div>
+          </div>
+          <div id="loading-status" style="margin: 0 0 15px 0; opacity: 0.7; font-size: 14px;">
+            Initializing...
+          </div>
           <div id="debug-info" style="
             margin-top: 20px; 
             padding: 15px; 
@@ -127,6 +142,12 @@
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
+      }
+      
+      @keyframes progressBar {
+        0% { width: 0%; }
+        50% { width: 70%; }
+        100% { width: 100%; }
       }
       
       .skip-link {
@@ -188,6 +209,17 @@
       document.getElementById('debug-host').textContent = window.location.hostname;
       document.getElementById('debug-time').textContent = new Date().toISOString();
       
+      // Update loading status at intervals
+      var statusElement = document.getElementById('loading-status');
+      var statuses = ['Initializing...', 'Loading resources...', 'Preparing interface...', 'Almost ready...'];
+      var statusIndex = 0;
+      var statusInterval = setInterval(function() {
+        statusIndex = (statusIndex + 1) % statuses.length;
+        if (statusElement) {
+          statusElement.textContent = statuses[statusIndex];
+        }
+      }, 2000);
+      
       // Check if React has loaded by looking for React root or specific React-rendered content
       var reactLoadCheckInterval;
       var reactLoadTimeout;
@@ -209,34 +241,46 @@
         return hasReactContent || hasReactGlobal;
       }
       
-      // Periodically check if React has loaded (every 2 seconds)
+      // Periodically check if React has loaded (every 1 second for faster response)
       reactLoadCheckInterval = setInterval(function() {
         if (isReactLoaded()) {
           console.log('✅ React app loaded successfully');
           clearInterval(reactLoadCheckInterval);
           clearTimeout(reactLoadTimeout);
+          if (typeof statusInterval !== 'undefined') {
+            clearInterval(statusInterval);
+          }
           // Remove loader if it's still there
           var loader = document.getElementById('initial-loader');
           if (loader && loader.parentNode) {
             loader.remove();
           }
         }
-      }, 2000);
+      }, 1000);
       
-      // Show error message only after 30 seconds if React hasn't loaded
+      // Show error message after 15 seconds if React hasn't loaded (reduced from 30s)
       reactLoadTimeout = setTimeout(function() {
         clearInterval(reactLoadCheckInterval);
         var loader = document.getElementById('initial-loader');
         if (loader && loader.parentNode && !isReactLoaded()) {
-          console.log('⚠️ React app did not load within 30 seconds');
+          console.error('⚠️ React app did not load within 15 seconds');
+          console.error('Current URL:', window.location.href);
+          console.error('Check network tab for failed resource loads');
           loader.innerHTML = `
             <div style="text-align: center;">
               <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
               <h2 style="margin: 0 0 15px 0; color: #ff6b6b;">Loading Issue Detected</h2>
               <p style="margin: 0 0 20px 0; opacity: 0.9;">
                 The application is taking longer than expected to load. 
-                Please check the browser console for errors.
+                This may be due to a slow connection or a configuration issue.
               </p>
+              <div style="margin: 0 0 20px 0; font-size: 14px; opacity: 0.8;">
+                <strong>Troubleshooting steps:</strong><br/>
+                1. Check your internet connection<br/>
+                2. Try hard refresh (Ctrl+Shift+R or Cmd+Shift+R)<br/>
+                3. Check browser console (F12) for errors<br/>
+                4. Try a different browser
+              </div>
               <button onclick="window.location.reload()" style="
                 background: rgba(255,255,255,0.2); 
                 border: 2px solid rgba(255,255,255,0.5); 
@@ -252,7 +296,7 @@
             </div>
           `;
         }
-      }, 30000);
+      }, 15000);
       
       // Remove loader once React takes over
       window.removeInitialLoader = function() {
@@ -279,6 +323,9 @@
           }
           if (typeof reactLoadTimeout !== 'undefined') {
             clearTimeout(reactLoadTimeout);
+          }
+          if (typeof statusInterval !== 'undefined') {
+            clearInterval(statusInterval);
           }
         } else {
           console.log('ℹ️ Initial loader already removed or not found');
