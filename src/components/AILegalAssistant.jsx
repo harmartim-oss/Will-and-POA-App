@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, FileText, Shield, BookOpen, Zap, CheckCircle, AlertTriangle, Info } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { FileText, Shield, BookOpen, Zap } from 'lucide-react';
 import '../utils/mockApi.js'; // Import mock API for development
 import { apiCall, API_ENDPOINTS } from '../utils/apiConfig';
 
@@ -10,12 +9,6 @@ const AILegalAssistant = ({ documentType, formData, onSuggestionsReceived }) => 
   const [insights, setInsights] = useState(null);
   const [showAssistant, setShowAssistant] = useState(false);
   const [currentTab, setCurrentTab] = useState('analysis');
-
-  useEffect(() => {
-    if (formData && Object.keys(formData).length > 0) {
-      analyzeDocument();
-    }
-  }, [formData, documentType]);
 
   const analyzeDocument = async () => {
     setIsAnalyzing(true);
@@ -73,36 +66,32 @@ const AILegalAssistant = ({ documentType, formData, onSuggestionsReceived }) => 
         throw new Error('API call failed');
       }
     } catch (error) {
-      console.error('AI analysis error:', error);
       // Fallback demo data
       setAnalysis({
         compliance_score: 0.85,
         legal_issues: ['Consider appointing alternate executor', 'Add witness requirements section'],
         recommendations: ['Include specific bequest instructions', 'Add guardian appointment clause'],
-        confidence_score: 0.92
+        confidence_score: 0.9
       });
+      
       setInsights({
         summary: {
-          compliance_score: 0.85,
-          total_issues: 2,
-          total_recommendations: 4
-        },
-        compliance: {
-          issues: ['Missing alternate executor', 'Incomplete witness section'],
-          missing_requirements: ['Guardian appointment for minor children']
-        },
-        recommendations: {
-          priority_recommendations: [
-            'Appoint an alternate executor for redundancy',
-            'Complete witness signature requirements',
-            'Add guardian appointment for minor children'
-          ]
+          total_sections: Object.keys(formData).length,
+          completed_sections: Object.values(formData).filter(v => v && v !== '').length,
+          missing_requirements: []
         }
       });
     } finally {
       setIsAnalyzing(false);
     }
   };
+
+  useEffect(() => {
+    if (formData && Object.keys(formData).length > 0) {
+      analyzeDocument();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData, documentType]);
 
   const getComplianceColor = (score) => {
     if (score >= 0.9) return 'text-green-600';
