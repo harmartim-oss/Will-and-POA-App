@@ -59,10 +59,10 @@ const Navigation = () => {
           </button>
           
           <Link to="/" className="flex items-center space-x-2">
-            <div className="p-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-xl shadow-lg">
+            <div className="p-2 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
               <FileText className="h-5 w-5 text-white" />
             </div>
-            <span className="text-lg font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-lg font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 bg-clip-text text-transparent">
               Ontario Wills
             </span>
           </Link>
@@ -87,16 +87,16 @@ const Navigation = () => {
         <div className="flex items-center justify-between p-4 border-b-2 border-gray-200 dark:border-gray-700">
           {isSidebarOpen && (
             <Link to="/" className="flex items-center space-x-2 group">
-              <div className="p-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-xl group-hover:scale-110 transition-transform duration-200 shadow-lg">
+              <div className="p-2 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 rounded-xl group-hover:scale-110 transition-transform duration-200 shadow-lg hover:shadow-xl">
                 <FileText className="h-5 w-5 text-white" />
               </div>
-              <span className="text-lg font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-lg font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 bg-clip-text text-transparent">
                 Ontario Wills
               </span>
             </Link>
           )}
           {!isSidebarOpen && (
-            <div className="mx-auto p-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-xl shadow-lg">
+            <div className="mx-auto p-2 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
               <FileText className="h-5 w-5 text-white" />
             </div>
           )}
@@ -118,8 +118,8 @@ const Navigation = () => {
                 to={link.path}
                 className={`group flex items-center space-x-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
                   isActive(link.path)
-                    ? 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white shadow-lg scale-105'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:scale-105'
+                    ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white shadow-xl scale-105'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:via-purple-50 hover:to-pink-50 dark:hover:from-blue-900/20 dark:hover:via-purple-900/20 dark:hover:to-pink-900/20 hover:scale-105'
                 } ${!isSidebarOpen && 'justify-center'}`}
                 title={!isSidebarOpen ? link.label : ''}
               >
@@ -166,10 +166,10 @@ const Navigation = () => {
             {/* Mobile Sidebar Header */}
             <div className="flex items-center justify-between p-4 border-b-2 border-gray-200 dark:border-gray-700">
               <Link to="/" className="flex items-center space-x-2">
-                <div className="p-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-xl shadow-lg">
+                <div className="p-2 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
                   <FileText className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-lg font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-lg font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 bg-clip-text text-transparent">
                   Ontario Wills
                 </span>
               </Link>
@@ -191,8 +191,8 @@ const Navigation = () => {
                     onClick={toggleMobileSidebar}
                     className={`group flex items-center space-x-3 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
                       isActive(link.path)
-                        ? 'bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white shadow-lg scale-105'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:scale-105'
+                        ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white shadow-xl scale-105'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:via-purple-50 hover:to-pink-50 dark:hover:from-blue-900/20 dark:hover:via-purple-900/20 dark:hover:to-pink-900/20 hover:scale-105'
                     }`}
                   >
                     <link.icon className={`h-5 w-5 ${isActive(link.path) ? '' : 'group-hover:scale-110 transition-transform'}`} />
