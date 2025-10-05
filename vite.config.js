@@ -20,39 +20,25 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
     rollupOptions: {
       output: {
+        // Simplified chunk splitting to reduce potential loading issues
         manualChunks: (id) => {
-          // Vendor chunk for core dependencies
+          // Single vendor chunk for all node_modules
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor';
-            }
-            if (id.includes('react-router')) {
-              return 'router';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'ui';
-            }
-            if (id.includes('framer-motion')) {
-              return 'animation';
-            }
-            if (id.includes('lucide-react')) {
-              return 'icons';
-            }
+            // Split out large libraries to separate chunks
             if (id.includes('@react-pdf') || id.includes('pdfjs-dist')) {
-              return 'pdf';
+              return 'pdf-lib';
             }
-            // Group other vendor dependencies
-            return 'vendor-misc';
+            if (id.includes('three') || id.includes('@react-three')) {
+              return '3d-lib';
+            }
+            // All other dependencies in single vendor chunk for reliability
+            return 'vendor';
           }
-          
-          // Application chunks
-          if (id.includes('/components/')) {
-            return 'components';
-          }
-          if (id.includes('/utils/')) {
-            return 'utils';
-          }
-        }
+        },
+        // Ensure consistent naming for better caching
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     }
   },
