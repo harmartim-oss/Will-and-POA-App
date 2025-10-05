@@ -217,29 +217,29 @@ const SimpleDemoShowcase = () => {
         </div>
       )}
       
-      {/* Header Section with Breadcrumbs and Actions */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 lg:top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      {/* Header Section with Breadcrumbs and Actions - Enhanced */}
+      <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-16 lg:top-0 z-30 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-                <Target className="h-6 w-6 mr-2 text-blue-500" />
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+                <Target className="h-7 w-7 mr-3 text-blue-500" />
                 Dashboard
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 font-medium">
                 Welcome back! Create and manage your legal documents
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="relative p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+              <button className="relative p-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-all hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl">
                 <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
               </button>
               <button
                 onClick={() => setShowDocumentTypes(true)}
-                className="flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-[1.02]"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-5 w-5 mr-2" />
                 New Document
               </button>
             </div>
@@ -249,105 +249,117 @@ const SimpleDemoShowcase = () => {
 
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Quick Stats Dashboard */}
+        {/* Quick Stats Dashboard - Enhanced with animated gradients and depth */}
         <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 transform transition-all duration-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <FileText className="h-6 w-6" />
+          <div className="group relative bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] cursor-pointer overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-400/0 via-white/10 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-white/25 rounded-xl backdrop-blur-sm shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <FileText className="h-6 w-6" />
+                </div>
+                <div className="flex items-center text-sm bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm">
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  <span className="font-semibold">+12%</span>
+                </div>
               </div>
-              <div className="flex items-center text-sm">
-                <TrendingUp className="h-4 w-4 mr-1" />
-                <span>+12%</span>
-              </div>
+              <div className="text-3xl font-bold mb-1 tracking-tight">15,247</div>
+              <div className="text-blue-100 text-sm font-medium">Documents Created</div>
             </div>
-            <div className="text-3xl font-bold mb-1">15,247</div>
-            <div className="text-blue-100 text-sm">Documents Created</div>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <Users className="h-6 w-6" />
+          <div className="group relative bg-gradient-to-br from-purple-500 via-purple-600 to-pink-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] cursor-pointer overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-purple-400/0 via-white/10 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-white/25 rounded-xl backdrop-blur-sm shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Users className="h-6 w-6" />
+                </div>
+                <div className="flex items-center text-sm bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm">
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  <span className="font-semibold">+23%</span>
+                </div>
               </div>
-              <div className="flex items-center text-sm">
-                <TrendingUp className="h-4 w-4 mr-1" />
-                <span>+23%</span>
-              </div>
+              <div className="text-3xl font-bold mb-1 tracking-tight">8,592</div>
+              <div className="text-purple-100 text-sm font-medium">Active Users</div>
             </div>
-            <div className="text-3xl font-bold mb-1">8,592</div>
-            <div className="text-purple-100 text-sm">Active Users</div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <CheckCircle className="h-6 w-6" />
+          <div className="group relative bg-gradient-to-br from-green-500 via-emerald-600 to-teal-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] cursor-pointer overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-green-400/0 via-white/10 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-white/25 rounded-xl backdrop-blur-sm shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <CheckCircle className="h-6 w-6" />
+                </div>
+                <div className="flex items-center text-sm bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm">
+                  <Activity className="h-4 w-4 mr-1" />
+                  <span className="font-semibold">100%</span>
+                </div>
               </div>
-              <div className="flex items-center text-sm">
-                <Activity className="h-4 w-4 mr-1" />
-                <span>100%</span>
-              </div>
+              <div className="text-3xl font-bold mb-1 tracking-tight">99.9%</div>
+              <div className="text-green-100 text-sm font-medium">Success Rate</div>
             </div>
-            <div className="text-3xl font-bold mb-1">99.9%</div>
-            <div className="text-green-100 text-sm">Success Rate</div>
           </div>
 
-          <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <Shield className="h-6 w-6" />
+          <div className="group relative bg-gradient-to-br from-orange-500 via-red-500 to-rose-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] cursor-pointer overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-orange-400/0 via-white/10 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-white/25 rounded-xl backdrop-blur-sm shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Shield className="h-6 w-6" />
+                </div>
+                <div className="flex items-center text-sm bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm">
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  <span className="font-semibold">Perfect</span>
+                </div>
               </div>
-              <div className="flex items-center text-sm">
-                <CheckCircle className="h-4 w-4 mr-1" />
-                <span>Perfect</span>
-              </div>
+              <div className="text-3xl font-bold mb-1 tracking-tight">100%</div>
+              <div className="text-orange-100 text-sm font-medium">Legal Compliance</div>
             </div>
-            <div className="text-3xl font-bold mb-1">100%</div>
-            <div className="text-orange-100 text-sm">Legal Compliance</div>
           </div>
         </div>
 
-        {/* Search and Filter Bar */}
-        <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-8 transform transition-all duration-700 delay-100 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+        {/* Search and Filter Bar - Enhanced with better depth and styling */}
+        <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 mb-8 transform transition-all duration-700 delay-100 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search documents, templates, or features..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white transition-all duration-200 placeholder:text-gray-400"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap sm:flex-nowrap">
               <button
                 onClick={() => setSelectedFilter('all')}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`px-5 py-3 rounded-xl font-semibold transition-all duration-200 ${
                   selectedFilter === 'all'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md hover:shadow-lg scale-105'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105'
                 }`}
               >
                 All
               </button>
               <button
                 onClick={() => setSelectedFilter('wills')}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`px-5 py-3 rounded-xl font-semibold transition-all duration-200 ${
                   selectedFilter === 'wills'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md hover:shadow-lg scale-105'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105'
                 }`}
               >
                 Wills
               </button>
               <button
                 onClick={() => setSelectedFilter('poa')}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`px-5 py-3 rounded-xl font-semibold transition-all duration-200 ${
                   selectedFilter === 'poa'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md hover:shadow-lg scale-105'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-105'
                 }`}
               >
                 POA
@@ -360,18 +372,18 @@ const SimpleDemoShowcase = () => {
         <div className="grid lg:grid-cols-3 gap-8 mb-8">
           {/* Left Column - Document Creation Cards */}
           <div className={`lg:col-span-2 space-y-6 transform transition-all duration-700 delay-200 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+              <div className="p-6 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-gray-800 dark:via-gray-750 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-                  <Sparkles className="h-5 w-5 mr-2 text-yellow-500" />
+                  <Sparkles className="h-6 w-6 mr-2 text-yellow-500 animate-pulse" />
                   Quick Start - Create Your Document
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   Choose a document type to begin the creation process
                 </p>
               </div>
               <div className="p-6">
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-2 gap-5">
                   {documentTypes.map((docType) => (
                     <button
                       key={docType.id}
@@ -379,23 +391,25 @@ const SimpleDemoShowcase = () => {
                         console.log(`Creating document: ${docType.id}`);
                         alert(`Document creation for "${docType.title}" will open the creation wizard. This is a demo version showcasing the new dashboard layout.`);
                       }}
-                      className="group relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 rounded-xl p-6 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 text-left"
+                      className="group relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-600 hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 rounded-xl p-6 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 text-left shadow-md hover:shadow-xl hover:-translate-y-1"
                     >
-                      <div className={`w-14 h-14 bg-gradient-to-r ${docType.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
-                        <docType.icon className="h-7 w-7 text-white" />
+                      <div className={`w-16 h-16 bg-gradient-to-br ${docType.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                        <docType.icon className="h-8 w-8 text-white" />
                       </div>
-                      <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+                      <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {docType.title}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
                         {docType.description}
                       </p>
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                          <Clock className="h-3 w-3 mr-1" />
+                        <div className="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1.5 rounded-full">
+                          <Clock className="h-3.5 w-3.5 mr-1.5" />
                           {docType.estimatedTime}
                         </div>
-                        <ChevronRight className="h-5 w-5 text-blue-500 group-hover:translate-x-1 transition-transform" />
+                        <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+                          <ChevronRight className="h-5 w-5 text-blue-600 dark:text-blue-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                        </div>
                       </div>
                     </button>
                   ))}
@@ -403,14 +417,14 @@ const SimpleDemoShowcase = () => {
               </div>
             </div>
 
-            {/* Feature Showcase Grid */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            {/* Feature Showcase Grid - Enhanced with better visual hierarchy */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+              <div className="p-6 bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 dark:from-gray-800 dark:via-gray-750 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-                  <Zap className="h-5 w-5 mr-2 text-purple-500" />
+                  <Zap className="h-6 w-6 mr-2 text-purple-500" />
                   Platform Features
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   Powerful tools to help you create professional documents
                 </p>
               </div>
@@ -420,37 +434,39 @@ const SimpleDemoShowcase = () => {
                     <div
                       key={feature.id}
                       onClick={() => setActiveDemo(activeDemo === feature.id ? null : feature.id)}
-                      className={`group cursor-pointer bg-gray-50 dark:bg-gray-700/50 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/10 dark:hover:to-purple-900/10 rounded-xl p-5 border border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 ${
-                        activeDemo === feature.id ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-900/20' : ''
+                      className={`group cursor-pointer bg-gradient-to-br from-white to-gray-50 dark:from-gray-700/50 dark:to-gray-700 hover:from-blue-50 hover:via-purple-50 hover:to-pink-50 dark:hover:from-blue-900/20 dark:hover:via-purple-900/20 dark:hover:to-pink-900/20 rounded-xl p-5 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 shadow-md hover:shadow-lg ${
+                        activeDemo === feature.id ? 'ring-2 ring-blue-500 border-blue-500 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 shadow-lg' : ''
                       }`}
                     >
                       <div className="flex items-start space-x-4">
-                        <div className={`w-12 h-12 bg-gradient-to-r ${feature.color} rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-md`}>
-                          <feature.icon className="h-6 w-6 text-white" />
+                        <div className={`w-14 h-14 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg`}>
+                          <feature.icon className="h-7 w-7 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-gray-900 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1.5 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                             {feature.title}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 leading-relaxed">
                             {feature.description}
                           </p>
                           {activeDemo === feature.id && (
-                            <div className="mt-3 space-y-2">
+                            <div className="mt-4 space-y-2.5 animate-in fade-in duration-300">
                               {feature.highlights.map((highlight, idx) => (
-                                <div key={idx} className="flex items-center text-sm text-gray-700 dark:text-gray-300">
-                                  <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
+                                <div key={idx} className="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                                  <CheckCircle className="h-5 w-5 text-green-500 mr-2.5 flex-shrink-0 mt-0.5" />
                                   <span>{highlight}</span>
                                 </div>
                               ))}
-                              <button className="mt-3 w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-200 flex items-center justify-center">
-                                <PlusCircle className="h-4 w-4 mr-2" />
+                              <button className="mt-4 w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl text-sm font-semibold hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center shadow-md hover:shadow-lg hover:scale-[1.02]">
+                                <PlusCircle className="h-5 w-5 mr-2" />
                                 Try {feature.title}
                               </button>
                             </div>
                           )}
                         </div>
-                        <ChevronRight className={`h-5 w-5 text-gray-400 group-hover:text-blue-500 transition-all ${activeDemo === feature.id ? 'rotate-90' : ''}`} />
+                        <div className={`w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-all ${activeDemo === feature.id ? 'bg-blue-500 dark:bg-blue-600' : ''}`}>
+                          <ChevronRight className={`h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-all duration-300 ${activeDemo === feature.id ? 'rotate-90 text-white' : ''}`} />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -459,112 +475,126 @@ const SimpleDemoShowcase = () => {
             </div>
           </div>
 
-          {/* Right Column - Activity and Info */}
+          {/* Right Column - Activity and Info - Enhanced with modern styling */}
           <div className={`space-y-6 transform transition-all duration-700 delay-300 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
             {/* Recent Activity */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+              <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-750 border-b border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
                   <Activity className="h-5 w-5 mr-2 text-green-500" />
                   Recent Activity
                 </h3>
               </div>
               <div className="p-6 space-y-4">
-                <div className="flex items-start space-x-3 pb-4 border-b border-gray-100 dark:border-gray-700">
-                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                    <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <div className="group flex items-start space-x-3 pb-4 border-b border-gray-100 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-blue-900/10 -mx-3 px-3 py-2 rounded-lg transition-all">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform">
+                    <FileText className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">New Will Created</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">2 hours ago</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">New Will Created</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center mt-1">
+                      <Clock className="h-3 w-3 mr-1" />
+                      2 hours ago
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-3 pb-4 border-b border-gray-100 dark:border-gray-700">
-                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Shield className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <div className="group flex items-start space-x-3 pb-4 border-b border-gray-100 dark:border-gray-700 hover:bg-purple-50 dark:hover:bg-purple-900/10 -mx-3 px-3 py-2 rounded-lg transition-all">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform">
+                    <Shield className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">POA Approved</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">5 hours ago</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">POA Approved</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center mt-1">
+                      <Clock className="h-3 w-3 mr-1" />
+                      5 hours ago
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <div className="group flex items-start space-x-3 hover:bg-green-50 dark:hover:bg-green-900/10 -mx-3 px-3 py-2 rounded-lg transition-all">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform">
+                    <Users className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">New User Registered</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">1 day ago</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">New User Registered</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center mt-1">
+                      <Clock className="h-3 w-3 mr-1" />
+                      1 day ago
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Quick Links */}
-            <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl shadow-md overflow-hidden text-white p-6">
-              <h3 className="text-lg font-bold mb-4 flex items-center">
-                <Bookmark className="h-5 w-5 mr-2" />
-                Quick Links
-              </h3>
-              <div className="space-y-3">
-                <button className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-3 text-left transition-all duration-200 flex items-center justify-between">
-                  <span className="text-sm font-medium">Legal Resources</span>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <button className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-3 text-left transition-all duration-200 flex items-center justify-between">
-                  <span className="text-sm font-medium">Help Center</span>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <button className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-3 text-left transition-all duration-200 flex items-center justify-between">
-                  <span className="text-sm font-medium">Contact Support</span>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
+            {/* Quick Links - Enhanced with better gradients */}
+            <div className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-2xl shadow-xl overflow-hidden text-white p-6">
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/20"></div>
+              <div className="relative z-10">
+                <h3 className="text-lg font-bold mb-5 flex items-center">
+                  <Bookmark className="h-5 w-5 mr-2" />
+                  Quick Links
+                </h3>
+                <div className="space-y-3">
+                  <button className="group w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl p-4 text-left transition-all duration-200 flex items-center justify-between shadow-md hover:shadow-lg hover:scale-[1.02]">
+                    <span className="text-sm font-semibold">Legal Resources</span>
+                    <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <button className="group w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl p-4 text-left transition-all duration-200 flex items-center justify-between shadow-md hover:shadow-lg hover:scale-[1.02]">
+                    <span className="text-sm font-semibold">Help Center</span>
+                    <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <button className="group w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-xl p-4 text-left transition-all duration-200 flex items-center justify-between shadow-md hover:shadow-lg hover:scale-[1.02]">
+                    <span className="text-sm font-semibold">Contact Support</span>
+                    <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Testimonial Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6">
-              <div className="flex items-center mb-4">
+            {/* Testimonial Card - Enhanced styling */}
+            <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl shadow-xl border-2 border-gray-100 dark:border-gray-700 overflow-hidden p-6">
+              <div className="flex items-center mb-4 space-x-1">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                  <Star key={i} className="h-5 w-5 text-yellow-400 fill-current drop-shadow-sm" />
                 ))}
               </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300 italic mb-4">
+              <p className="text-sm text-gray-700 dark:text-gray-300 italic mb-5 leading-relaxed">
                 "This platform has made creating legal documents so much easier. Highly recommended!"
               </p>
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-white font-bold text-sm">SM</span>
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                  <span className="text-white font-bold text-base">SM</span>
                 </div>
                 <div>
-                  <div className="font-semibold text-sm text-gray-900 dark:text-white">Sarah Mitchell</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Family Lawyer</div>
+                  <div className="font-bold text-sm text-gray-900 dark:text-white">Sarah Mitchell</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Family Lawyer</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom CTA Section */}
-        <div className={`bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl shadow-xl overflow-hidden transform transition-all duration-700 delay-400 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-          <div className="p-8 md:p-12 text-center text-white">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        {/* Bottom CTA Section - Enhanced with animated gradient overlay */}
+        <div className={`relative bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl shadow-2xl overflow-hidden transform transition-all duration-700 delay-400 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/20"></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
+          <div className="relative z-10 p-10 md:p-16 text-center text-white">
+            <h2 className="text-3xl md:text-5xl font-extrabold mb-5 tracking-tight">
               Ready to Create Your Document?
             </h2>
-            <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed">
               Join thousands of satisfied users who trust our platform for their legal document needs
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-5 justify-center">
               <button
                 onClick={() => setShowDocumentTypes(true)}
-                className="bg-white text-blue-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center"
+                className="group bg-white text-blue-600 hover:bg-gray-50 font-bold py-4 px-10 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl flex items-center justify-center"
               >
                 Start Creating Now
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
                 onClick={() => alert('Sample documents feature coming soon!')}
-                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-semibold py-3 px-8 rounded-xl border-2 border-white/50 hover:border-white transition-all duration-300 flex items-center justify-center"
+                className="group bg-white/20 hover:bg-white/30 backdrop-blur-md text-white font-semibold py-4 px-10 rounded-2xl border-2 border-white/50 hover:border-white transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center"
               >
                 <Download className="mr-2 h-5 w-5" />
                 View Samples
