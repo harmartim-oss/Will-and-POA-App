@@ -237,7 +237,7 @@ const SimpleDemoShowcase = () => {
               </button>
               <button
                 onClick={() => setShowDocumentTypes(true)}
-                className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 hover:from-blue-700 hover:via-purple-700 hover:to-pink-600 text-white rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-2xl hover:scale-[1.05]"
               >
                 <Plus className="h-5 w-5 mr-2" />
                 New Document
@@ -251,8 +251,8 @@ const SimpleDemoShowcase = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats Dashboard - Enhanced with animated gradients and depth */}
         <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 transform transition-all duration-700 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
-          <div className="group relative bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] cursor-pointer overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-400/0 via-white/10 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="group relative bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.05] cursor-pointer overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-400/0 via-white/20 to-pink-200/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-white/25 rounded-xl backdrop-blur-sm shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -268,8 +268,8 @@ const SimpleDemoShowcase = () => {
             </div>
           </div>
 
-          <div className="group relative bg-gradient-to-br from-purple-500 via-purple-600 to-pink-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] cursor-pointer overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-purple-400/0 via-white/10 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="group relative bg-gradient-to-br from-purple-600 via-pink-600 to-rose-500 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.05] cursor-pointer overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-purple-400/0 via-white/20 to-pink-200/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-white/25 rounded-xl backdrop-blur-sm shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -285,8 +285,8 @@ const SimpleDemoShowcase = () => {
             </div>
           </div>
 
-          <div className="group relative bg-gradient-to-br from-green-500 via-emerald-600 to-teal-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] cursor-pointer overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-green-400/0 via-white/10 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="group relative bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.05] cursor-pointer overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-green-400/0 via-white/20 to-cyan-200/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-white/25 rounded-xl backdrop-blur-sm shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -302,8 +302,8 @@ const SimpleDemoShowcase = () => {
             </div>
           </div>
 
-          <div className="group relative bg-gradient-to-br from-orange-500 via-red-500 to-rose-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] cursor-pointer overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-orange-400/0 via-white/10 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="group relative bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.05] cursor-pointer overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-amber-400/0 via-white/20 to-rose-200/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-white/25 rounded-xl backdrop-blur-sm shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -373,7 +373,7 @@ const SimpleDemoShowcase = () => {
           {/* Left Column - Document Creation Cards */}
           <div className={`lg:col-span-2 space-y-6 transform transition-all duration-700 delay-200 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-              <div className="p-6 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-gray-800 dark:via-gray-750 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <div className="p-6 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/30 dark:via-purple-950/30 dark:to-pink-950/30 border-b-2 border-gradient-to-r border-blue-200 dark:border-gray-700">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                   <Sparkles className="h-6 w-6 mr-2 text-yellow-500 animate-pulse" />
                   Quick Start - Create Your Document
@@ -419,7 +419,7 @@ const SimpleDemoShowcase = () => {
 
             {/* Feature Showcase Grid - Enhanced with better visual hierarchy */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-              <div className="p-6 bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 dark:from-gray-800 dark:via-gray-750 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <div className="p-6 bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50 dark:from-purple-950/30 dark:via-pink-950/30 dark:to-blue-950/30 border-b-2 border-purple-200 dark:border-gray-700">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                   <Zap className="h-6 w-6 mr-2 text-purple-500" />
                   Platform Features
@@ -457,7 +457,7 @@ const SimpleDemoShowcase = () => {
                                   <span>{highlight}</span>
                                 </div>
                               ))}
-                              <button className="mt-4 w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white px-5 py-3 rounded-xl text-sm font-semibold hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center shadow-md hover:shadow-lg hover:scale-[1.02]">
+                              <button className="mt-4 w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 text-white px-5 py-3 rounded-xl text-sm font-semibold hover:from-blue-700 hover:via-purple-700 hover:to-pink-600 transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-[1.05]">
                                 <PlusCircle className="h-5 w-5 mr-2" />
                                 Try {feature.title}
                               </button>
