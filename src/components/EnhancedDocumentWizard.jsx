@@ -18,19 +18,19 @@ import {
   BookOpen,
   Scale
 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Checkbox } from '../ui/checkbox';
-import { Badge } from '../ui/badge';
-import { Alert, AlertDescription } from '../ui/alert';
-import { Progress } from '../ui/progress';
-import { Separator } from '../ui/separator';
-import { ProgressIndicator, ProgressBar } from '../ui/progress-indicator';
-import EnhancedLoading from '../ui/enhanced-loading';
+import { Button } from './ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Checkbox } from './ui/checkbox';
+import { Badge } from './ui/badge';
+import { Alert, AlertDescription } from './ui/alert';
+import { Progress } from './ui/progress';
+import { Separator } from './ui/separator';
+import { ProgressIndicator } from './ui/progress-indicator';
+import EnhancedLoading from './ui/enhanced-loading';
 import { apiCall, API_ENDPOINTS } from '../utils/apiConfig';
 
 const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {

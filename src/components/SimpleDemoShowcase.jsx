@@ -30,8 +30,10 @@ import {
   ChevronRight,
   Bookmark,
   Globe,
-  Target
+  Target,
+  X
 } from 'lucide-react';
+import EnhancedDocumentWizard from './EnhancedDocumentWizard';
 
 const SimpleDemoShowcase = () => {
   const navigate = useNavigate();
@@ -42,6 +44,7 @@ const SimpleDemoShowcase = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showWelcome, setShowWelcome] = useState(false);
   const [showKeyboardHint, setShowKeyboardHint] = useState(false);
+  const [activeDocumentWizard, setActiveDocumentWizard] = useState(null);
 
   useEffect(() => {
     // Set visible with a small delay to ensure smooth rendering
@@ -385,7 +388,7 @@ const SimpleDemoShowcase = () => {
                       key={docType.id}
                       onClick={() => {
                         console.log(`Creating document: ${docType.id}`);
-                        alert(`Document creation for "${docType.title}" will open the creation wizard. This is a demo version showcasing the new dashboard layout.`);
+                        setActiveDocumentWizard(docType.id);
                       }}
                       className="group relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-700 dark:to-gray-600 hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 rounded-xl p-6 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 text-left shadow-md hover:shadow-xl hover:-translate-y-1"
                     >
@@ -619,7 +622,7 @@ const SimpleDemoShowcase = () => {
                     key={docType.id}
                     onClick={() => {
                       console.log(`Creating document: ${docType.id}`);
-                      alert(`Document creation for "${docType.title}" will open the creation wizard. This is a demo showcasing the new dashboard layout.`);
+                      setActiveDocumentWizard(docType.id);
                       setShowDocumentTypes(false);
                     }}
                     className="group bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 rounded-xl p-6 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 text-left"
@@ -708,6 +711,40 @@ const SimpleDemoShowcase = () => {
       >
         <span className="text-xl font-bold group-hover:scale-110 transition-transform">?</span>
       </button>
+
+      {/* Document Creation Wizard Modal */}
+      {activeDocumentWizard && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto my-4">
+            <div className="sticky top-0 z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Create Your Document
+              </h2>
+              <button
+                onClick={() => setActiveDocumentWizard(null)}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
+                aria-label="Close wizard"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="p-6">
+              <EnhancedDocumentWizard
+                documentType={activeDocumentWizard}
+                onComplete={(documentData) => {
+                  console.log('Document created:', documentData);
+                  setActiveDocumentWizard(null);
+                  // Show success message
+                  alert('Document created successfully! In production, this would generate a PDF and save to your account.');
+                }}
+                onCancel={() => {
+                  setActiveDocumentWizard(null);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
