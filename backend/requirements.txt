@@ -41,6 +41,11 @@ python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.0
 bcrypt>=4.0.0
 
+# Email & Payment Processing
+sendgrid>=6.11.0
+stripe>=7.0.0
+python-magic>=0.4.27
+
 # Development
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
