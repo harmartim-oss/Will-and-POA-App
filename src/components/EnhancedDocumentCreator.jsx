@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
   FileText, 
   User, 
@@ -17,7 +18,9 @@ import {
   Calendar,
   MapPin,
   Phone,
-  Mail
+  Mail,
+  Download,
+  Home
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -28,8 +31,14 @@ import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Separator } from './ui/separator';
+import { Switch } from './ui/switch';
+import { useToast } from '../hooks/use-toast';
 
-const EnhancedDocumentCreator = ({ documentType, onSave, onPreview }) => {
+const EnhancedDocumentCreator = () => {
+  const { type } = useParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const documentType = type;
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     // Personal Information
@@ -232,6 +241,244 @@ const EnhancedDocumentCreator = ({ documentType, onSave, onPreview }) => {
 
   const handlePrevious = () => {
     setCurrentStep(Math.max(currentStep - 1, 0));
+  };
+
+  const handleSaveDraft = () => {
+    try {
+      localStorage.setItem(`draft_${documentType}`, JSON.stringify(formData));
+      toast({
+        title: "Draft Saved",
+        description: "Your document draft has been saved successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save draft. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePreviewDocument = () => {
+    // Generate preview content
+    const previewContent = generateDocumentPreview(formData, documentType);
+    // Store in sessionStorage for preview page
+    sessionStorage.setItem('documentPreview', JSON.stringify({
+      type: documentType,
+      content: previewContent,
+      data: formData
+    }));
+    toast({
+      title: "Preview Ready",
+      description: "Opening document preview...",
+    });
+    // Could navigate to preview page or show modal
+  };
+
+  const handleGenerateDocument = async () => {
+    try {
+      toast({
+        title: "Generating Document",
+        description: "Please wait while we create your document...",
+      });
+
+      // Generate document content
+      const documentContent = generateDocumentContent(formData, documentType);
+      
+      // Create downloadable file
+      await downloadDocument(documentContent, documentType, formData.fullName || 'Document');
+      
+      toast({
+        title: "Success!",
+        description: "Your document has been generated and downloaded.",
+      });
+    } catch (error) {
+      console.error('Error generating document:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate document. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const generateDocumentPreview = (data, type) => {
+    // Generate formatted preview text
+    return `
+      ${type === 'will' ? 'LAST WILL AND TESTAMENT' : 
+        type === 'poa_property' ? 'POWER OF ATTORNEY FOR PROPERTY' :
+        'POWER OF ATTORNEY FOR PERSONAL CARE'}
+      
+      This ${type === 'will' ? 'Will' : 'Power of Attorney'} is made on ${new Date().toLocaleDateString()}
+      
+      By: ${data.fullName || '[Your Name]'}
+      Address: ${data.address || '[Your Address]'}, ${data.city || '[City]'}, ${data.province || 'Ontario'}
+      Date of Birth: ${data.dateOfBirth || '[Date of Birth]'}
+      
+      ${generateSectionContent(data, type)}
+    `.trim();
+  };
+
+  const generateSectionContent = (data, type) => {
+    if (type === 'will') {
+      return `
+        EXECUTORS:
+        ${data.executors?.map((e, i) => `${i + 1}. ${e.name || '[Name]'} - ${e.relationship || '[Relationship]'}`).join('\n') || 'No executors specified'}
+        
+        BENEFICIARIES:
+        ${data.beneficiaries?.map((b, i) => `${i + 1}. ${b.name || '[Name]'} - ${b.share || '[Share]'}`).join('\n') || 'No beneficiaries specified'}
+        
+        WITNESSES:
+        ${data.witnesses?.map((w, i) => `${i + 1}. ${w.name || '[Name]'}`).join('\n') || 'Witnesses to be added at signing'}
+      `;
+    } else if (type === 'poa_property') {
+      return `
+        ATTORNEYS FOR PROPERTY:
+        ${data.attorneys?.map((a, i) => `${i + 1}. ${a.name || '[Name]'} - ${a.relationship || '[Relationship]'}`).join('\n') || 'No attorneys specified'}
+        
+        This Power of Attorney is ${data.isContinuing ? 'CONTINUING' : 'NON-CONTINUING'}.
+        
+        POWERS GRANTED:
+        - Financial management
+        - Property decisions
+        - Banking authority
+        ${data.specialInstructions?.length ? '\n\nSPECIAL INSTRUCTIONS:\n' + data.specialInstructions.join('\n') : ''}
+      `;
+    } else {
+      return `
+        ATTORNEYS FOR PERSONAL CARE:
+        ${data.attorneys?.map((a, i) => `${i + 1}. ${a.name || '[Name]'} - ${a.relationship || '[Relationship]'}`).join('\n') || 'No attorneys specified'}
+        
+        POWERS GRANTED:
+        - Healthcare decisions
+        - Personal care choices
+        - Medical treatment consent
+        ${data.specialInstructions?.length ? '\n\nSPECIAL INSTRUCTIONS:\n' + data.specialInstructions.join('\n') : ''}
+      `;
+    }
+  };
+
+  const generateDocumentContent = (data, type) => {
+    const docTitle = type === 'will' ? 'LAST WILL AND TESTAMENT' : 
+                     type === 'poa_property' ? 'CONTINUING POWER OF ATTORNEY FOR PROPERTY' :
+                     'POWER OF ATTORNEY FOR PERSONAL CARE';
+    
+    const content = `
+${docTitle}
+
+This document is made on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+
+GRANTOR INFORMATION:
+Name: ${data.fullName || '[Your Name]'}
+Address: ${data.address || '[Your Address]'}
+City: ${data.city || '[City]'}, ${data.province || 'Ontario'}
+Postal Code: ${data.postalCode || '[Postal Code]'}
+Date of Birth: ${data.dateOfBirth || '[Date of Birth]'}
+Phone: ${data.phone || '[Phone]'}
+Email: ${data.email || '[Email]'}
+
+${generateDetailedContent(data, type)}
+
+SIGNATURES:
+
+___________________________    ___________________________
+Grantor Signature              Date
+
+WITNESSES:
+
+___________________________    ___________________________
+Witness 1 Name                 Witness 1 Signature
+
+___________________________    ___________________________
+Witness 2 Name                 Witness 2 Signature
+
+This document complies with the laws of Ontario, Canada.
+Generated on ${new Date().toISOString()}
+    `.trim();
+    
+    return content;
+  };
+
+  const generateDetailedContent = (data, type) => {
+    if (type === 'will') {
+      return `
+ARTICLE 1 - REVOCATION
+I revoke all former wills and codicils.
+
+ARTICLE 2 - EXECUTORS
+I appoint the following person(s) as my Executor(s):
+${data.executors?.map((e, i) => `${i + 1}. ${e.name || '[Name]'}\n   Address: ${e.address || '[Address]'}\n   Relationship: ${e.relationship || '[Relationship]'}`).join('\n\n') || 'No executors specified'}
+
+ARTICLE 3 - BENEFICIARIES AND DISTRIBUTION
+I give, devise and bequeath my estate to the following beneficiaries:
+${data.beneficiaries?.map((b, i) => `${i + 1}. ${b.name || '[Name]'} - ${b.share || '[Share]'}%\n   Address: ${b.address || '[Address]'}\n   Relationship: ${b.relationship || '[Relationship]'}`).join('\n\n') || 'No beneficiaries specified'}
+
+ARTICLE 4 - RESIDUARY ESTATE
+Any remaining portion of my estate shall be distributed equally among the named beneficiaries.
+
+${data.specialInstructions?.length ? `ARTICLE 5 - SPECIAL INSTRUCTIONS\n${data.specialInstructions.join('\n')}` : ''}
+      `.trim();
+    } else if (type === 'poa_property') {
+      return `
+ARTICLE 1 - APPOINTMENT OF ATTORNEY(S)
+I appoint the following person(s) as my Attorney(s) for Property:
+${data.attorneys?.map((a, i) => `${i + 1}. ${a.name || '[Name]'}\n   Address: ${a.address || '[Address]'}\n   Relationship: ${a.relationship || '[Relationship]'}`).join('\n\n') || 'No attorneys specified'}
+
+ARTICLE 2 - AUTHORITY
+This Power of Attorney is ${data.isContinuing ? 'CONTINUING' : 'NON-CONTINUING'} and ${data.isContinuing ? 'shall continue' : 'shall not continue'} to be effective in the event of my mental incapacity.
+
+ARTICLE 3 - POWERS GRANTED
+My Attorney(s) shall have the authority to:
+- Manage my financial affairs
+- Make decisions regarding my property
+- Access my bank accounts and financial institutions
+- Make investment decisions on my behalf
+- Pay bills and manage expenses
+- File tax returns
+- Manage real estate
+${data.specialInstructions?.length ? '\n\nARTICLE 4 - RESTRICTIONS AND SPECIAL INSTRUCTIONS\n' + data.specialInstructions.join('\n') : ''}
+      `.trim();
+    } else {
+      return `
+ARTICLE 1 - APPOINTMENT OF ATTORNEY(S)
+I appoint the following person(s) as my Attorney(s) for Personal Care:
+${data.attorneys?.map((a, i) => `${i + 1}. ${a.name || '[Name]'}\n   Address: ${a.address || '[Address]'}\n   Relationship: ${a.relationship || '[Relationship]'}`).join('\n\n') || 'No attorneys specified'}
+
+ARTICLE 2 - AUTHORITY
+My Attorney(s) shall have the authority to make decisions on my behalf regarding:
+- Healthcare and medical treatment
+- Nutrition and hydration
+- Shelter and accommodation
+- Clothing and personal care
+- Safety and supervision
+
+ARTICLE 3 - HEALTHCARE WISHES
+${data.healthcareWishes || 'I wish my Attorney(s) to make decisions in my best interests based on my values and beliefs.'}
+
+${data.specialInstructions?.length ? '\nARTICLE 4 - SPECIAL INSTRUCTIONS\n' + data.specialInstructions.join('\n') : ''}
+      `.trim();
+    }
+  };
+
+  const downloadDocument = async (content, type, name) => {
+    const docType = type === 'will' ? 'Will' : type === 'poa_property' ? 'POA-Property' : 'POA-PersonalCare';
+    const filename = `${docType}_${name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    // Also offer PDF download (in a real app, you'd use a PDF library)
+    toast({
+      title: "Document Downloaded",
+      description: `Your ${docType} has been downloaded as ${filename}. For PDF/Word format, please use a document conversion tool.`,
+    });
   };
 
   const handleInputChange = (field, value) => {
@@ -745,28 +992,43 @@ const EnhancedDocumentCreator = ({ documentType, onSave, onPreview }) => {
 
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-6">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => navigate('/')}
+              >
+                <Home className="w-4 h-4 mr-2" />
+                Home
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentStep === 0}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Previous
+              </Button>
+            </div>
             
             <div className="space-x-2">
-              <Button variant="outline" onClick={() => onSave?.(formData)}>
+              <Button variant="outline" onClick={handleSaveDraft}>
                 <Save className="w-4 h-4 mr-2" />
                 Save Draft
               </Button>
               
               {currentStep === steps.length - 1 ? (
-                <Button onClick={() => onPreview?.(formData)}>
-                  <Eye className="w-4 h-4 mr-2" />
-                  Preview Document
-                </Button>
+                <>
+                  <Button variant="outline" onClick={handlePreviewDocument}>
+                    <Eye className="w-4 h-4 mr-2" />
+                    Preview
+                  </Button>
+                  <Button onClick={handleGenerateDocument} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                    <Download className="w-4 h-4 mr-2" />
+                    Generate & Download
+                  </Button>
+                </>
               ) : (
-                <Button onClick={handleNext}>
+                <Button onClick={handleNext} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                   Next
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>

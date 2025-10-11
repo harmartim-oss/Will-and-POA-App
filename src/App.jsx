@@ -1,10 +1,11 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import { ThemeProvider } from './components/ThemeContext'
 import ErrorBoundary from './components/ErrorBoundary'
-import Navigation from './components/Navigation'
-import Footer from './components/Footer'
-import SimpleDemoShowcase from './components/SimpleDemoShowcase'
+import LandingPage from './components/LandingPage'
+import EnhancedDocumentCreator from './components/EnhancedDocumentCreator'
+import DocumentPreview from './components/DocumentPreview'
 import { config } from './config/environment'
+import { Toaster } from './components/ui/toaster'
 
 function App() {
   // Enhanced logging for debugging (only in development)
@@ -26,22 +27,21 @@ function App() {
         <Router basename={config.githubPages.basePath}>
           <div className="min-h-screen">
             <a href="#main" className="skip-link">Skip to main content</a>
-            <Navigation />
             <main 
               id="main" 
               role="main" 
-              className="pt-16 lg:pt-0 focus:outline-none"
+              className="focus:outline-none"
             >
               <ErrorBoundary>
                 <Routes>
-                  <Route path="/" element={<SimpleDemoShowcase />} />
-                  <Route path="/about" element={<SimpleDemoShowcase />} />
-                  <Route path="/contact" element={<SimpleDemoShowcase />} />
-                  <Route path="*" element={<SimpleDemoShowcase />} />
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/create/:type" element={<EnhancedDocumentCreator />} />
+                  <Route path="/preview/:id" element={<DocumentPreview />} />
+                  <Route path="*" element={<LandingPage />} />
                 </Routes>
               </ErrorBoundary>
             </main>
-            <Footer />
+            <Toaster />
           </div>
         </Router>
       </ThemeProvider>
