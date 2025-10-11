@@ -29,6 +29,8 @@ import { Badge } from '../ui/badge';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Progress } from '../ui/progress';
 import { Separator } from '../ui/separator';
+import { ProgressIndicator, ProgressBar } from '../ui/progress-indicator';
+import EnhancedLoading from '../ui/enhanced-loading';
 import { apiCall, API_ENDPOINTS } from '../utils/apiConfig';
 
 const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
@@ -653,13 +655,12 @@ const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
           </div>
           
           {/* Progress Bar */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>Progress</span>
-              <span>{Math.round(progress)}% Complete</span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
+          <ProgressBar 
+            value={progress} 
+            label="Progress"
+            showPercentage={true}
+            color="blue"
+          />
         </div>
 
         <div className="grid lg:grid-cols-4 gap-8">
@@ -669,43 +670,13 @@ const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
               <CardHeader>
                 <CardTitle className="text-lg">Document Steps</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                {config.steps.map((step, index) => (
-                  <div
-                    key={step.id}
-                    className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
-                      index === currentStep
-                        ? 'bg-blue-50 border-2 border-blue-200'
-                        : index < currentStep
-                        ? 'bg-green-50 border border-green-200'
-                        : 'bg-gray-50 border border-gray-200'
-                    }`}
-                  >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                      index === currentStep
-                        ? 'bg-blue-500 text-white'
-                        : index < currentStep
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-300 text-gray-600'
-                    }`}>
-                      {index < currentStep ? (
-                        <CheckCircle className="h-4 w-4" />
-                      ) : (
-                        index + 1
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium truncate ${
-                        index === currentStep ? 'text-blue-900' : 'text-gray-900'
-                      }`}>
-                        {step.title}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {step.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+              <CardContent>
+                <ProgressIndicator 
+                  steps={config.steps}
+                  currentStep={currentStep}
+                  orientation="vertical"
+                  showLabels={true}
+                />
               </CardContent>
             </Card>
           </div>
@@ -779,15 +750,12 @@ const EnhancedDocumentWizard = ({ documentType, onComplete, onCancel }) => {
                 </CardHeader>
                 <CardContent>
                   {isAnalyzing ? (
-                    <div className="flex items-center space-x-2 text-gray-600">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      >
-                        <Sparkles className="h-4 w-4" />
-                      </motion.div>
-                      <span className="text-sm">Analyzing your input...</span>
-                    </div>
+                    <EnhancedLoading 
+                      message="Analyzing your input..."
+                      submessage="Checking legal compliance"
+                      type="ai"
+                      size="small"
+                    />
                   ) : (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
