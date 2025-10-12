@@ -8,12 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './car
 import { Badge } from './badge';
 import { HelpCircle, Lightbulb, Info, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from './tooltip';
 
 /**
  * SmartSelect - An intelligent select component with help text and "Other" option
@@ -61,24 +55,16 @@ export const SmartSelect = ({
           {required && <span className="text-red-500">*</span>}
         </Label>
         {helpText && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  onClick={() => setShowHelp(!showHelp)}
-                  type="button"
-                >
-                  <HelpCircle className="h-4 w-4 text-blue-600" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Click for detailed help</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0"
+            onClick={() => setShowHelp(!showHelp)}
+            type="button"
+            title="Click for help"
+          >
+            <HelpCircle className="h-4 w-4 text-blue-600" />
+          </Button>
         )}
       </div>
 
