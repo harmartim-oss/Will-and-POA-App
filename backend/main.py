@@ -35,6 +35,10 @@ from api.routes.practice import router as practice_router
 from api.routes.lsuc_compliance import router as lsuc_router
 from api.routes.sole_practitioner import router as sole_practitioner_router
 from api.routes.integrated_ai import router as integrated_ai_router
+# Import new service routes
+from api.routes.storage import router as storage_router
+from api.routes.email import router as email_router
+from api.routes.payment import router as payment_router
 from database.connection import init_db
 from models.schemas import (
     DocumentRequest, DocumentResponse, 
@@ -224,6 +228,11 @@ app.include_router(sole_practitioner_router, tags=["sole-practitioner"])
 
 # Include integrated AI services
 app.include_router(integrated_ai_router, prefix="/api/integrated-ai", tags=["integrated-ai"])
+
+# Include new service routes
+app.include_router(storage_router, prefix="/api/storage", tags=["storage"])
+app.include_router(email_router, prefix="/api/email", tags=["email"])
+app.include_router(payment_router, prefix="/api/payment", tags=["payment"])
 
 # New enhanced AI endpoints
 @app.post("/api/analyze-document", response_model=DocumentAnalysisResponse)
