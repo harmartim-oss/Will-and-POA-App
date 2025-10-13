@@ -258,21 +258,21 @@
         }
       }, 1000);
       
-      // Show error message after 45 seconds if React hasn't loaded (increased for slower connections)
+      // Show error message after 15 seconds if React hasn't loaded
       reactLoadTimeout = setTimeout(function() {
         clearInterval(reactLoadCheckInterval);
         var loader = document.getElementById('initial-loader');
         if (loader && loader.parentNode && !isReactLoaded()) {
-          console.error('⚠️ React app did not load within 45 seconds');
+          console.error('⚠️ React app did not load within 15 seconds');
           console.error('Current URL:', window.location.href);
           console.error('Check network tab for failed resource loads');
           loader.innerHTML = `
             <div style="text-align: center;">
               <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
-              <h2 style="margin: 0 0 15px 0; color: #ff6b6b;">Loading Issue Detected</h2>
+              <h2 style="margin: 0 0 15px 0; color: #ff6b6b;">Loading Taking Longer Than Expected</h2>
               <p style="margin: 0 0 20px 0; opacity: 0.9;">
-                The application is taking longer than expected to load. 
-                This may be due to a slow connection, large assets, or a configuration issue.
+                The application hasn't loaded within 15 seconds. 
+                This may be due to a slow connection, browser cache issues, or network problems.
               </p>
               <div style="margin: 0 0 20px 0; font-size: 14px; opacity: 0.8;">
                 <strong>Troubleshooting steps:</strong><br/>
@@ -296,7 +296,7 @@
             </div>
           `;
         }
-      }, 45000);
+      }, 15000);
       
       // Remove loader once React takes over
       window.removeInitialLoader = function() {
