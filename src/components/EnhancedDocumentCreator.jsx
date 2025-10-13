@@ -20,7 +20,9 @@ import {
   Phone,
   Mail,
   Download,
-  Home
+  Home,
+  Brain,
+  Info
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -32,7 +34,22 @@ import { Progress } from './ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Separator } from './ui/separator';
 import { Switch } from './ui/switch';
+import { Alert, AlertDescription } from './ui/alert';
 import { useToast } from '../hooks/use-toast';
+import { SmartSelect, SmartTextarea } from './ui/smart-select';
+import {
+  executorOptions,
+  beneficiaryRelationships,
+  distributionOptions,
+  assetCategories,
+  specificBequestTemplates,
+  poaPropertyPowers,
+  poaCarePowers,
+  poaTypeOptions,
+  poaEffectiveDate,
+  guardianshipOptions,
+  helpTexts
+} from '../data/ontarioWillPrecedents';
 
 const EnhancedDocumentCreator = () => {
   const { type } = useParams();
@@ -714,55 +731,189 @@ ${data.specialInstructions?.length ? '\nARTICLE 4 - SPECIAL INSTRUCTIONS\n' + da
       case 'executors':
         return (
           <div className="space-y-6">
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-blue-900 mb-2">About Executors</h4>
-              <p className="text-blue-800 text-sm">
-                Executors are responsible for managing your estate after you pass away. They will handle tasks like 
-                paying debts, distributing assets, and filing tax returns. Choose people you trust who are organized 
-                and capable of handling financial matters.
-              </p>
-            </div>
+            <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start space-x-3">
+                  <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-blue-900 mb-2">About Executors (Estate Trustees)</h4>
+                    <p className="text-blue-800 text-sm">
+                      Executors manage your estate after you pass away: gathering assets, paying debts, 
+                      filing taxes, and distributing to beneficiaries. Choose trustworthy, organized people 
+                      who can handle financial matters.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             
             {formData.executors.map((executor, index) => (
-              <Card key={index}>
+              <Card key={index} className="border-2 border-gray-200">
                 <CardHeader>
                   <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg">Executor {index + 1}</CardTitle>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeListItem('executors', index)}
-                    >
-                      Remove
-                    </Button>
+                    <div className="flex items-center space-x-2">
+                      <Shield className="h-5 w-5 text-blue-600" />
+                      <CardTitle className="text-lg">
+                        {index === 0 ? 'Primary' : 'Alternate'} Executor {index > 0 ? index : ''}
+                      </CardTitle>
+                    </div>
+                    {formData.executors.length > 1 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeListItem('executors', index)}
+                      >
+                        Remove
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <PersonForm
-                    person={executor}
-                    onChange={(updatedExecutor) => {
+                <CardContent className="space-y-4">
+                  <SmartSelect
+                    label="Relationship to You"
+                    value={executor.relationshipType || ''}
+                    onChange={(value) => {
                       const newExecutors = [...formData.executors];
-                      newExecutors[index] = updatedExecutor;
+                      newExecutors[index] = { ...executor, relationshipType: value };
                       handleInputChange('executors', newExecutors);
                     }}
+                    options={executorOptions}
+                    placeholder="Select relationship type"
+                    helpText={helpTexts.executor}
+                    required
+                    description="Select how this person relates to you"
                   />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor={`executor-name-${index}`}>Full Legal Name *</Label>
+                      <Input
+                        id={`executor-name-${index}`}
+                        value={executor.name || ''}
+                        onChange={(e) => {
+                          const newExecutors = [...formData.executors];
+                          newExecutors[index] = { ...executor, name: e.target.value };
+                          handleInputChange('executors', newExecutors);
+                        }}
+                        placeholder="Enter full legal name"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor={`executor-phone-${index}`}>Phone Number</Label>
+                      <Input
+                        id={`executor-phone-${index}`}
+                        value={executor.phone || ''}
+                        onChange={(e) => {
+                          const newExecutors = [...formData.executors];
+                          newExecutors[index] = { ...executor, phone: e.target.value };
+                          handleInputChange('executors', newExecutors);
+                        }}
+                        placeholder="(555) 123-4567"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor={`executor-address-${index}`}>Address</Label>
+                    <Input
+                      id={`executor-address-${index}`}
+                      value={executor.address || ''}
+                      onChange={(e) => {
+                        const newExecutors = [...formData.executors];
+                        newExecutors[index] = { ...executor, address: e.target.value };
+                        handleInputChange('executors', newExecutors);
+                      }}
+                      placeholder="Street address"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor={`executor-city-${index}`}>City</Label>
+                      <Input
+                        id={`executor-city-${index}`}
+                        value={executor.city || ''}
+                        onChange={(e) => {
+                          const newExecutors = [...formData.executors];
+                          newExecutors[index] = { ...executor, city: e.target.value };
+                          handleInputChange('executors', newExecutors);
+                        }}
+                        placeholder="City"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`executor-province-${index}`}>Province</Label>
+                      <Input
+                        id={`executor-province-${index}`}
+                        value={executor.province || 'Ontario'}
+                        onChange={(e) => {
+                          const newExecutors = [...formData.executors];
+                          newExecutors[index] = { ...executor, province: e.target.value };
+                          handleInputChange('executors', newExecutors);
+                        }}
+                        placeholder="Province"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`executor-postal-${index}`}>Postal Code</Label>
+                      <Input
+                        id={`executor-postal-${index}`}
+                        value={executor.postalCode || ''}
+                        onChange={(e) => {
+                          const newExecutors = [...formData.executors];
+                          newExecutors[index] = { ...executor, postalCode: e.target.value };
+                          handleInputChange('executors', newExecutors);
+                        }}
+                        placeholder="A1A 1A1"
+                      />
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}
             
             <Button
-              onClick={() => addListItem('executors', { name: '', relationship: '', address: '', city: '', province: 'Ontario', phone: '' })}
+              onClick={() => addListItem('executors', { 
+                name: '', 
+                relationshipType: '', 
+                address: '', 
+                city: '', 
+                province: 'Ontario', 
+                phone: '',
+                postalCode: ''
+              })}
               variant="outline"
-              className="w-full"
+              className="w-full border-2 border-dashed border-blue-300 hover:border-blue-500 hover:bg-blue-50"
             >
-              Add Executor
+              <Users className="h-4 w-4 mr-2" />
+              Add {formData.executors.length > 0 ? 'Alternate' : ''} Executor
             </Button>
             
+            <Card className="bg-yellow-50 border-yellow-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start space-x-3">
+                  <Lightbulb className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h5 className="font-semibold text-yellow-900 mb-2">Pro Tip</h5>
+                    <p className="text-yellow-800 text-sm">
+                      It's recommended to name at least one alternate executor in case your primary executor 
+                      cannot or will not serve. Consider someone who lives in Ontario to simplify the probate process.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
             {validationErrors.executors && (
-              <Alert>
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>{validationErrors.executors}</AlertDescription>
-              </Alert>
+              <Card className="border-red-200 bg-red-50">
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-2">
+                    <AlertTriangle className="h-4 w-4 text-red-600" />
+                    <p className="text-red-800 text-sm">{validationErrors.executors}</p>
+                  </div>
+                </CardContent>
+              </Card>
             )}
           </div>
         );
@@ -770,53 +921,113 @@ ${data.specialInstructions?.length ? '\nARTICLE 4 - SPECIAL INSTRUCTIONS\n' + da
       case 'beneficiaries':
         return (
           <div className="space-y-6">
-            <div className="bg-green-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-green-900 mb-2">About Beneficiaries</h4>
-              <p className="text-green-800 text-sm">
-                Beneficiaries are the people or organizations who will inherit your assets. You can specify 
-                what each beneficiary will receive, or leave it to your executor to distribute according 
-                to your general wishes.
-              </p>
-            </div>
+            <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start space-x-3">
+                  <Info className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-green-900 mb-2">About Beneficiaries</h4>
+                    <p className="text-green-800 text-sm">
+                      Beneficiaries are the people or organizations who will inherit your assets. You can specify 
+                      exactly what each beneficiary receives, or use percentage distributions for your entire estate.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <SmartSelect
+              label="Distribution Method"
+              value={formData.distributionMethod || ''}
+              onChange={(value) => handleInputChange('distributionMethod', value)}
+              options={distributionOptions}
+              placeholder="Choose how to distribute your estate"
+              helpText={helpTexts.distribution}
+              required
+              description="Select the method for distributing your assets"
+            />
             
             {formData.beneficiaries.map((beneficiary, index) => (
-              <Card key={index}>
+              <Card key={index} className="border-2 border-gray-200">
                 <CardHeader>
                   <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg">Beneficiary {index + 1}</CardTitle>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeListItem('beneficiaries', index)}
-                    >
-                      Remove
-                    </Button>
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      <CardTitle className="text-lg">Beneficiary {index + 1}</CardTitle>
+                    </div>
+                    {formData.beneficiaries.length > 1 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeListItem('beneficiaries', index)}
+                      >
+                        Remove
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <PersonForm
-                    person={beneficiary}
-                    onChange={(updatedBeneficiary) => {
+                  <SmartSelect
+                    label="Relationship to You"
+                    value={beneficiary.relationshipType || ''}
+                    onChange={(value) => {
                       const newBeneficiaries = [...formData.beneficiaries];
-                      newBeneficiaries[index] = updatedBeneficiary;
+                      newBeneficiaries[index] = { ...beneficiary, relationshipType: value };
                       handleInputChange('beneficiaries', newBeneficiaries);
                     }}
+                    options={beneficiaryRelationships}
+                    placeholder="Select relationship"
+                    helpText={helpTexts.beneficiary}
+                    required
                   />
                   
-                  <div>
-                    <Label htmlFor={`inheritance-${index}`}>Inheritance Details</Label>
-                    <Textarea
-                      id={`inheritance-${index}`}
-                      value={beneficiary.inheritance || ''}
-                      onChange={(e) => {
-                        const newBeneficiaries = [...formData.beneficiaries];
-                        newBeneficiaries[index] = { ...beneficiary, inheritance: e.target.value };
-                        handleInputChange('beneficiaries', newBeneficiaries);
-                      }}
-                      placeholder="Describe what this beneficiary will inherit (e.g., '50% of residual estate', 'Family home', 'All jewelry')"
-                      rows={3}
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor={`beneficiary-name-${index}`}>Full Legal Name *</Label>
+                      <Input
+                        id={`beneficiary-name-${index}`}
+                        value={beneficiary.name || ''}
+                        onChange={(e) => {
+                          const newBeneficiaries = [...formData.beneficiaries];
+                          newBeneficiaries[index] = { ...beneficiary, name: e.target.value };
+                          handleInputChange('beneficiaries', newBeneficiaries);
+                        }}
+                        placeholder="Enter full legal name"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor={`beneficiary-share-${index}`}>Share/Percentage</Label>
+                      <Input
+                        id={`beneficiary-share-${index}`}
+                        value={beneficiary.share || ''}
+                        onChange={(e) => {
+                          const newBeneficiaries = [...formData.beneficiaries];
+                          newBeneficiaries[index] = { ...beneficiary, share: e.target.value };
+                          handleInputChange('beneficiaries', newBeneficiaries);
+                        }}
+                        placeholder="e.g., 50% or Equal share"
+                      />
+                    </div>
                   </div>
+                  
+                  <SmartTextarea
+                    label="Specific Inheritance Instructions"
+                    value={beneficiary.inheritance || ''}
+                    onChange={(value) => {
+                      const newBeneficiaries = [...formData.beneficiaries];
+                      newBeneficiaries[index] = { ...beneficiary, inheritance: value };
+                      handleInputChange('beneficiaries', newBeneficiaries);
+                    }}
+                    placeholder="Describe what this beneficiary will inherit (e.g., specific items, property, percentage of estate)"
+                    suggestions={specificBequestTemplates}
+                    maxLength={500}
+                    rows={3}
+                    helpText={{
+                      title: 'Inheritance Instructions',
+                      content: 'Be specific about what this beneficiary should receive. You can specify dollar amounts, percentages, specific items, or property.'
+                    }}
+                  />
                 </CardContent>
               </Card>
             ))}
@@ -824,44 +1035,227 @@ ${data.specialInstructions?.length ? '\nARTICLE 4 - SPECIAL INSTRUCTIONS\n' + da
             <Button
               onClick={() => addListItem('beneficiaries', { 
                 name: '', 
-                relationship: '', 
+                relationshipType: '', 
                 address: '', 
                 city: '', 
                 province: 'Ontario', 
                 phone: '',
-                inheritance: ''
+                inheritance: '',
+                share: ''
               })}
               variant="outline"
-              className="w-full"
+              className="w-full border-2 border-dashed border-green-300 hover:border-green-500 hover:bg-green-50"
             >
+              <Users className="h-4 w-4 mr-2" />
               Add Beneficiary
             </Button>
             
+            <Card className="bg-yellow-50 border-yellow-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start space-x-3">
+                  <Brain className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h5 className="font-semibold text-yellow-900 mb-2">AI Suggestion</h5>
+                    <p className="text-yellow-800 text-sm mb-2">
+                      Consider adding contingent beneficiaries (backups) in case a primary beneficiary predeceases you. 
+                      For example: "If [primary beneficiary] predeceases me, their share goes to [contingent beneficiary]."
+                    </p>
+                    <p className="text-yellow-800 text-sm">
+                      Also consider "per stirpes" distribution if you have children - this ensures that if a child predeceases you, 
+                      their share goes to their own children (your grandchildren).
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
             {validationErrors.beneficiaries && (
-              <Alert>
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>{validationErrors.beneficiaries}</AlertDescription>
-              </Alert>
+              <Card className="border-red-200 bg-red-50">
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-2">
+                    <AlertTriangle className="h-4 w-4 text-red-600" />
+                    <p className="text-red-800 text-sm">{validationErrors.beneficiaries}</p>
+                  </div>
+                </CardContent>
+              </Card>
             )}
+          </div>
+        );
+      
+      case 'assets':
+        return (
+          <div className="space-y-6">
+            <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start space-x-3">
+                  <Info className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-purple-900 mb-2">About Your Assets</h4>
+                    <p className="text-purple-800 text-sm">
+                      List your major assets to help your executor understand your estate. This is optional but 
+                      highly recommended. Include real estate, bank accounts, investments, business interests, and 
+                      significant personal property.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {formData.assets && formData.assets.map((asset, index) => (
+              <Card key={index} className="border-2 border-gray-200">
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <Building className="h-5 w-5 text-purple-600" />
+                      <CardTitle className="text-lg">Asset {index + 1}</CardTitle>
+                    </div>
+                    {formData.assets.length > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeListItem('assets', index)}
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <SmartSelect
+                    label="Asset Category"
+                    value={asset.category || ''}
+                    onChange={(value) => {
+                      const newAssets = [...formData.assets];
+                      newAssets[index] = { ...asset, category: value };
+                      handleInputChange('assets', newAssets);
+                    }}
+                    options={assetCategories}
+                    placeholder="Select asset type"
+                    required
+                    description="What type of asset is this?"
+                  />
+                  
+                  <div>
+                    <Label htmlFor={`asset-description-${index}`}>Description *</Label>
+                    <Input
+                      id={`asset-description-${index}`}
+                      value={asset.description || ''}
+                      onChange={(e) => {
+                        const newAssets = [...formData.assets];
+                        newAssets[index] = { ...asset, description: e.target.value };
+                        handleInputChange('assets', newAssets);
+                      }}
+                      placeholder="e.g., Primary residence at 123 Main St, TD Bank savings account"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor={`asset-value-${index}`}>Estimated Value</Label>
+                      <Input
+                        id={`asset-value-${index}`}
+                        value={asset.value || ''}
+                        onChange={(e) => {
+                          const newAssets = [...formData.assets];
+                          newAssets[index] = { ...asset, value: e.target.value };
+                          handleInputChange('assets', newAssets);
+                        }}
+                        placeholder="$0.00 (optional)"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor={`asset-location-${index}`}>Location/Account Number</Label>
+                      <Input
+                        id={`asset-location-${index}`}
+                        value={asset.location || ''}
+                        onChange={(e) => {
+                          const newAssets = [...formData.assets];
+                          newAssets[index] = { ...asset, location: e.target.value };
+                          handleInputChange('assets', newAssets);
+                        }}
+                        placeholder="e.g., TD Bank branch, safety deposit box"
+                      />
+                    </div>
+                  </div>
+                  
+                  <SmartTextarea
+                    label="Additional Notes"
+                    value={asset.notes || ''}
+                    onChange={(value) => {
+                      const newAssets = [...formData.assets];
+                      newAssets[index] = { ...asset, notes: value };
+                      handleInputChange('assets', newAssets);
+                    }}
+                    placeholder="Any special instructions or information about this asset"
+                    rows={2}
+                    maxLength={300}
+                  />
+                </CardContent>
+              </Card>
+            ))}
+            
+            <Button
+              onClick={() => {
+                const newAssets = formData.assets || [];
+                addListItem('assets', { 
+                  category: '', 
+                  description: '', 
+                  value: '',
+                  location: '',
+                  notes: ''
+                });
+              }}
+              variant="outline"
+              className="w-full border-2 border-dashed border-purple-300 hover:border-purple-500 hover:bg-purple-50"
+            >
+              <Building className="h-4 w-4 mr-2" />
+              Add Asset
+            </Button>
+            
+            <Card className="bg-blue-50 border-blue-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start space-x-3">
+                  <Lightbulb className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h5 className="font-semibold text-blue-900 mb-2">Common Assets to Include</h5>
+                    <ul className="text-blue-800 text-sm space-y-1 ml-4 list-disc">
+                      <li>Real estate (home, cottage, rental properties)</li>
+                      <li>Bank accounts (savings, chequing, GICs)</li>
+                      <li>Investments (RRSPs, TFSAs, stocks, bonds)</li>
+                      <li>Life insurance policies</li>
+                      <li>Business interests</li>
+                      <li>Vehicles, jewelry, art, collections</li>
+                      <li>Digital assets (cryptocurrency, online accounts)</li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         );
       
       case 'witnesses':
         return (
           <div className="space-y-6">
-            <div className="bg-amber-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-amber-900 mb-2">Witness Requirements</h4>
-              <p className="text-amber-800 text-sm mb-2">
-                In Ontario, you need at least 2 witnesses to sign your will. Witnesses must:
-              </p>
-              <ul className="text-amber-800 text-sm space-y-1 ml-4">
-                <li>• Be at least 18 years old</li>
-                <li>• Be mentally capable</li>
-                <li>• Not be beneficiaries in your will</li>
-                <li>• Not be married to beneficiaries</li>
-                <li>• Sign in your presence and in each other's presence</li>
-              </ul>
-            </div>
+            <Card className="bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start space-x-3">
+                  <Info className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-amber-900 mb-2">Witness Requirements</h4>
+                    <p className="text-amber-800 text-sm mb-2">
+                      {helpTexts.witnesses.content}
+                    </p>
+                    <ul className="text-amber-800 text-sm space-y-1 ml-4 list-disc">
+                      {helpTexts.witnesses.tips.map((tip, idx) => (
+                        <li key={idx}>{tip}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             
             {formData.witnesses.map((witness, index) => (
               <Card key={index}>

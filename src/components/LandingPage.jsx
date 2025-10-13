@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { FileText, Shield, Heart, ArrowRight, CheckCircle, Scale, Users, Sparkles, Brain, Lock, Zap, BookOpen, Star, Award } from 'lucide-react'
+import { FileText, Shield, Heart, ArrowRight, CheckCircle, Scale, Users, Sparkles, Brain, Lock, Zap, BookOpen, Star, Award, HelpCircle, Lightbulb, Target, TrendingUp } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 const LandingPage = () => {
@@ -73,15 +73,33 @@ const LandingPage = () => {
     },
     {
       icon: Sparkles,
-      title: 'AI-Powered Suggestions', 
-      description: 'Get intelligent wording suggestions and legal guidance',
+      title: 'AI-Powered Guidance', 
+      description: 'Get intelligent suggestions and contextual help at every step',
       color: 'purple'
     },
     {
-      icon: Users,
-      title: 'Professional Formatting',
-      description: 'Documents formatted to professional legal standards',
+      icon: Lightbulb,
+      title: 'Smart Dropdowns',
+      description: 'Common responses based on Ontario precedents with custom options',
+      color: 'yellow'
+    },
+    {
+      icon: HelpCircle,
+      title: 'Interactive Help',
+      description: 'Explanatory guidance and tips throughout the document creation',
       color: 'green'
+    },
+    {
+      icon: Target,
+      title: 'Step-by-Step Process',
+      description: 'Guided workflow that makes complex legal documents simple',
+      color: 'red'
+    },
+    {
+      icon: TrendingUp,
+      title: 'Professional Results',
+      description: 'Documents formatted to professional legal standards',
+      color: 'indigo'
     }
   ]
 
@@ -196,8 +214,9 @@ const LandingPage = () => {
               animate={mounted ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.4, duration: 0.8 }}
             >
-              Generate professionally formatted wills and powers of attorney that comply with Ontario law. 
-              Our intelligent platform guides you through every step with expert legal assistance.
+              Create legally compliant wills and powers of attorney with our interactive platform. 
+              Smart dropdowns, AI-powered tips, and step-by-step guidance based on Ontario legal precedents 
+              make complex documents simple.
             </motion.p>
 
             <motion.div
@@ -254,6 +273,92 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* How It Works Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-blue-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <motion.h3 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4"
+            >
+              How Our Interactive Platform Works
+            </motion.h3>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-lg text-gray-600 max-w-3xl mx-auto"
+            >
+              Our intelligent system guides you through document creation with smart suggestions 
+              based on Ontario legal precedents and best practices
+            </motion.p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            {[
+              {
+                step: '1',
+                title: 'Smart Dropdowns',
+                description: 'Select from common options based on Ontario precedents, or choose "Other" to enter your custom response',
+                icon: Lightbulb,
+                color: 'blue'
+              },
+              {
+                step: '2',
+                title: 'AI-Powered Tips',
+                description: 'Get optional contextual guidance and explanations at each stage, powered by AI and legal expertise',
+                icon: Brain,
+                color: 'purple'
+              },
+              {
+                step: '3',
+                title: 'Interactive Help',
+                description: 'Access detailed explanations, examples, and best practices with a simple click on any section',
+                icon: HelpCircle,
+                color: 'green'
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={item.step}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.2, duration: 0.6 }}
+                className="relative"
+              >
+                <Card className="h-full border-2 border-gray-200 hover:border-blue-400 transition-all duration-300 hover:shadow-xl">
+                  <CardHeader>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${
+                        item.color === 'blue' ? 'from-blue-500 to-cyan-500' :
+                        item.color === 'purple' ? 'from-purple-500 to-pink-500' :
+                        'from-green-500 to-emerald-500'
+                      } flex items-center justify-center text-white font-bold text-xl`}>
+                        {item.step}
+                      </div>
+                      <item.icon className={`h-8 w-8 ${
+                        item.color === 'blue' ? 'text-blue-600' :
+                        item.color === 'purple' ? 'text-purple-600' :
+                        'text-green-600'
+                      }`} />
+                    </div>
+                    <CardTitle className="text-xl mb-2">{item.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-base leading-relaxed">
+                      {item.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section id="features" className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
@@ -264,7 +369,7 @@ const LandingPage = () => {
               viewport={{ once: true }}
               className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4"
             >
-              Why Choose Our Platform
+              Comprehensive Features
             </motion.h3>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -273,31 +378,43 @@ const LandingPage = () => {
               transition={{ delay: 0.2 }}
               className="text-lg text-gray-600"
             >
-              Professional legal documents with cutting-edge technology
+              Everything you need for professional legal documents
             </motion.p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-                whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                className="relative p-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 group"
-              >
-                <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${feature.color === 'blue' ? 'from-blue-500 to-cyan-500' : feature.color === 'purple' ? 'from-purple-500 to-pink-500' : 'from-green-500 to-emerald-500'} rounded-t-2xl`}></div>
-                <motion.div 
-                  className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-blue-100 to-purple-100 mb-4 group-hover:scale-110 transition-transform duration-300"
+            {features.map((feature, index) => {
+              const colorClasses = {
+                blue: { gradient: 'from-blue-500 to-cyan-500', bg: 'from-blue-100 to-cyan-100', icon: 'text-blue-600' },
+                purple: { gradient: 'from-purple-500 to-pink-500', bg: 'from-purple-100 to-pink-100', icon: 'text-purple-600' },
+                yellow: { gradient: 'from-yellow-500 to-orange-500', bg: 'from-yellow-100 to-orange-100', icon: 'text-yellow-600' },
+                green: { gradient: 'from-green-500 to-emerald-500', bg: 'from-green-100 to-emerald-100', icon: 'text-green-600' },
+                red: { gradient: 'from-red-500 to-pink-500', bg: 'from-red-100 to-pink-100', icon: 'text-red-600' },
+                indigo: { gradient: 'from-indigo-500 to-purple-500', bg: 'from-indigo-100 to-purple-100', icon: 'text-indigo-600' }
+              };
+              const colors = colorClasses[feature.color] || colorClasses.blue;
+              
+              return (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                  className="relative p-8 rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-md hover:shadow-xl border border-gray-100 transition-all duration-300 group"
                 >
-                  <feature.icon className="h-7 w-7 text-blue-600" />
+                  <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${colors.gradient} rounded-t-2xl`}></div>
+                  <motion.div 
+                    className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br ${colors.bg} mb-4 group-hover:scale-110 transition-transform duration-300`}
+                  >
+                    <feature.icon className={`h-7 w-7 ${colors.icon}`} />
+                  </motion.div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
                 </motion.div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-              </motion.div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
