@@ -6,6 +6,7 @@ import EnhancedDocumentCreator from './components/EnhancedDocumentCreator'
 import DocumentPreview from './components/DocumentPreview'
 import { config } from './config/environment'
 import { Toaster } from './components/ui/toaster'
+import PWAUpdatePrompt from './components/PWAUpdatePrompt'
 
 function App() {
   // Enhanced logging for debugging (only in development)
@@ -42,6 +43,7 @@ function App() {
               </ErrorBoundary>
             </main>
             <Toaster />
+            <PWAUpdatePrompt />
           </div>
         </Router>
       </ThemeProvider>
