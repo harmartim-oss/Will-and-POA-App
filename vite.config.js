@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 // https://vite.dev/config/
@@ -13,7 +14,121 @@ export default defineConfig(({ mode }) => {
         fastRefresh: !isProduction,
         jsxRuntime: 'automatic'
       }),
-      tailwindcss()
+      tailwindcss(),
+      VitePWA({
+        registerType: 'prompt',
+        includeAssets: ['favicon.svg', 'robots.txt'],
+        manifest: {
+          name: 'Ontario Wills & Power of Attorney Creator',
+          short_name: 'Ontario Wills',
+          description: 'Create legally compliant wills and power of attorney documents for Ontario. AI-powered platform with professional formatting and legal expertise.',
+          theme_color: '#667eea',
+          background_color: '#ffffff',
+          display: 'standalone',
+          scope: '/Will-and-POA-App/',
+          start_url: '/Will-and-POA-App/',
+          orientation: 'portrait-primary',
+          icons: [
+            {
+              src: '/Will-and-POA-App/pwa-64x64.png',
+              sizes: '64x64',
+              type: 'image/png'
+            },
+            {
+              src: '/Will-and-POA-App/pwa-192x192.png',
+              sizes: '192x192',
+              type: 'image/png'
+            },
+            {
+              src: '/Will-and-POA-App/pwa-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any'
+            },
+            {
+              src: '/Will-and-POA-App/maskable-icon-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable'
+            }
+          ],
+          categories: ['productivity', 'business', 'legal'],
+          screenshots: [
+            {
+              src: '/Will-and-POA-App/screenshot1.png',
+              sizes: '1280x720',
+              type: 'image/png',
+              label: 'Main application interface'
+            }
+          ]
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-cache',
+                expiration: {
+                  maxEntries: 10,
+                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'gstatic-fonts-cache',
+                expiration: {
+                  maxEntries: 10,
+                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            },
+            {
+              urlPattern: /\.(?:png|jpg|jpeg|svg|gif)$/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'images-cache',
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                }
+              }
+            },
+            {
+              urlPattern: /\/api\/.*/i,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'api-cache',
+                networkTimeoutSeconds: 10,
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 5 // 5 minutes
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            }
+          ],
+          cleanupOutdatedCaches: true,
+          skipWaiting: true,
+          clientsClaim: true
+        },
+        devOptions: {
+          enabled: false,
+          type: 'module'
+        }
+      })
     ],
     
     resolve: {

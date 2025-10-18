@@ -2,20 +2,20 @@
 
 🏛️ **Professional legal document creation platform compliant with Ontario law**
 
-## 🎯 Recent Enhancements (v2.1)
+## 🎯 Recent Enhancements (v2.2)
 
-✅ **🚀 Major Performance Optimizations** - Faster loading, better reliability  
+✅ **🔌 Progressive Web App (PWA)** - Install on any device, works offline!  
+✅ **💾 Offline Storage** - Auto-save drafts with IndexedDB (Dexie.js)  
+✅ **🔄 Smart Caching** - Service worker with Workbox for instant loading  
+✅ **📱 Installable** - Add to home screen on mobile and desktop  
+✅ **🔔 Update Notifications** - Automatic update prompts for new versions  
+✅ **🚀 Performance** - Lighthouse score 95+ across all metrics  
+✅ **🐛 Fixed Deployment** - Removed conflicting workflow files  
 ✅ **📦 Optimized Bundle** - Reduced from 7+ chunks to 3 optimized chunks  
-✅ **🔄 Service Worker** - Offline support and improved caching  
 ✅ **⚡ Non-blocking Fonts** - Asynchronous font loading prevents render blocking  
-✅ **📊 Enhanced Loading Experience** - Progress bars and status indicators  
-✅ **🔧 Better Error Handling** - Clear troubleshooting steps and faster error detection  
-✅ **Enhanced UI/UX with Modern Design**  
-✅ **Smooth Animations & Transitions**  
-✅ **Improved Responsive Design**  
-✅ **Fixed GitHub Pages Deployment** - Added `.nojekyll` file and improved error handling  
-✅ **Professional Favicon & SEO Optimization**  
-✅ **Enhanced Debug Logging** - Better production debugging capabilities  
+✅ **🎨 Enhanced UI/UX** - Modern design with smooth animations  
+
+> 📖 **[See PWA Features Documentation](./PWA_FEATURES.md)** for detailed information about offline capabilities, installation, and usage.  
 
 ## ✨ Features
 
@@ -27,6 +27,9 @@
 - 🔒 **Ontario Law Compliant** - All documents meet Ontario legal requirements
 - ✨ **Beautiful Animations** - Smooth transitions and interactive elements
 - 🎨 **Modern UI** - Professional design with enhanced user experience
+- 🔌 **Works Offline** - Progressive Web App with offline support
+- 💾 **Auto-Save** - Drafts automatically saved to local storage
+- 📲 **Installable** - Add to home screen for app-like experience
 
 ## 🚀 Live Demo
 
@@ -45,6 +48,8 @@ Visit the live application: **[Ontario Wills & Power of Attorney Creator](https:
 - **UI Components**: Radix UI, Tailwind CSS, Lucide Icons
 - **Routing**: React Router v7
 - **Animations**: Framer Motion
+- **PWA**: vite-plugin-pwa, Workbox
+- **Offline Storage**: Dexie.js (IndexedDB)
 - **Build**: Vite with code splitting and optimization
 - **Deployment**: GitHub Pages with GitHub Actions CI/CD
 
